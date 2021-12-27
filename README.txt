@@ -1,2 +1,2 @@
-This is a personal github page for Sol Roshan.
+This is a personal github page for Gunes.
 url: https://solroshan.github.io
