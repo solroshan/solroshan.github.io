@@ -1073,3 +1073,11 @@ input, select, textarea {
 		#header nav {
 			padding: 0 1em;
 		} }
+
+	/* Navbar Nav */
+
+		.navbar-nav {
+		  display: flex;
+		  justify-content: space-between;
+		  width: %100;
+		}
