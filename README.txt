@@ -1,2 +1,2 @@
-This is a personal github page for Gunes.
+This is my personal github page.
 url: https://solroshan.github.io
