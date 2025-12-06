@@ -18,12 +18,12 @@
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState } = React;
-    const { createRoot } = ReactDOM;
-    const { MemoryRouter, Routes, Route, Link } = ReactRouterDOM;
+    { useState } = React;
+    { createRoot } = ReactDOM;
+    { MemoryRouter, Routes, Route, Link } = ReactRouterDOM;
 
     // --- MOCKED DATA ---
-    const initialValves = [
+    initialValves = [
       { id: 1, name: 'V1', status: 'AÇIK',   program: 'Günlük, 06:00, 15 dk', mode: 'Manual', group: 'A' },
       { id: 2, name: 'V2', status: 'KAPALI', program: 'Günlük, 06:00, 15 dk', mode: 'Manual', group: 'A' },
       { id: 3, name: 'V3', status: 'AÇIK',   program: 'Günlük, 06:00, 15 dk', mode: 'Manual', group: 'A' },
@@ -33,7 +33,7 @@
     ];
 
     // --- SVG ICONS ---
-    const LogoIcon = () => (
+    LogoIcon = () => (
       <svg className="h-8 w-8 text-teal-400" fill="currentColor" viewBox="0 0 20 20">
         <path d="M10 2a1 1 0 00-1 1v1a1 1 0 002 0V3a1 1 0 00-1-1z"></path>
         <path d="M4 12a1 1 0 011 1v1a1 1 0 01-2 0v-1a1 1 0 011-1zM15 13a1 1 0 00-1-1h-1a1 1 0 000 2h1a1 1 0 001-1z"></path>
@@ -41,50 +41,50 @@
       </svg>
     );
 
-    const UserIcon = () => (
+    UserIcon = () => (
       <svg className="h-5 w-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
         <path clipRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" fillRule="evenodd"></path>
       </svg>
     );
 
-    const DropdownIcon = () => (
+    DropdownIcon = () => (
       <svg className="h-4 w-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
         <path clipRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" fillRule="evenodd"></path>
       </svg>
     );
 
-    const SearchIcon = () => (
+    SearchIcon = () => (
       <svg className="h-5 w-5 text-slate-500" fill="currentColor" viewBox="0 0 20 20">
         <path clipRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" fillRule="evenodd"></path>
       </svg>
     );
 
-    const FilterIcon = () => (
+    FilterIcon = () => (
       <svg className="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
         <path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z"></path>
       </svg>
     );
 
-    const CheckIcon = () => (
+    CheckIcon = () => (
       <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
         <path clipRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" fillRule="evenodd"></path>
       </svg>
     );
 
-    const CloseIcon = () => (
+    CloseIcon = () => (
       <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
         <path clipRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.697a1 1 0 010-1.414z" fillRule="evenodd"></path>
       </svg>
     );
 
-    const PauseIcon = () => (
+    PauseIcon = () => (
       <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
         <path clipRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 000-2H9V8a1 1 0 00-1-1z" fillRule="evenodd"></path>
       </svg>
     );
 
     // --- REUSABLE COMPONENTS ---
-    const MainHeader = () => (
+    MainHeader = () => (
       <header className="flex justify-between items-center mb-6">
         <div className="flex items-center space-x-2">
           <LogoIcon />
@@ -105,7 +105,7 @@
       </header>
     );
 
-    const MainFooter = () => (
+    MainFooter = () => (
       <footer className="text-center mt-8 text-sm text-slate-500">
         <nav className="flex justify-center space-x-6">
           <a className="hover:underline" href="#">Hakkımızda</a>
@@ -116,7 +116,7 @@
       </footer>
     );
 
-    const ToggleSwitch = ({ checked, onChange }) => (
+    ToggleSwitch = ({ checked, onChange }) => (
   <label className="relative inline-flex items-center cursor-pointer">
     <input
       type="checkbox"
@@ -135,8 +135,8 @@
   </label>
 );
 
-    const ValveCard = ({ valve, onToggle }) => {
-      const isChecked = valve.status === 'AÇIK';
+    ValveCard = ({ valve, onToggle }) => {
+      isChecked = valve.status === 'AÇIK';
       return (
         <div className="bg-slate-800 border border-slate-700 rounded-lg p-3 flex flex-col items-stretch space-y-2.5">
           <div className="w-full flex justify-between items-center">
@@ -168,34 +168,48 @@
 
     // --- SCREEN COMPONENTS ---
     const DashboardPage = () => {
-      const [valves, setValves] = useState(initialValves);
+  const [valves, setValves] = useState(initialValves);
+  const [activeSystemAction, setActiveSystemAction] = useState(null); 
+  // 'allOn' | 'allOff' | 'pause' | null
 
-      const handleToggleValve = (id) => {
-        setValves(prevValves =>
-          prevValves.map(valve =>
-            valve.id === id
-              ? { ...valve, status: valve.status === 'AÇIK' ? 'KAPALI' : 'AÇIK' }
-              : valve
-          )
-        );
-      };
+  const handleToggleValve = (id) => {
+    setValves(prevValves =>
+      prevValves.map(valve =>
+        valve.id === id
+          ? { ...valve, status: valve.status === 'AÇIK' ? 'KAPALI' : 'AÇIK' }
+          : valve
+      )
+    );
+  };
 
-      const handleAllOn = () => {
-        setValves(prevValves => prevValves.map(v => ({ ...v, status: 'AÇIK' })));
-      };
+  const handleAllOn = () => {
+    setValves(prevValves => prevValves.map(v => ({ ...v, status: 'AÇIK' })));
+    setActiveSystemAction('allOn');
+  };
 
-      const handleAllOff = () => {
-        setValves(prevValves => prevValves.map(v => ({ ...v, status: 'KAPALI' })));
-      };
+  const handleAllOff = () => {
+    setValves(prevValves => prevValves.map(v => ({ ...v, status: 'KAPALI' })));
+    setActiveSystemAction('allOff');
+  };
 
-      const handleGroupOn = (group) => {
-        setValves(prevValves => prevValves.map(v => v.group === group ? { ...v, status: 'AÇIK' } : v));
-      };
+  const handlePausePrograms = () => {
+    setActiveSystemAction('pause');
+  };
 
-      const handleGroupOff = (group) => {
-        setValves(prevValves => prevValves.map(v => v.group === group ? { ...v, status: 'KAPALI' } : v));
-      };
+  const handleGroupOn = (group) => {
+    setValves(prevValves =>
+      prevValves.map(v => v.group === group ? { ...v, status: 'AÇIK' } : v)
+    );
+  };
 
+  const handleGroupOff = (group) => {
+    setValves(prevValves =>
+      prevValves.map(v => v.group === group ? { ...v, status: 'KAPALI' } : v)
+    );
+  };
+
+  // ... buradan sonrası senin mevcut JSX’in (return kısmı) aynı kalacak
+};
       return (
         <div className="max-w-6xl mx-auto px-3 py-4 md:px-6 md:py-8">
           <MainHeader />
@@ -355,7 +369,7 @@
     };
 
     // --- MAIN APP ---
-    const App = () => (
+    App = () => (
       <MemoryRouter>
         <Routes>
           <Route path="/" element={<DashboardPage />} />
@@ -363,8 +377,8 @@
       </MemoryRouter>
     );
 
-    const container = document.getElementById('root');
-    const root = createRoot(container);
+    container = document.getElementById('root');
+    root = createRoot(container);
     root.render(<App />);
   </script>
 </body>
