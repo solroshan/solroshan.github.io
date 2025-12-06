@@ -135,8 +135,8 @@ const { MemoryRouter, Routes, Route, Link } = ReactRouterDOM;
   </label>
 );
 
-   const ValveCard = ({ valve, onToggle }) => {
-      isChecked = valve.status === 'AÇIK';
+  const ValveCard = ({ valve, onToggle }) => {
+  const isChecked = valve.status === 'AÇIK';
       return (
         <div className="bg-slate-800 border border-slate-700 rounded-lg p-3 flex flex-col items-stretch space-y-2.5">
           <div className="w-full flex justify-between items-center">
@@ -207,9 +207,6 @@ const { MemoryRouter, Routes, Route, Link } = ReactRouterDOM;
       prevValves.map(v => v.group === group ? { ...v, status: 'KAPALI' } : v)
     );
   };
-
-  // ... buradan sonrası senin mevcut JSX’in (return kısmı) aynı kalacak
-};
       return (
         <div className="max-w-6xl mx-auto px-3 py-4 md:px-6 md:py-8">
           <MainHeader />
@@ -367,7 +364,6 @@ const { MemoryRouter, Routes, Route, Link } = ReactRouterDOM;
         </div>
       );
     };
-
     // --- MAIN APP ---
    const App = () => (
       <MemoryRouter>
