@@ -41,8 +41,8 @@
     ];
 
     const initialPrograms = [
-      { id: 1, name: "Sabah Programı", time: "06:00", duration: 15, days: ["Pzt","Çar","Cum"], valves: ["A"], active: true, editing: false },
-      { id: 2, name: "Akşam Programı", time: "19:30", duration: 20, days: ["Sal","Per"], valves: ["B"], active: false, editing: false },
+      { id: 1, name: "Yaz Programı", time: "06:00", duration: 15, days: ["Pzt","Sal","Çar","Per","Cum","Cts","Paz"], valves: ["A","B"], active: true, editing: false },
+      { id: 2, name: "Kış Programı", time: "13:30", duration: 20, days: ["Pzt","Per"], valves: ["A","B"], active: false, editing: false },
     ];
 
     /* ---------------------------
@@ -147,8 +147,10 @@
             <h4 className="text-lg font-semibold text-slate-100 mb-2">{title}</h4>
             <p className="text-slate-300">{text}</p>
             <div className="flex justify-end gap-3 mt-4">
-              <button onClick={onCancel} className="px-3 py-2 rounded-lg bg-slate-700 hover:bg-slate-600">Vazgeç</button>
-              <button onClick={onConfirm} className="px-3 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white">Sil</button>
+              <button onClick={onCancel} className="px-3 py-2 rounded-lg bg-slate-700 hover:bg-slate-600">
+                Vazgeç</button>
+              <button onClick={onConfirm} className="px-3 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white">
+                Sil</button>
             </div>
           </div>
         </div>
@@ -226,7 +228,7 @@
                     onClick={createProgram}
                     className="flex items-center gap-2 bg-gradient-to-r from-teal-500 via-teal-600 to-cyan-600 px-4 py-2 rounded-xl btn-soft text-white font-semibold shadow"
                   >
-                    <PlusIcon /> Oluştur (Alanları doldur sonra)
+                    <PlusIcon /> Oluştur
                   </button>
                 </div>
               </div>
