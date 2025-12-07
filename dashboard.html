@@ -164,19 +164,18 @@ const { MemoryRouter, Routes, Route, Link } = ReactRouterDOM;
   const ValveCard = ({ valve, onToggle }) => {
   const isChecked = valve.status === 'AÇIK';
       return (
-        <div className="bg-slate-800 border border-slate-700 rounded-lg p-3 flex flex-col items-stretch space-y-2.5">
-          <div className="w-full flex justify-between items-center">
-            <h4 className="font-semibold text-slate-100 text-sm">{valve.name}</h4>
-<span
-  className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-md ${
-    isChecked
-      ? 'bg-teal-600/40 text-teal-200 border border-teal-400/60'
-      : 'bg-slate-700 text-slate-200 border border-slate-600'
-  }`}
->
-  {valve.status}
-</span>
-          </div>
+        <div className="w-full flex justify-between items-center">
+  <h4 className="font-semibold text-slate-100 text-sm">{valve.name}</h4>
+  <span
+    className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-md ${
+      isChecked
+        ? 'bg-teal-600/40 text-teal-200 border border-teal-400/60'
+        : 'bg-slate-700 text-slate-200 border border-slate-600'
+    }`}
+  >
+    {valve.status}
+  </span>
+</div>
           <ToggleSwitch checked={isChecked} onChange={() => onToggle(valve.id)} />
           <span className="text-[11px] font-medium text-slate-400">{valve.mode}</span>
           <div className="w-full bg-slate-800 border border-slate-700 rounded-md p-2.5">
