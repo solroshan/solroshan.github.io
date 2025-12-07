@@ -151,12 +151,10 @@ const { MemoryRouter, Routes, Route, Link } = ReactRouterDOM;
       className="sr-only peer"
     />
     <div
-      className="w-11 h-6 bg-slate-700 rounded-full
-                 peer peer-checked:after:translate-x-full peer-checked:after:border-white
-                 after:content-[''] after:absolute after:top-[3px] after:left-[3px]
-                 after:bg-slate-900 after:border-slate-500 after:border after:rounded-full
-                 after:h-4 after:w-4 after:transition-all
-                 peer-checked:bg-teal-500"
+      className="w-12 h-7 bg-slate-700/70 rounded-full transition peer peer-checked:bg-teal-500/80 relative
+           after:content-[''] after:absolute after:top-[4px] after:left-[4px]
+           after:w-5 after:h-5 after:bg-white after:rounded-full after:shadow after:transition-all
+           peer-checked:after:translate-x-5"
     ></div>
   </label>
 );
@@ -316,44 +314,52 @@ const { MemoryRouter, Routes, Route, Link } = ReactRouterDOM;
   </span>
   Programları Duraklat
 </button>
-             </div>
-                </section>
-                <section className="bg-slate-800 border border-slate-700 rounded-lg p-3 md:p-4">
-                  <h2 className="font-bold mb-4 text-slate-100">Aktif Program Özeti</h2>
-                  <div className="space-y-3">
-                    {valves.map(valve => (
-                      <div key={valve.id} className="flex justify-between items-center text-xs sm:text-sm gap-2">
-                        <div>
-                          <p className="font-semibold text-slate-100">{valve.name}</p>
-                          <p className="text-slate-400">{valve.program}</p>
-                        </div>
-                        <button className="text-[11px] font-semibold bg-slate-900 text-slate-300 px-2.5 py-1 rounded-md border border-slate-600 hover:bg-slate-800">
-                          Düzenle
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-                </div>
-                <section>
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-bold text-slate-100">Valf Kontrolü</h2>
-                    <button className="text-sm font-semibold bg-slate-800 text-slate-100 px-4 py-2 rounded-lg border border-slate-600 hover:bg-slate-700">
-                      Grupları Yönet
-                    </button>
-                  </div>
+      </div>
+    </section>
 
-                  <div className="bg-slate-800 border border-slate-700 rounded-lg p-3 md:p-4 mb-4 md:mb-6">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="font-bold text-slate-100">Havuz Grubu (Valfler 1-3)</h3>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <button
-  onClick={() => handleGroupOn('A')}
-  className="flex-1 bg-teal-600 text-white font-semibold py-2 px-3 rounded-md text-sm hover:bg-teal-500"
->
-  AÇIK
-</button>
+    <section className="bg-slate-800 border border-slate-700 rounded-lg p-3 md:p-4">
+      <h2 className="font-bold mb-4 text-slate-100">Aktif Program Özeti</h2>
+
+      <div className="space-y-3">
+        {valves.map((valve) => (
+          <div
+            key={valve.id}
+            className="flex justify-between items-center text-xs sm:text-sm gap-2"
+          >
+            <div>
+              <p className="font-semibold text-slate-100">{valve.name}</p>
+              <p className="text-slate-400">{valve.program}</p>
+            </div>
+
+            <button className="text-[11px] font-semibold bg-slate-900 text-slate-300 px-2.5 py-1 rounded-md border border-slate-600 hover:bg-slate-800">
+              Düzenle
+            </button>
+          </div>
+        ))}
+      </div>
+    </section>
+  </div>
+
+  <section>
+    <div className="flex justify-between items-center mb-4">
+      <h2 className="text-lg font-bold text-slate-100">Valf Kontrolü</h2>
+      <button className="text-sm font-semibold bg-slate-800 text-slate-100 px-4 py-2 rounded-lg border border-slate-600 hover:bg-slate-700">
+        Grupları Yönet
+      </button>
+    </div>
+
+    <div className="bg-slate-800 border border-slate-700 rounded-lg p-3 md:p-4 mb-4 md:mb-6">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="font-bold text-slate-100">Havuz Grubu (Valfler 1-3)</h3>
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <button
+          onClick={() => handleGroupOn("A")}
+          className="flex-1 bg-teal-600 text-white font-semibold py-2 px-3 rounded-md text-sm hover:bg-teal-500"
+        >
+          AÇIK
+        </button>
 <button
   onClick={() => handleGroupOff('A')}
   className="flex-1 bg-slate-600 text-white font-semibold py-2 px-3 rounded-md text-sm hover:bg-slate-500"
@@ -375,17 +381,17 @@ const { MemoryRouter, Routes, Route, Link } = ReactRouterDOM;
                     </div>
                     <div className="flex items-center space-x-2">
                       <button
-  onClick={() => handleGroupOn('B')}
-  className="flex-1 bg-teal-600 text-white font-semibold py-2 px-3 rounded-md text-sm hover:bg-teal-500"
->
-  AÇIK
-</button>
-<button
-  onClick={() => handleGroupOff('B')}
-  className="flex-1 bg-slate-600 text-white font-semibold py-2 px-3 rounded-md text-sm hover:bg-slate-500"
->
-  KAPALI
-</button>
+                        onClick={() => handleGroupOn('B')}
+                        className="flex-1 bg-teal-600 text-white font-semibold py-2 px-3 rounded-md text-sm hover:bg-teal-500"
+                      >
+                        AÇIK
+                      </button>
+                      <button
+                        onClick={() => handleGroupOff('B')}
+                        className="flex-1 bg-slate-600 text-white font-semibold py-2 px-3 rounded-md text-sm hover:bg-slate-500"
+                      >
+                        KAPALI
+                      </button>
                     </div>
                     <div className="flex justify-between items-center mt-4">
                       <h3 className="font-bold text-slate-100 invisible">Arka Bahçe Grubu (Valfler 4-6)</h3>
