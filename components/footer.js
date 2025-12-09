@@ -9,4 +9,5 @@ const Footer = () => (
     </nav>
   </footer>
 );
-export default Footer;
+
+window.Footer = Footer;
