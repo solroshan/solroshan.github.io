@@ -23,7 +23,7 @@ const NewProgramForm = ({ form, setForm, groups, daysOfWeek, onCreate, toggleGro
       />
     </div>
     <div className="mt-3">
-      <p className="text-slate-300 text-sm mb-2">Valf Grubu Seç (etiket / checkbox)</p>
+      <p className="text-slate-300 text-sm mb-2">Valf Grubu Seç</p>
       <div className="flex flex-wrap gap-2">
         {groups.map(g => {
           const active = form.valves.includes(g);
@@ -36,7 +36,7 @@ const NewProgramForm = ({ form, setForm, groups, daysOfWeek, onCreate, toggleGro
         })}
       </div>
       <div className="mt-4">
-        <p className="text-slate-300 text-sm mb-2">Gün Seçimi (etiket / checkbox)</p>
+        <p className="text-slate-300 text-sm mb-2">Gün Seçimi</p>
         <div className="flex flex-wrap gap-2">
           {daysOfWeek.map(day => {
             const active = form.days.includes(day);
@@ -59,4 +59,4 @@ const NewProgramForm = ({ form, setForm, groups, daysOfWeek, onCreate, toggleGro
   </section>
 );
 
-export default NewProgramForm;
+window.NewProgramForm = NewProgramForm;
