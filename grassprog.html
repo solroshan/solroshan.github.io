@@ -127,54 +127,43 @@
 
     const ProgramPage = () => {
       const [programs, setPrograms] = useState(initialPrograms);
-      const [form, setForm] = useState({ name: '', time: '', duration: '', valves: [] });
-      const [confirmDeleteId, setConfirmDeleteId] = useState(null);
-
-      const groups = useMemo(() => {
-        return Array.from(new Set(initialValves.map(v => v.group))).sort();
-      }, []);
-
+      const [form, setForm] = useState({ name: '', time: '', duration: '', days: [], valves: [] });
+      const [confirmDeleteId, setConfirmDeleteId] = useState(null)
+      const daysOfWeek = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cts", "Paz"];
+      const groups = useMemo(() => {return Array.from(new Set(initialValves.map(v => v.group))).sort();}, []);
       const createProgram = () => {
         if (!form.name || !form.time || !form.duration) return;
         const newProg = { id: Date.now(), ...form, active: true, editing: false };
         setPrograms(prev => [newProg, ...prev]);
-        setForm({ name: '', time: '', duration: '', valves: [] });
+        setForm({ name: '', time: '', duration: '', days:[], valves: [] });
       };
-
       const toggleActive = id => {
         setPrograms(prev => prev.map(p => p.id === id ? { ...p, active: !p.active } : p));
       };
-
       const toggleEdit = id => {
         setPrograms(prev => prev.map(p => p.id === id ? { ...p, editing: !p.editing } : p));
       };
-
       const saveEdit = id => {
         setPrograms(prev => prev.map(p => p.id === id ? { ...p, editing: false } : p));
       };
-
       const askDelete = id => setConfirmDeleteId(id);
       const cancelDelete = () => setConfirmDeleteId(null);
       const doDelete = () => {
         setPrograms(prev => prev.filter(p => p.id !== confirmDeleteId));
         setConfirmDeleteId(null);
       };
-
       const copyProgram = id => {
         const src = programs.find(p => p.id === id);
         if (!src) return;
         const copy = { ...src, id: Date.now(), name: `${src.name} (Kopya)` };
         setPrograms(prev => [copy, ...prev]);
       };
-
       const toggleGroupInForm = (group) => {
         setForm(prev => prev.valves.includes(group) ? { ...prev, valves: prev.valves.filter(g => g !== group) } : { ...prev, valves: [...prev.valves, group] });
       };
-
       const toggleGroupInProgram = (id, group) => {
         setPrograms(prev => prev.map(p => p.id === id ? { ...p, valves: p.valves.includes(group) ? p.valves.filter(g => g !== group) : [...p.valves, group] } : p));
       };
-
       return (
         <div className="max-w-6xl mx-auto px-3 py-4 md:px-6 md:py-8">
           <MainHeader />
@@ -191,7 +180,6 @@
                 />
               </div>
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
              <section className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 shadow-md border border-slate-700/40">
   <h2 className="font-bold mb-4 text-slate-100">Yeni Program Oluştur</h2>
@@ -239,7 +227,6 @@
     </div>
   </div>
 </section>
-
               <section className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 shadow-md border border-slate-700/40">
                 <h2 className="font-bold mb-4 text-slate-100">Program Listesi</h2>
                 <div className="space-y-3">
@@ -255,7 +242,6 @@
                 </div>
               </section>
             </div>
-
             <section className="space-y-4">
               {programs.map(p => (
                 <article key={p.id} className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 shadow border border-slate-700/40">
@@ -319,7 +305,6 @@
         </div>
       );
     };
-
     const root = createRoot(document.getElementById('root'));
     root.render(<ProgramPage />);
   </script>
