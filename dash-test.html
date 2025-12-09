@@ -19,22 +19,22 @@
   <div id="root"></div>
 
   <script type="text/babel">
-const { useState } = React;
-const { createRoot } = ReactDOM;
-const { MemoryRouter, Routes, Route, Link } = ReactRouterDOM;
+    const { useState } = React;
+    const { createRoot } = ReactDOM;
+    const { MemoryRouter, Routes, Route, Link } = ReactRouterDOM;
 
     // --- MOCKED DATA ---
-   const initialValves = [
-      { id: 1, name: 'V1', status: 'AÇIK',   program: 'Günlük, 06:00, 15 dk', mode: 'Manual', group: 'A' },
+    const initialValves = [
+      { id: 1, name: 'V1', status: 'AÇIK', program: 'Günlük, 06:00, 15 dk', mode: 'Manual', group: 'A' },
       { id: 2, name: 'V2', status: 'KAPALI', program: 'Günlük, 06:00, 15 dk', mode: 'Manual', group: 'A' },
-      { id: 3, name: 'V3', status: 'AÇIK',   program: 'Günlük, 06:00, 15 dk', mode: 'Manual', group: 'A' },
-      { id: 4, name: 'V4', status: 'KAPALI', program: 'Günlük, 05:15, 15 dk', mode: 'Auto',   group: 'B' },
-      { id: 5, name: 'V5', status: 'KAPALI', program: 'Günlük, 05:15, 15 dk', mode: 'Auto',   group: 'B' },
-      { id: 6, name: 'V6', status: 'KAPALI', program: 'Günlük, 05:15, 15 dk', mode: 'Auto',   group: 'B' },
+      { id: 3, name: 'V3', status: 'AÇIK', program: 'Günlük, 06:00, 15 dk', mode: 'Manual', group: 'A' },
+      { id: 4, name: 'V4', status: 'KAPALI', program: 'Günlük, 05:15, 15 dk', mode: 'Auto', group: 'B' },
+      { id: 5, name: 'V5', status: 'KAPALI', program: 'Günlük, 05:15, 15 dk', mode: 'Auto', group: 'B' },
+      { id: 6, name: 'V6', status: 'KAPALI', program: 'Günlük, 05:15, 15 dk', mode: 'Auto', group: 'B' },
     ];
 
     // --- SVG ICONS ---
-   const LogoIcon = () => (
+    const LogoIcon = () => (
       <svg
         className="h-8 w-8 text-amber-300"
         viewBox="0 0 24 24"
@@ -55,177 +55,65 @@ const { MemoryRouter, Routes, Route, Link } = ReactRouterDOM;
       </svg>
     );
 
-   const UserIcon = () => (
-      <svg className="h-5 w-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
-        <path clipRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" fillRule="evenodd"></path>
-      </svg>
+    const MainHeader = () => (
+      <header className="flex justify-between items-center mb-6">
+        <div className="flex items-center space-x-2">
+          <LogoIcon />
+          <h1 className="text-xl font-bold">GrassCare</h1>
+        </div>
+        <nav className="flex items-center justify-end gap-2 md:gap-3 text-sm font-medium">
+          <a href="https://solroshan.github.io/grassprog.html" className="px-3 py-2 text-slate-300 hover:text-teal-300">Anasayfa</a>
+          <a href="https://solroshan.github.io/dash-test.html" className="px-3 py-2 text-slate-300 hover:text-teal-300">Valfler</a>
+          <a href="https://solroshan.github.io/grassprog.html" className="px-3 py-2 text-slate-300 hover:text-teal-300">Program</a>
+          <a href="https://solroshan.github.io/grassprog.html" className="px-3 py-2 text-slate-300 hover:text-teal-300">
+            Hesabım
+          </a>
+        </nav>
+      </header>
     );
 
-   const DropdownIcon = () => (
-      <svg className="h-4 w-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
-        <path clipRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" fillRule="evenodd"></path>
-      </svg>
+    const MainFooter = () => (
+      <footer className="text-center mt-8 text-sm text-slate-500">
+        <nav className="flex justify-center space-x-6">
+          <a className="hover:underline" href="#">GrassCare Co.</a>
+          <a className="hover:underline" href="#">Yardım</a>
+          <a className="hover:underline" href="#">Şartlar</a>
+          <a className="hover:underline" href="#">Gizlilik Politikası</a>
+          <a className="hover:underline" href="#">Üyelik</a>
+        </nav>
+      </footer>
     );
 
-   const SearchIcon = () => (
-      <svg className="h-5 w-5 text-slate-500" fill="currentColor" viewBox="0 0 20 20">
-        <path clipRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" fillRule="evenodd"></path>
-      </svg>
+    const Dashboard = () => (
+      <div className="container mx-auto px-4 py-6">
+        <MainHeader />
+        <main className="bg-slate-900 rounded-2xl p-6">
+          <h2 className="text-2xl font-bold text-slate-100">Sistem Kontrolü</h2>
+          <div className="flex justify-between items-center mb-6">
+            <button className="px-4 py-2 bg-teal-500 text-white rounded-lg">Tüm Vanaları Aç</button>
+            <button className="px-4 py-2 bg-red-500 text-white rounded-lg">Tüm Vanaları Kapat</button>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {initialValves.map(valve => (
+              <div key={valve.id} className="bg-slate-800 p-4 rounded-xl">
+                <h3 className="font-semibold text-slate-100">{valve.name}</h3>
+                <p className="text-slate-400">{valve.program}</p>
+                <button className="text-teal-300 hover:text-teal-500">Düzenle</button>
+              </div>
+            ))}
+          </div>
+        </main>
+        <MainFooter />
+      </div>
     );
 
-   const FilterIcon = () => (
-      <svg className="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-        <path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z"></path>
-      </svg>
-    );
-
-   const CheckIcon = () => (
-      <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-        <path clipRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" fillRule="evenodd"></path>
-      </svg>
-    );
-
-   const CloseIcon = () => (
-      <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-        <path clipRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.697a1 1 0 010-1.414z" fillRule="evenodd"></path>
-      </svg>
-    );
-
-   // --- REACT COMPONENTS ---
-
-   const UserMenu = () => {
-      const [isOpen, setIsOpen] = useState(false);
-
-      const toggleMenu = () => {
-         setIsOpen(!isOpen);
-      };
-
-      return (
-         <div className="relative">
-            <button
-               onClick={toggleMenu}
-               className="flex items-center text-slate-200 hover:text-white px-4 py-2 text-sm font-semibold rounded-md"
-            >
-               <UserIcon />
-               <span>Mehmet</span>
-               <DropdownIcon />
-            </button>
-
-            {isOpen && (
-               <div className="absolute right-0 mt-2 bg-slate-800 rounded-md shadow-md w-40">
-                  <Link
-                     to="#"
-                     className="block px-4 py-2 text-sm text-slate-200 hover:bg-teal-500"
-                  >
-                     Profili Görüntüle
-                  </Link>
-                  <Link
-                     to="#"
-                     className="block px-4 py-2 text-sm text-slate-200 hover:bg-teal-500"
-                  >
-                     Çıkış Yap
-                  </Link>
-               </div>
-            )}
-         </div>
-      );
-   };
-
-   const ValveCard = ({ valve, handleClick }) => {
-      const [isChecked, setIsChecked] = useState(valve.status === 'AÇIK');
-
-      const toggleStatus = () => {
-         setIsChecked(!isChecked);
-         handleClick(valve.id);
-      };
-
-      return (
-         <div
-            className="flex justify-between items-center px-3 py-2 mb-2 bg-slate-800 rounded-lg border border-slate-700 hover:bg-slate-700"
-         >
-            <div className="flex justify-between items-center w-full">
-               <h4 className="font-semibold text-slate-100 text-sm">{valve.name}</h4>
-               <span
-                  className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-md ${
-                     isChecked
-                        ? 'bg-teal-600/40 text-teal-200 border border-teal-400/60'
-                        : 'bg-slate-700 text-slate-200 border border-slate-600'
-                  }`}
-               >
-                  {valve.status}
-               </span>
-            </div>
-            <button
-               onClick={toggleStatus}
-               className="text-teal-500 hover:text-teal-300"
-            >
-               <CheckIcon />
-            </button>
-         </div>
-      );
-   };
-
-   const Dashboard = () => {
-      const [activeSystemAction, setActiveSystemAction] = useState(null);
-
-      const handleAllOn = () => {
-         setActiveSystemAction('allOn');
-      };
-
-      const handleAllOff = () => {
-         setActiveSystemAction('allOff');
-      };
-
-      const handleValveClick = (id) => {
-         console.log(`Valve ${id} status toggled.`);
-      };
-
-      return (
-         <div className="container mx-auto px-4 py-6">
-            <div className="flex justify-between items-center mb-6">
-               <LogoIcon />
-               <UserMenu />
-            </div>
-            <div className="flex justify-between items-center">
-               <button
-                  onClick={handleAllOn}
-                  className={`w-full flex items-center justify-start text-left font-semibold px-3 py-2.5 rounded-md text-sm transition ${
-                     activeSystemAction === 'allOn'
-                        ? 'bg-teal-500 text-white shadow-[0_0_15px_rgba(45,212,191,0.8)]'
-                        : 'text-teal-200 bg-teal-700/30 hover:bg-teal-600/40'
-                  }`}
-               >
-                  <FilterIcon />
-                  Tüm Vanaları Aç
-               </button>
-               <button
-                  onClick={handleAllOff}
-                  className={`w-full flex items-center justify-start text-left font-semibold px-3 py-2.5 rounded-md text-sm transition ${
-                     activeSystemAction === 'allOff'
-                        ? 'bg-red-500 text-white shadow-[0_0_15px_rgba(255,77,77,0.8)]'
-                        : 'text-red-200 bg-red-700/30 hover:bg-red-600/40'
-                  }`}
-               >
-                  <CloseIcon />
-                  Tüm Vanaları Kapat
-               </button>
-            </div>
-            <div className="mt-6">
-               {initialValves.map((valve) => (
-                  <ValveCard key={valve.id} valve={valve} handleClick={handleValveClick} />
-               ))}
-            </div>
-         </div>
-      );
-   };
-
-   createRoot(document.getElementById('root')).render(
+    createRoot(document.getElementById('root')).render(
       <MemoryRouter>
-         <Routes>
-            <Route path="/" element={<Dashboard />} />
-         </Routes>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+        </Routes>
       </MemoryRouter>
-   );
+    );
   </script>
 </body>
 
