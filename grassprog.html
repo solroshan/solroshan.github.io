@@ -10,7 +10,6 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
   <style>
-    /* Sadece buton hover'larına hafif gölge ve zenginleştirilmiş efekt */
     .btn-soft {
       transition: box-shadow .18s, background .18s, color .18s;
     }
@@ -28,9 +27,6 @@
     const { useState, useMemo } = React;
     const { createRoot } = ReactDOM;
 
-    /* ---------------------------
-       Mock / initial data
-       --------------------------- */
     const initialValves = [
       { id: 1, name: 'V1', group: 'A' },
       { id: 2, name: 'V2', group: 'A' },
@@ -45,9 +41,6 @@
       { id: 2, name: "Kış Programı", time: "13:30", duration: 20, days: ["Pzt","Per"], valves: ["A","B"], active: false, editing: false },
     ];
 
-    /* ---------------------------
-       Icons
-       --------------------------- */
     const PlusIcon = () => (
       <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" /></svg>
     );
@@ -58,9 +51,6 @@
       <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path d="M4 3a2 2 0 012-2h6a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V3z"/><path d="M8 7a2 2 0 012-2h4a2 2 0 012 2v8a2 2 0 01-2 2h-4a2 2 0 01-2-2V7z"/></svg>
     );
 
-    /* ---------------------------
-       Shared UI: Header / Footer
-       --------------------------- */
     const LogoIcon = () => (
       <svg className="h-8 w-8 text-amber-300" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="12" cy="12" r="4" className="fill-amber-300" />
@@ -78,66 +68,45 @@
     );
 
     const MainHeader = () => (
-      <header className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-3">
+      <header className="flex justify-between items-center mb-6">
+        <div className="flex items-center space-x-2">
           <LogoIcon />
           <div>
             <h1 className="text-xl font-bold">GrassCare</h1>
             <p className="text-xs text-slate-400">Program Yönetimi</p>
           </div>
         </div>
-        <nav className="flex items-center gap-3 text-sm">
-          <a href="/dash-test.html" className="px-3 py-1 rounded text-slate-300 hover:text-teal-300">Anasayfa</a>
-          <a href="/dash-test.html" className="px-3 py-1 rounded text-slate-300 hover:text-teal-300">Valfler</a>
-          <a href="/grassprog.html" className="px-3 py-1 rounded bg-slate-800 text-teal-300">Program</a>
-          <a href="/dash-test.html" className="px-3 py-1 rounded text-slate-300 hover:text-teal-300">Hesabım</a>
+        <nav className="flex flex-wrap items-center justify-end gap-1.5 md:gap-3 text-[11px] sm:text-sm font-medium max-w-full">
+          <a href="/dash-test.html" className="px-2 py-1.5 text-slate-300 hover:text-teal-300">Anasayfa</a>
+          <a href="/dash-test.html" className="px-2 py-1.5 text-slate-300 hover:text-teal-300">Valfler</a>
+          <a href="/grassprog.html" className="px-2 py-1.5 text-slate-300 hover:text-teal-300">Program</a>
+          <a href="/dash-test.html" className="flex items-center px-3 py-1.5 text-slate-300 hover:text-teal-300">
+            <svg className="h-5 w-5 mr-1" fill="currentColor" viewBox="0 0 20 20"><path clipRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" fillRule="evenodd"></path></svg>
+            Hesabım
+          </a>
         </nav>
       </header>
     );
 
     const MainFooter = () => (
-      <footer className="mt-8 text-center text-slate-500 text-sm">
-        <div className="max-w-6xl mx-auto">© GrassCare</div>
+      <footer className="text-center mt-8 text-sm text-slate-500">
+        <nav className="flex justify-center space-x-6">
+          <a className="hover:underline" href="#">GrassCare Co.</a>
+          <a className="hover:underline" href="#">Yardım</a>
+          <a className="hover:underline" href="#">Şartlar</a>
+          <a className="hover:underline" href="#">Gizlilik Politikası</a>
+          <a className="hover:underline" href="#">Üyelik</a>
+        </nav>
       </footer>
     );
 
-    /* ---------------------------
-       ToggleSwitch (Apple-like)
-       --------------------------- */
-    // Apple-style ToggleSwitch
     const ToggleSwitch = ({ checked, onChange }) => (
-      <label className="relative inline-flex items-center cursor-pointer" style={{ minWidth: '48px', minHeight: '32px' }}>
-        <input
-          type="checkbox"
-          className="sr-only peer"
-          checked={checked}
-          onChange={onChange}
-        />
-        <span
-          className={`
-            w-12 h-7 rounded-full transition-colors duration-200
-            ${checked ? 'bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600' : 'bg-slate-700/70'}
-            block relative
-          `}
-        >
-          <span
-            className={`
-              absolute top-[3px] left-[3px] w-5 h-5 bg-white rounded-full shadow-md transition-all duration-200
-              ${checked ? 'translate-x-5' : ''}
-            `}
-            style={{
-              boxShadow: checked
-                ? '0 1.5px 8px 0 rgba(20,184,166,0.16)'
-                : '0 1.5px 8px 0 rgba(30,41,59,0.13)'
-            }}
-          />
-        </span>
+      <label className="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" checked={checked} onChange={onChange} className="sr-only peer" />
+        <div className="w-12 h-7 bg-slate-700/70 rounded-full transition peer peer-checked:bg-teal-500/80 relative after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:w-5 after:h-5 after:bg-white after:rounded-full after:shadow after:transition-all peer-checked:after:translate-x-5"></div>
       </label>
     );
 
-    /* ---------------------------
-       Confirm Modal
-       --------------------------- */
     const ConfirmModal = ({ open, title, text, onCancel, onConfirm }) => {
       if (!open) return null;
       return (
@@ -147,25 +116,19 @@
             <h4 className="text-lg font-semibold text-slate-100 mb-2">{title}</h4>
             <p className="text-slate-300">{text}</p>
             <div className="flex justify-end gap-3 mt-4">
-              <button onClick={onCancel} className="px-3 py-2 rounded-lg bg-slate-700 hover:bg-slate-600">
-                Vazgeç</button>
-              <button onClick={onConfirm} className="px-3 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white">
-                Sil</button>
+              <button onClick={onCancel} className="px-3 py-2 rounded-lg bg-slate-700 hover:bg-slate-600">Vazgeç</button>
+              <button onClick={onConfirm} className="px-3 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white">Sil</button>
             </div>
           </div>
         </div>
       );
     };
 
-    /* ---------------------------
-       ProgramPage
-       --------------------------- */
     const ProgramPage = () => {
       const [programs, setPrograms] = useState(initialPrograms);
       const [form, setForm] = useState({ name: '', time: '', duration: '', valves: [] });
       const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
-      // derive groups from valves
       const groups = useMemo(() => {
         return Array.from(new Set(initialValves.map(v => v.group))).sort();
       }, []);
@@ -212,99 +175,98 @@
       };
 
       return (
-        <div className="max-w-6xl mx-auto px-4 py-6">
+        <div className="max-w-6xl mx-auto px-3 py-4 md:px-6 md:py-8">
           <MainHeader />
-
-          <main className="bg-slate-900 rounded-2xl p-6 space-y-6">
-            {/* Sticky Başlık */}
-            <div className="sticky top-0 bg-slate-900/80 backdrop-blur-md py-2 z-10 rounded-2xl mb-1">
-              <div className="flex items-center justify-between gap-4 px-1">
-                <div>
-                  <h2 className="text-2xl font-bold text-slate-100">Programlar</h2>
-                  <p className="text-sm text-slate-400">Yeni program ekle, düzenle, kopyala veya sil.</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={createProgram}
-                    className="flex items-center gap-2 bg-gradient-to-r from-teal-500 via-teal-600 to-cyan-600 px-4 py-2 rounded-xl btn-soft text-white font-semibold shadow"
-                  >
-                    <PlusIcon /> Oluştur
-                  </button>
-                </div>
+          <main className="bg-slate-900 rounded-2xl p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 md:mb-6">
+              <div className="relative w-full sm:max-w-xs">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                  <svg className="h-5 w-5 text-slate-500" fill="currentColor" viewBox="0 0 20 20"><path clipRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" fillRule="evenodd"></path></svg>
+                </span>
+                <input
+                  className="w-full pl-10 pr-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-100 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  placeholder="Ara..."
+                  type="text"
+                />
               </div>
+              <button
+                className="flex items-center justify-center bg-slate-800 text-teal-300 font-medium px-3 py-2 rounded-lg border border-teal-500/60 hover:bg-slate-700 text-sm sm:self-auto self-stretch"
+              >
+                <svg className="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z"></path></svg>
+                Filtre
+              </button>
             </div>
 
-            {/* Yeni Program Card: Sticky Başlık */}
-            <section className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 shadow border border-slate-700/40 mb-2">
-              <h3 className="sticky top-0 bg-slate-900/80 backdrop-blur-md py-2 z-10 rounded-xl font-semibold text-slate-100 mb-3 px-2">
-                Yeni Program Oluştur
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <input
-                  value={form.name}
-                  onChange={e => setForm({ ...form, name: e.target.value })}
-                  className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-sm"
-                  placeholder="Program adı"
-                />
-                <input
-                  value={form.time}
-                  onChange={e => setForm({ ...form, time: e.target.value })}
-                  type="time"
-                  className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-sm"
-                />
-                <input
-                  value={form.duration}
-                  onChange={e => setForm({ ...form, duration: e.target.value })}
-                  type="number"
-                  className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-sm"
-                  placeholder="Süre (dk)"
-                />
-              </div>
-              <div className="mt-3">
-                <p className="text-slate-300 text-sm mb-2">Valf Grubu Seç (etiket / checkbox)</p>
-                <div className="flex flex-wrap gap-2">
-                  {groups.map(g => {
-                    const active = form.valves.includes(g);
-                    return (
-                      <label key={g} className="inline-flex items-center cursor-pointer select-none">
-                        <input type="checkbox" className="sr-only" checked={active} onChange={() => toggleGroupInForm(g)} />
-                        <span className={`px-3 py-1 rounded-full text-sm font-medium transition ${active ? 'bg-teal-600 text-white' : 'bg-slate-700 text-slate-200'}`}>
-                          {g}
-                        </span>
-                      </label>
-                    );
-                  })}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <section className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 shadow-md border border-slate-700/40">
+                <h2 className="font-bold mb-4 text-slate-100">Yeni Program Oluştur</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <input
+                    value={form.name}
+                    onChange={e => setForm({ ...form, name: e.target.value })}
+                    className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-sm"
+                    placeholder="Program adı"
+                  />
+                  <input
+                    value={form.time}
+                    onChange={e => setForm({ ...form, time: e.target.value })}
+                    type="time"
+                    className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-sm"
+                  />
+                  <input
+                    value={form.duration}
+                    onChange={e => setForm({ ...form, duration: e.target.value })}
+                    type="number"
+                    className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-sm"
+                    placeholder="Süre (dk)"
+                  />
                 </div>
-              </div>
-            </section>
+                <div className="mt-3">
+                  <p className="text-slate-300 text-sm mb-2">Valf Grubu Seç (etiket / checkbox)</p>
+                  <div className="flex flex-wrap gap-2">
+                    {groups.map(g => {
+                      const active = form.valves.includes(g);
+                      return (
+                        <label key={g} className="inline-flex items-center cursor-pointer select-none">
+                          <input type="checkbox" className="sr-only" checked={active} onChange={() => toggleGroupInForm(g)} />
+                          <span className={`px-3 py-1 rounded-full text-sm font-medium transition ${active ? 'bg-teal-600 text-white' : 'bg-slate-700 text-slate-200'}`}>{g}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              </section>
 
-            {/* Programs List */}
+              <section className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 shadow-md border border-slate-700/40">
+                <h2 className="font-bold mb-4 text-slate-100">Program Listesi</h2>
+                <div className="space-y-3">
+                  {programs.map(p => (
+                    <div key={p.id} className="flex justify-between items-center text-xs sm:text-sm gap-2">
+                      <div>
+                        <p className="font-semibold text-slate-100">{p.name}</p>
+                        <p className="text-slate-400">Saat: {p.time}, Süre: {p.duration} dk</p>
+                      </div>
+                      <button className="text-[11px] font-semibold bg-slate-900 text-slate-300 px-2.5 py-1 rounded-md border border-slate-600 hover:bg-slate-800">Düzenle</button>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </div>
+
             <section className="space-y-4">
               {programs.map(p => (
-                <article
-                  key={p.id}
-                  className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 shadow border border-slate-700/40"
-                >
+                <article key={p.id} className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 shadow border border-slate-700/40">
                   <div className="flex justify-between items-start gap-4">
                     <div className="min-w-0">
                       <h4 className="font-semibold text-slate-100 text-lg">{p.name}</h4>
                       <div className="mt-2 text-slate-300 text-sm space-y-1">
-                        <p>
-                          Saat: <span className="text-slate-100">{p.time}</span> • Süre: <span className="text-slate-100">{p.duration} dk</span>
-                        </p>
-                        <p>
-                          Günler: <span className="text-slate-100">{(p.days || []).join(", ") || "—"}</span>
-                        </p>
+                        <p>Saat: <span className="text-slate-100">{p.time}</span> • Süre: <span className="text-slate-100">{p.duration} dk</span></p>
+                        <p>Günler: <span className="text-slate-100">{(p.days || []).join(", ") || "—"}</span></p>
                         <div className="mt-1">
                           <span className="text-slate-300 text-sm mr-2">Valf Grubu:</span>
                           {p.valves && p.valves.length > 0 ? (
                             p.valves.map(v => (
-                              <span
-                                key={v}
-                                className="inline-block px-2 py-0.5 rounded-full bg-gradient-to-r from-teal-500 to-cyan-600 text-white text-xs mr-2"
-                              >
-                                {v}
-                              </span>
+                              <span key={v} className="inline-block px-2 py-0.5 rounded-full bg-gradient-to-r from-teal-500 to-cyan-600 text-white text-xs mr-2">{v}</span>
                             ))
                           ) : (
                             <span className="text-slate-500">—</span>
@@ -317,28 +279,12 @@
                         <ToggleSwitch checked={!!p.active} onChange={() => toggleActive(p.id)} />
                       </div>
                       <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => toggleEdit(p.id)}
-                          className="bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg text-sm btn-soft"
-                        >
-                          {p.editing ? "Kaydet" : "Düzenle"}
-                        </button>
-                        <button
-                          onClick={() => copyProgram(p.id)}
-                          className="bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg text-sm btn-soft flex items-center gap-2"
-                        >
-                          <DuplicateIcon /> Kopyala
-                        </button>
-                        <button
-                          onClick={() => askDelete(p.id)}
-                          className="bg-rose-600 hover:bg-rose-500 px-3 py-1.5 rounded-lg text-sm btn-soft text-white flex items-center gap-2"
-                        >
-                          <TrashIcon /> Sil
-                        </button>
+                        <button onClick={() => toggleEdit(p.id)} className="bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg text-sm btn-soft">{p.editing ? "Kaydet" : "Düzenle"}</button>
+                        <button onClick={() => copyProgram(p.id)} className="bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg text-sm btn-soft flex items-center gap-2"><DuplicateIcon /> Kopyala</button>
+                        <button onClick={() => askDelete(p.id)} className="bg-rose-600 hover:bg-rose-500 px-3 py-1.5 rounded-lg text-sm btn-soft text-white flex items-center gap-2"><TrashIcon /> Sil</button>
                       </div>
                     </div>
                   </div>
-                  {/* Edit Mode */}
                   {p.editing && (
                     <div className="mt-4 pt-4 border-t border-slate-700/40">
                       <h5 className="font-semibold text-slate-100 mb-2">Valf Grubu Seç (etiket / checkbox)</h5>
@@ -348,9 +294,7 @@
                           return (
                             <label key={g} className="inline-flex items-center cursor-pointer select-none">
                               <input type="checkbox" className="sr-only" checked={active} onChange={() => toggleGroupInProgram(p.id, g)} />
-                              <span className={`px-3 py-1 rounded-full text-sm font-medium transition ${active ? 'bg-teal-600 text-white' : 'bg-slate-700 text-slate-200'}`}>
-                                {g}
-                              </span>
+                              <span className={`px-3 py-1 rounded-full text-sm font-medium transition ${active ? 'bg-teal-600 text-white' : 'bg-slate-700 text-slate-200'}`}>{g}</span>
                             </label>
                           );
                         })}
@@ -361,17 +305,18 @@
               ))}
             </section>
           </main>
-            <MainFooter />
-            <ConfirmModal
-              open={confirmDeleteId !== null}
-              title="Programı Sil"
-              text="Bu programı silmek istediğinize emin misiniz? Bu işlem geri alınamaz."
-              onCancel={cancelDelete}
-              onConfirm={doDelete}
-            />
+          <MainFooter />
+          <ConfirmModal
+            open={confirmDeleteId !== null}
+            title="Programı Sil"
+            text="Bu programı silmek istediğinize emin misiniz? Bu işlem geri alınamaz."
+            onCancel={cancelDelete}
+            onConfirm={doDelete}
+          />
         </div>
       );
     };
+
     const root = createRoot(document.getElementById('root'));
     root.render(<ProgramPage />);
   </script>
