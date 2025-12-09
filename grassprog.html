@@ -170,22 +170,14 @@
       const toggleGroupInProgram = (id, group) => {
         setPrograms(prev => prev.map(p => p.id === id ? { ...p, valves: p.valves.includes(group) ? p.valves.filter(g => g !== group) : [...p.valves, group] } : p));
       };
+      const toggleDayInForm = (day) => {
+        setForm(prev => prev.days.includes(day) ? { ...prev, days: prev.days.filter(d => d !== day) }  : { ...prev, days: [...prev.days, day] }  );
+      };
+
       return (
         <div className="max-w-6xl mx-auto px-3 py-4 md:px-6 md:py-8">
           <MainHeader />
           <main className="bg-slate-900 rounded-2xl p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 md:mb-6">
-              <div className="relative w-full sm:max-w-xs">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                  <svg className="h-5 w-5 text-slate-500" fill="currentColor" viewBox="0 0 20 20"><path clipRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" fillRule="evenodd"></path></svg>
-                </span>
-                <input
-                  className="w-full pl-10 pr-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-100 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                  placeholder="Ara..."
-                  type="text"
-                />
-              </div>
-            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
              <section className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 shadow-md border border-slate-700/40">
   <h2 className="font-bold mb-4 text-slate-100">Yeni Program Oluştur</h2>
