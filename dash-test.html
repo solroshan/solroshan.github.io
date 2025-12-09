@@ -142,10 +142,9 @@ const ValveCard = ({ valve, onToggle }) => {
     <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 shadow-md border border-slate-700/40 flex flex-col items-stretch space-y-3">
       <div className="w-full flex justify-between items-center">
         <h4 className="font-semibold text-slate-100 text-sm">{valve.name}</h4>
-        <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-md ${isChecked ? 'bg-teal-600/40 text-teal-200 border border-teal-400/60' : 'bg-slate-700 text-slate-200 border border-slate-600'}`}>
-          {valve.status}
+        <span
+          className={isChecked ? 'text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-teal-600/40 text-teal-200 border border-teal-400/60':'text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-slate-700 text-slate-200 border border-slate-600'}>{valve.status}
         </span>
-      </div>
 
       <ToggleSwitch checked={isChecked} onChange={() => onToggle(valve.id)} />
 
