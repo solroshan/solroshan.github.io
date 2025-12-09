@@ -1,7 +1,7 @@
 import React from 'react';
 
 // Header component
-const MainHeader = () => (
+const GrassMainHeader = () => (
   <header className="flex items-center justify-between mb-6">
     <div className="flex items-center space-x-3">
       <LogoIcon />
@@ -36,4 +36,4 @@ const LogoIcon = () => (
   </svg>
 );
 
-export default MainHeader;
+export default GrassMainHeader;
