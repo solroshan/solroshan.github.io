@@ -5,4 +5,4 @@ const ToggleSwitch = ({ checked, onChange }) => (
   </label>
 );
 
-export default ToggleSwitch;
+window.ToggleSwitch = ToggleSwitch;
