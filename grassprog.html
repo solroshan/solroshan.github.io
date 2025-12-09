@@ -257,11 +257,15 @@
               <p>Saat: <span className="text-slate-100">{p.time}</span> • Süre: <span className="text-slate-100">{p.duration} dk</span></p>
               <p>Günler: <span className="text-slate-100">{(p.days || []).join(", ") || "—"}</span></p>
               <div className="mt-1">
-                <span className="text-slate-300 text-sm mr-2">Valf:</span>
-                {p.valves?.map(v => (
-                  <span key={v} className="inline-block px-2 py-0.5 rounded-full bg-gradient-to-r from-teal-500 to-cyan-600 text-white text-xs mr-2">{v}</span>
-                ))}
-              </div>
+  <span className="text-slate-300 text-sm mr-2">Valf:</span>
+  {p.valves && p.valves.length > 0 ? (
+    p.valves.map(v => (
+      <span key={v} className="inline-block px-2 py-0.5 rounded-full bg-gradient-to-r from-teal-500 to-cyan-600 text-white text-xs mr-2">{v}</span>
+    ))
+  ) : (
+    <span className="text-slate-500">—</span>
+  )}
+</div>
             </div>
           </div>
           <div className="flex flex-col items-end gap-3 min-w-[140px]">
