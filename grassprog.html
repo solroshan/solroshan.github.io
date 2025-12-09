@@ -28,17 +28,18 @@
     const { createRoot } = ReactDOM;
 
     const initialValves = [
-      { id: 1, name: 'V1', group: 'A' },
-      { id: 2, name: 'V2', group: 'A' },
-      { id: 3, name: 'V3', group: 'A' },
-      { id: 4, name: 'V4', group: 'B' },
-      { id: 5, name: 'V5', group: 'B' },
-      { id: 6, name: 'V6', group: 'B' },
+      { id: 1, name: 'V1', group: 'Ön' },
+      { id: 2, name: 'V2', group: 'Ön' },
+      { id: 3, name: 'V3', group: 'Orta' },
+      { id: 4, name: 'V4', group: 'Orta' },
+      { id: 5, name: 'V5', group: 'Orta' },
+      { id: 6, name: 'V6', group: 'Arka' },
+      { id: 7, name: 'V7', group: 'Arka' },
     ];
 
     const initialPrograms = [
-      { id: 1, name: "Yaz Programı", time: "06:00", duration: 30, days: ["Pzt","Sal","Çar","Per","Cum","Cts","Paz"], valves: ["A","B"], active: true, editing: false },
-      { id: 2, name: "Kış Programı", time: "13:30", duration: 20, days: ["Pzt","Per"], valves: ["A","B"], active: false, editing: false },
+      { id: 1, name: "Yaz Programı", time: "06:00", duration: 30, days: ["Pzt","Sal","Çar","Per","Cum","Cts","Paz"], valves: ["Ön","Orta","Arka"], active: true, editing: false },
+      { id: 2, name: "Kış Programı", time: "13:30", duration: 20, days: ["Pzt","Per"], valves: ["Ön","Orta","Arka"], active: false, editing: false },
     ];
 
     const PlusIcon = () => (
@@ -189,12 +190,6 @@
                   type="text"
                 />
               </div>
-              <button
-                className="flex items-center justify-center bg-slate-800 text-teal-300 font-medium px-3 py-2 rounded-lg border border-teal-500/60 hover:bg-slate-700 text-sm sm:self-auto self-stretch"
-              >
-                <svg className="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z"></path></svg>
-                Filtre
-              </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
