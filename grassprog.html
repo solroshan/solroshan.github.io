@@ -10,35 +10,45 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
   <style>
-    .btn-soft { transition: box-shadow .18s, background .18s, color .18s; }
-    .btn-soft:hover { box-shadow: 0 6px 18px rgba(2,6,23,0.18), 0 1.5px 8px rgba(20,184,166,0.09); background: linear-gradient(90deg, #0891b2 0%, #0ea5e9 100%); color: #fff; }
+    .btn-soft {
+      transition: box-shadow .18s, background .18s, color .18s;
+    }
+    .btn-soft:hover {
+      box-shadow: 0 6px 18px rgba(2,6,23,0.18), 0 1.5px 8px rgba(20,184,166,0.09);
+      background: linear-gradient(90deg, #0891b2 0%, #0ea5e9 100%);
+      color: #fff;
+    }
   </style>
 </head>
 <body class="bg-slate-900 font-sans text-slate-100">
   <div id="root" class="min-h-screen"></div>
 
+  <!-- COMPONENTS -->
+  <script type="text/babel" src="./components/icons.js"></script>
+  <script type="text/babel" src="./components/Header.js"></script>
+  <script type="text/babel" src="./components/Footer.js"></script>
+  <script type="text/babel" src="./components/ToggleSwitch.js"></script>
+  <script type="text/babel" src="./components/ConfirmModal.js"></script>
+  <script type="text/babel" src="./components/NewProgramForm.js"></script>
+  <script type="text/babel" src="./components/ProgramList.js"></script>
+
   <script type="text/babel">
     const { useState, useMemo } = React;
     const { createRoot } = ReactDOM;
 
-    // Components
-    const Header = await import('./components/Header.js');
-    const Footer = await import('./components/Footer.js');
-    const NewProgramForm = await import('./components/NewProgramForm.js');
-    const ProgramList = await import('./components/ProgramList.js');
-    const ToggleSwitch = await import('./components/ToggleSwitch.js');
-    const ConfirmModal = await import('./components/ConfirmModal.js');
-    const { PlusIcon, TrashIcon, DuplicateIcon, LogoIcon } = await import('./components/icons.js');
-
     const initialValves = [
-      { id: 1, name: 'V1', group: 'Ön' }, { id: 2, name: 'V2', group: 'Ön' }, { id: 3, name: 'V3', group: 'Orta' },
-      { id: 4, name: 'V4', group: 'Orta' }, { id: 5, name: 'V5', group: 'Orta' }, { id: 6, name: 'V6', group: 'Arka' },
-      { id: 7, name: 'V7', group: 'Arka' }
+      { id: 1, name: 'V1', group: 'Ön' },
+      { id: 2, name: 'V2', group: 'Ön' },
+      { id: 3, name: 'V3', group: 'Orta' },
+      { id: 4, name: 'V4', group: 'Orta' },
+      { id: 5, name: 'V5', group: 'Orta' },
+      { id: 6, name: 'V6', group: 'Arka' },
+      { id: 7, name: 'V7', group: 'Arka' },
     ];
 
     const initialPrograms = [
       { id: 1, name: "Yaz Programı", time: "06:00", duration: 30, days: ["Pzt","Sal","Çar","Per","Cum","Cts","Paz"], valves: ["Ön","Orta","Arka"], active: true, editing: false },
-      { id: 2, name: "Kış Programı", time: "13:30", duration: 20, days: ["Pzt","Per"], valves: ["Ön","Orta","Arka"], active: false, editing: false }
+      { id: 2, name: "Kış Programı", time: "13:30", duration: 20, days: ["Pzt","Per"], valves: ["Ön","Orta","Arka"], active: false, editing: false },
     ];
 
     const ProgramPage = () => {
@@ -51,45 +61,83 @@
 
       const createProgram = () => {
         if (!form.name || !form.time || !form.duration) return;
-        const newProg = { id: Date.now(), ...form, days: form.days.length > 0 ? form.days : ["Pzt","Sal"], active: true, editing: false };
+        const newProg = { 
+          id: Date.now(), 
+          ...form, 
+          days: form.days.length > 0 ? form.days : ["Pzt","Sal"], 
+          active: true, 
+          editing: false 
+        };
         setPrograms(prev => [newProg, ...prev]);
         setForm({ name: '', time: '', duration: '', days: [], valves: [] });
       };
 
-      const toggleActive = id => setPrograms(prev => prev.map(p => p.id === id ? { ...p, active: !p.active } : p));
-      const toggleEdit = id => setPrograms(prev => prev.map(p => p.id === id ? { ...p, editing: !p.editing } : p));
+      const toggleActive = id => {
+        setPrograms(prev => prev.map(p => p.id === id ? { ...p, active: !p.active } : p));
+      };
+
+      const toggleEdit = id => {
+        setPrograms(prev => prev.map(p => p.id === id ? { ...p, editing: !p.editing } : p));
+      };
+
       const askDelete = id => setConfirmDeleteId(id);
       const cancelDelete = () => setConfirmDeleteId(null);
-      const doDelete = () => { setPrograms(prev => prev.filter(p => p.id !== confirmDeleteId)); setConfirmDeleteId(null); };
+      const doDelete = () => {
+        setPrograms(prev => prev.filter(p => p.id !== confirmDeleteId));
+        setConfirmDeleteId(null);
+      };
+
       const copyProgram = id => {
-        const src = programs.find(p => p.id === id); if (!src) return;
+        const src = programs.find(p => p.id === id);
+        if (!src) return;
         const copy = { ...src, id: Date.now(), name: `${src.name} (Kopya)` };
         setPrograms(prev => [copy, ...prev]);
       };
-      const toggleGroupInForm = group => setForm(prev => prev.valves.includes(group) ? { ...prev, valves: prev.valves.filter(g => g !== group) } : { ...prev, valves: [...prev.valves, group] });
-      const toggleDayInForm = day => setForm(prev => prev.days.includes(day) ? { ...prev, days: prev.days.filter(d => d !== day) } : { ...prev, days: [...prev.days, day] });
-      const toggleGroupInProgram = (id, group) => setPrograms(prev => prev.map(p => p.id === id ? { ...p, valves: p.valves.includes(group) ? p.valves.filter(g => g !== group) : [...p.valves, group] } : p));
+
+      const toggleGroupInForm = (group) => {
+        setForm(prev => prev.valves.includes(group) ? { ...prev, valves: prev.valves.filter(g => g !== group) } : { ...prev, valves: [...prev.valves, group] });
+      };
+
+      const toggleDayInForm = (day) => {
+        setForm(prev => prev.days.includes(day) ? { ...prev, days: prev.days.filter(d => d !== day) } : { ...prev, days: [...prev.days, day] });
+      };
+
+      const toggleGroupInProgram = (id, group) => {
+        setPrograms(prev => prev.map(p => p.id === id ? { ...p, valves: p.valves.includes(group) ? p.valves.filter(g => g !== group) : [...p.valves, group] } : p));
+      };
 
       return (
         <div className="max-w-6xl mx-auto px-3 py-4 md:px-6 md:py-8">
-          <Header.default />
+          <Header />
           <main className="bg-slate-900 rounded-2xl p-6">
             <div className="grid grid-cols-1 gap-4 sm:gap-6 mb-6">
-              <NewProgramForm.default 
-                form={form} setForm={setForm} groups={groups} daysOfWeek={daysOfWeek}
-                onCreate={createProgram} toggleGroupInForm={toggleGroupInForm} toggleDayInForm={toggleDayInForm} 
+              <NewProgramForm 
+                form={form} 
+                setForm={setForm} 
+                groups={groups} 
+                daysOfWeek={daysOfWeek}
+                onCreate={createProgram} 
+                toggleGroupInForm={toggleGroupInForm} 
+                toggleDayInForm={toggleDayInForm} 
               />
-              <ProgramList.default 
-                programs={programs} groups={groups} toggleActive={toggleActive} toggleEdit={toggleEdit}
-                copyProgram={copyProgram} askDelete={askDelete} toggleGroupInProgram={toggleGroupInProgram}
+              <ProgramList 
+                programs={programs} 
+                groups={groups} 
+                toggleActive={toggleActive} 
+                toggleEdit={toggleEdit}
+                copyProgram={copyProgram} 
+                askDelete={askDelete} 
+                toggleGroupInProgram={toggleGroupInProgram}
               />
             </div>
           </main>
-          <Footer.default />
-          <ConfirmModal.default 
-            open={confirmDeleteId !== null} title="Programı Sil" 
+          <Footer />
+          <ConfirmModal
+            open={confirmDeleteId !== null}
+            title="Programı Sil"
             text="Bu programı silmek istediğinize emin misiniz? Bu işlem geri alınamaz."
-            onCancel={cancelDelete} onConfirm={doDelete} 
+            onCancel={cancelDelete}
+            onConfirm={doDelete}
           />
         </div>
       );
