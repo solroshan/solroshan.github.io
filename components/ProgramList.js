@@ -31,16 +31,16 @@ const ProgramList = ({
               </div>
             </div>
             <div className="flex flex-col items-end gap-2 sm:gap-3 min-w-[110px] sm:min-w-[140px]">
-              <window.ToggleSwitch checked={!!p.active} onChange={() => toggleActive(p.id)} />
+              {window.ToggleSwitch({ checked: !!p.active, onChange: () => toggleActive(p.id) })}
               <div className="flex flex-wrap gap-1 sm:gap-2 justify-end w-full">
                 <button onClick={() => toggleEdit(p.id)} className="flex-1 sm:flex-none bg-slate-700 hover:bg-slate-600 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm btn-soft font-medium">
                   {p.editing ? "Kaydet" : "Düzenle"}
                 </button>
                 <button onClick={() => copyProgram(p.id)} className="flex-1 sm:flex-none bg-slate-700 hover:bg-slate-600 px-2 py-1.5 rounded-lg text-xs sm:text-sm btn-soft flex items-center justify-center gap-1 min-w-[60px]">
-                  <window.DuplicateIcon /> Kopyala
+                  {window.DuplicateIcon()} Kopyala
                 </button>
                 <button onClick={() => askDelete(p.id)} className="flex-1 sm:flex-none bg-rose-600 hover:bg-rose-500 px-2 py-1.5 rounded-lg text-xs sm:text-sm btn-soft text-white flex items-center justify-center gap-1 min-w-[60px]">
-                  <window.TrashIcon /> Sil
+                  {window.TrashIcon()} Sil
                 </button>
               </div>
             </div>
