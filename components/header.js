@@ -14,3 +14,4 @@ const Header = () => (
       <a href="/dash-test.html" className="px-2 py-1.5 text-slate-300 hover:text-teal-300">Valfler</a>
       <a href="/grassprog.html" className="px-2 py-1.5 text-slate-300 hover:text-teal-300">Program</a>
       <a href="/dash-test.html" className="flex items-center px-2 py-1.5 text-slate-300
+export default Header;
