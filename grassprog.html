@@ -133,9 +133,15 @@
       const groups = useMemo(() => {return Array.from(new Set(initialValves.map(v => v.group))).sort();}, []);
       const createProgram = () => {
         if (!form.name || !form.time || !form.duration) return;
-        const newProg = { id: Date.now(), ...form, active: true, editing: false };
-        setPrograms(prev => [newProg, ...prev]);
-        setForm({ name: '', time: '', duration: '', days:[], valves: [] });
+        const newProg = { 
+        id: Date.now(), 
+        ...form, 
+        days: form.days.length > 0 ? form.days : ["Pzt","Sal"], 
+        active: true, 
+        editing: false 
+        };
+      setPrograms(prev => [newProg, ...prev]);
+      setForm({ name: '', time: '', duration: '', days: [], valves: [] });
       };
       const toggleActive = id => {
         setPrograms(prev => prev.map(p => p.id === id ? { ...p, active: !p.active } : p));
@@ -217,6 +223,25 @@
         );
       })}
     </div>
+    <div className="mt-4">
+  <label className="block text-sm text-slate-300 mb-2 font-medium">Program Günleri</label>
+  <select 
+    multiple
+    value={form.days}
+    onChange={e => {
+      const selectedDays = Array.from(e.target.selectedOptions, option => option.value);
+      setForm({ ...form, days: selectedDays });
+    }}
+    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-3 text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 h-24"
+  >
+    {daysOfWeek.map(day => (
+      <option key={day} value={day}>{day}</option>
+    ))}
+  </select>
+  <p className="text-xs text-slate-500 mt-1">
+    {form.days.length > 0 ? `${form.days.join(", ")} seçildi` : "Hiç gün seçilmedi"}
+  </p>
+</div>
     <div className="mt-4">
       <button 
         onClick={createProgram} 
