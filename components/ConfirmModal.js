@@ -15,4 +15,4 @@ const ConfirmModal = ({ open, title, text, onCancel, onConfirm }) => {
   );
 };
 
-export default ConfirmModal;
+window.ConfirmModal = ConfirmModal;
