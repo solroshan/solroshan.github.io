@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <!-- HEAD + TAILWIND + REACT + BABEL aynı -->
+  <title>GrassCare Yardım Merkezi</title>
+</head>
+<body class="bg-slate-900 font-sans text-slate-100">
+  <div id="root"></div>
+
+  <!-- ✅ SHARED COMPONENTS -->
+  <script type="text/babel" src="./components/icons.js"></script>
+  <script type="text/babel" src="./components/Header.js"></script>
+  <script type="text/babel" src="./components/Footer.js"></script>
+
+  <script type="text/babel">
+    const HelpPage = () => (
+      <div className="max-w-4xl mx-auto px-4 py-8 md:px-8">
+        <window.Header />
+        
+        <main className="bg-slate-900/80 backdrop-blur-xl rounded-3xl p-8 md:p-12 border border-slate-700/50 shadow-2xl">
+          <div className="text-center mb-12">
+            <div className="w-24 h-24 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl">
+              <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+              </svg>
+            </div>
+            <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-slate-100 to-slate-200 bg-clip-text text-transparent mb-4">Yardım Merkezi</h1>
+            <p className="text-xl text-slate-400 max-w-2xl mx-auto">Sıkça sorulan sorular ve kullanım kılavuzları</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* SSS Accordion */}
+            <div>
+              <h2 className="text-2xl font-bold text-slate-100 mb-8">Sıkça Sorulan Sorular</h2>
+              <div className="space-y-4">
+                {[
+                  { q: "Nasıl yeni program eklerim?", a: "Programlar sayfasından 'Yeni Program Oluştur' butonuna tıklayın..." },
+                  { q: "Valfler neden çalışmıyor?", a: "Önce sistem basıncını kontrol edin, sonra valf grubunu açın..." },
+                  { q: "Mobil uygulama var mı?", a: "Evet! App Store ve Google Play'den indirebilirsiniz..." }
+                ].map((faq, i) => (
+                  <div key={i} className="bg-slate-800/50 hover:bg-slate-800/70 rounded-2xl p-6 border border-slate-700/50 transition-all group">
+                    <button className="w-full text-left flex items-center justify-between">
+                      <span className="font-semibold text-slate-100 group-hover:text-teal-300">{faq.q}</span>
+                      <svg className="h-5 w-5 text-slate-400 group-hover:text-teal-300 transition-all" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Hızlı Linkler */}
+            <div>
+              <h2 className="text-2xl font-bold text-slate-100 mb-8">Kılavuzlar</h2>
+              <div className="space-y-4">
+                <a href="#" className="group bg-gradient-to-r from-slate-800 to-slate-900 hover:from-teal-600/20 hover:to-cyan-600/20 p-6 rounded-2xl border border-slate-700/50 hover:border-teal-500/50 transition-all flex items-start gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-all">
+                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-100 text-lg mb-1 group-hover:text-teal-300">Kurulum Kılavuzu</h3>
+                    <p className="text-slate-400 text-sm">Cihazı ilk kez kurma adımları</p>
+                  </div>
+                </a>
+                {/* 3 tane daha... */}
+              </div>
+            </div>
+          </div>
+        </main>
+        
+        <window.Footer />
+      </div>
+    );
+
+    const root = createRoot(document.getElementById('root'));
+    root.render(<HelpPage />);
+  </script>
+</body>
+</html>
