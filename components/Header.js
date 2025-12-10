@@ -4,7 +4,7 @@ const Header = () => (
       {window.LogoIcon()}
       <div>
         <h1 className="text-xl font-bold">GrassCare</h1>
-        <p className="text-xs text-slate-400">Program Yönetimi</p>
+        <p className="text-xs text-slate-400">Automation System</p>
       </div>
     </div>
     <nav className="flex flex-wrap items-center justify-end gap-1.5 md:gap-3 text-[11px] sm:text-sm font-medium max-w-full">
