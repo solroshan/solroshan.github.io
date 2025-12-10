@@ -18,7 +18,7 @@
 <body class="bg-slate-900 font-sans text-slate-100">
   <div id="root"></div>
 
-  <!-- ✅ SHARED COMPONENTS (grassprog + dashboard ile aynı) -->
+  <!-- ✅ SHARED COMPONENTS -->
   <script type="text/babel" src="./components/icons.js"></script>
   <script type="text/babel" src="./components/Header.js"></script>
   <script type="text/babel" src="./components/Footer.js"></script>
@@ -162,24 +162,39 @@
             </section>
           </div>
 
-          {/* Contact Support */}
-          <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto justify-center">
-  {/* TELEFON */}
-  <a href="tel:+905535145469" className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 ...">
-    📞 0535 514 54 69
-  </a>
-  
-  {/* WHATSAPP */}
-  <a href="https://wa.me/905535145469" className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 ...">
-    💬 WhatsApp
-  </a>
-  
-  {/* E-POSTA */}
-  <a href="mailto:huseyingunes35@gmail.com" className="flex-1 bg-slate-800/50 ...">
-    ✉️ E-posta
-  </a>
-</div>
-
+          {/* ✅ GÜNCEL CONTACT SUPPORT - TELEFON + E-POSTA */}
+          <section className="text-center py-20 border-t border-slate-800/50">
+            <h2 className="text-3xl md:text-4xl font-black text-slate-100 mb-8">Hala Sorunuz Var mı?</h2>
+            <p className="text-xl text-slate-400 mb-12 max-w-2xl mx-auto">
+              Ekibimiz 7/24 destek vermek için hazır. Size en hızlı şekilde yardımcı olacağız.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto justify-center">
+              
+              {/* TELEFON ARAMA */}
+              <a 
+                href="tel:+905535145469" 
+                className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold py-4 px-8 rounded-2xl shadow-xl hover:shadow-emerald-500/50 transition-all duration-300 text-lg btn-soft flex items-center justify-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.14.761L3.516 17.86a1.001 1.001 0 00.895.853h4.965a1 1 0 001-.831l1.482-8.209a1 1 0 00-.14-.762l-.74-4.434a1 1 0 01.986-.836H17a1 1 0 011 1v2a1 1 0 01-2 0V5h-2.153a1 1 0 01-.986-.836l-.74-4.435a1 1 0 00-.14-.761L14.484 2.14a1.001 1.001 0 00-.895-.853H9.035a1 1 0 00-1 .831l-1.482 8.209a1 1 0 00.14.762l.74 4.434a1 1 0 01-.986.836H3a1 1 0 01-1-1V3z"/>
+                </svg>
+                0535 514 54 69
+              </a>
+              
+              {/* ✅ GÜNCEL E-POSTA: huseyingunes35@gmail.com */}
+              <a 
+                href="mailto:huseyingunes35@gmail.com"
+                className="flex-1 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-bold py-4 px-8 rounded-2xl shadow-xl hover:shadow-orange-500/50 transition-all duration-300 text-lg btn-soft flex items-center justify-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                  <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                </svg>
+                E-posta Gönder
+              </a>
+            </div>
+            <p className="text-sm text-slate-500 mt-4">📧 huseyingunes35@gmail.com</p>
+          </section>
         </main>
         
         {/* ✅ SHARED FOOTER */}
