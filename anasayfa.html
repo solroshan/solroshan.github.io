@@ -24,11 +24,9 @@
   <script type="text/babel">
     const { useState, useEffect } = React;
     const { createRoot } = ReactDOM;
-
-    // ← SUPABASE BAĞLANTI (kendi project URL ve anon key'ini buraya koy)
     const supabase = Supabase.createClient(
-      'https://YOUR_PROJECT_ID.supabase.co', 
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+      'https://puurwgrzknxttjsjxdit.supabase.co', 
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1dXJ3Z3J6a254dHRqc2p4ZGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0NTIyODUsImV4cCI6MjA4MTAyODI4NX0.tYoFbwWeuPCAXLXVp8yX0ThbvWPgboYOCUqPuKtAoaI'
     );
 
     const HomePage = () => {
