@@ -14,6 +14,14 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 
+  <!-- Supabase UMD -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+    const supabaseUrl = 'https://puurwgrzknxttjsjxdit.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1dXJ3Z3J6a254dHRqc2p4ZGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0NTIyODUsImV4cCI6MjA4MTAyODI4NX0.tYoFbwWeuPCAXLXVp8yX0ThbvWPgboYOCUqPuKtAoaI';
+    window.supabase = supabase.createClient(supabaseUrl, supabaseKey); /* Supabase client [web:280] */
+  </script>
+
   <!-- Ortak komponentler (public header + footer) -->
   <script type="text/babel" src="./components/public-header.js"></script>
   <script type="text/babel" src="./components/Footer.js"></script>
@@ -72,7 +80,7 @@
       }
     ];
 
-    const PlanCard = ({ plan }) => (
+    const PlanCard = ({ plan, onSelect }) => (
       <div
         className={
           "relative flex flex-col h-full rounded-3xl border p-6 md:p-8 bg-slate-900/80 " +
@@ -127,6 +135,7 @@
           </a>
         ) : (
           <button
+            onClick={() => onSelect && onSelect(plan.id)}
             className={
               "w-full mt-auto rounded-2xl py-3 text-sm font-semibold btn-soft " +
               (plan.highlight
@@ -140,51 +149,198 @@
       </div>
     );
 
-    const MembershipPage = () => (
-      <div className="min-h-screen flex flex-col">
-        <window.Header />
+    const MembershipPage = () => {
+      const [selectedPlan, setSelectedPlan] = React.useState(null);
+      const [firstName, setFirstName] = React.useState("");
+      const [lastName, setLastName] = React.useState("");
+      const [email, setEmail] = React.useState("");
+      const [phone, setPhone] = React.useState("");
+      const [password, setPassword] = React.useState("");
+      const [loading, setLoading] = React.useState(false);
+      const [errorMsg, setErrorMsg] = React.useState("");
 
-        <main className="flex-1">
-          <div className="max-w-6xl mx-auto px-4 py-8 md:px-8 lg:px-12">
-            <div className="bg-gradient-to-br from-slate-900/80 via-slate-900/50 to-slate-950/80 backdrop-blur-xl rounded-3xl p-8 md:p-12 lg:p-16 border border-slate-700/40 shadow-2xl mt-8 mb-12">
-              <header className="text-center mb-12">
-                <p className="text-xs uppercase tracking-[0.2em] text-teal-400 mb-3">
-                  Üyelik Planları
-                </p>
-                <h1 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-emerald-300 via-teal-300 to-sky-300 bg-clip-text text-transparent mb-3">
-                  İhtiyacınıza uygun planı seçin
-                </h1>
-                <p className="text-sm md:text-base text-slate-400 max-w-2xl mx-auto">
-                  İstediğiniz zaman plan yükseltebilir veya düşürebilirsiniz. Tüm planlar
-                  ilk 14 gün içinde koşulsuz iptal edilebilir.
-                </p>
-              </header>
+      const closeModal = () => {
+        setSelectedPlan(null);
+        setFirstName("");
+        setLastName("");
+        setEmail("");
+        setPhone("");
+        setPassword("");
+        setErrorMsg("");
+      };
 
-              <section className="grid md:grid-cols-3 gap-6 md:gap-8">
-                {plans.map((plan) => (
-                  <PlanCard key={plan.id} plan={plan} />
-                ))}
-              </section>
+      const handleSignUp = async (e) => {
+        e.preventDefault();
+        setErrorMsg("");
 
-              <section className="mt-12 pt-8 border-t border-slate-800/60 text-center text-sm text-slate-400">
-                <p>
-                  Kurumsal veya özel ihtiyaçlarınız için doğrudan e‑posta ile iletişime
-                  geçebilirsiniz:
-                  <a
-                    href="mailto:huseyingunes35@gmail.com"
-                    className="text-teal-400 hover:text-teal-300 font-medium ml-1"
-                  >
-                    huseyingunes35@gmail.com
-                  </a>
-                </p>
-              </section>
+        if (!firstName.trim() || !lastName.trim() || !email.trim() || !phone.trim()) {
+          setErrorMsg("Ad, soyad, e-posta ve telefon zorunludur.");
+          return;
+        }
+
+        if (!password || password.length < 6) {
+          setErrorMsg("Parola en az 6 karakter olmalıdır.");
+          return;
+        } /* min 6 karakter [web:299] */
+
+        setLoading(true);
+
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              first_name: firstName,
+              last_name: lastName,
+              phone,
+              plan: selectedPlan,
+            },
+          },
+        }); /* signUp + metadata [web:324][web:280] */
+
+        setLoading(false);
+
+        if (error) {
+          setErrorMsg("Kayıt başarısız: " + error.message);
+          return;
+        }
+
+        alert("Üyelik oluşturuldu. Lütfen e-posta adresine gelen doğrulama bağlantısı ile hesabını aktifleştir.");
+        window.location.href = "anasayfa.html#giris";
+      };
+
+      return (
+        <div className="min-h-screen flex flex-col">
+          <window.Header />
+
+          <main className="flex-1">
+            <div className="max-w-6xl mx-auto px-4 py-8 md:px-8 lg:px-12">
+              <div className="bg-gradient-to-br from-slate-900/80 via-slate-900/50 to-slate-950/80 backdrop-blur-xl rounded-3xl p-8 md:p-12 lg:p-16 border border-slate-700/40 shadow-2xl mt-8 mb-12">
+                <header className="text-center mb-12">
+                  <p className="text-xs uppercase tracking-[0.2em] text-teal-400 mb-3">
+                    Üyelik Planları
+                  </p>
+                  <h1 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-emerald-300 via-teal-300 to-sky-300 bg-clip-text text-transparent mb-3">
+                    İhtiyacınıza uygun planı seçin
+                  </h1>
+                  <p className="text-sm md:text-base text-slate-400 max-w-2xl mx-auto">
+                    İstediğiniz zaman plan yükseltebilir veya düşürebilirsiniz. Tüm planlar
+                    ilk 14 gün içinde koşulsuz iptal edilebilir.
+                  </p>
+                </header>
+
+                <section className="grid md:grid-cols-3 gap-6 md:gap-8">
+                  {plans.map((plan) => (
+                    <PlanCard
+                      key={plan.id}
+                      plan={plan}
+                      onSelect={setSelectedPlan}
+                    />
+                  ))}
+                </section>
+
+                <section className="mt-12 pt-8 border-t border-slate-800/60 text-center text-sm text-slate-400">
+                  <p>
+                    Kurumsal veya özel ihtiyaçlarınız için doğrudan e‑posta ile iletişime
+                    geçebilirsiniz:
+                    <a
+                      href="mailto:huseyingunes35@gmail.com"
+                      className="text-teal-400 hover:text-teal-300 font-medium ml-1"
+                    >
+                      huseyingunes35@gmail.com
+                    </a>
+                  </p>
+                </section>
+              </div>
             </div>
-          </div>
-        </main>
+          </main>
 
-        <window.Footer />
-      </div>
-    );
+          <window.Footer />
+
+          {selectedPlan && (
+            <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+              <div className="bg-slate-900 border border-slate-700 rounded-3xl p-6 md:p-8 w-full max-w-md shadow-2xl">
+                <h2 className="text-xl font-semibold text-slate-100 mb-1">
+                  {selectedPlan === "pro" ? "Pro Üyelik Oluştur" : "Başlangıç Üyeliği Oluştur"}
+                </h2>
+                <p className="text-sm text-slate-400 mb-4">
+                  Ad, soyad, e-posta, telefon ve parola alanları zorunludur.
+                </p>
+
+                <form onSubmit={handleSignUp} className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <input
+                      type="text"
+                      placeholder="Ad*"
+                      className="rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-sm text-slate-100"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      required
+                    />
+                    <input
+                      type="text"
+                      placeholder="Soyad*"
+                      className="rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-sm text-slate-100"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <input
+                    type="email"
+                    placeholder="E-posta*"
+                    className="w-full rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-sm text-slate-100"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+
+                  <input
+                    type="tel"
+                    placeholder="Telefon*"
+                    className="w-full rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-sm text-slate-100"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                  />
+
+                  <input
+                    type="password"
+                    placeholder="Parola (min. 6 karakter)*"
+                    className="w-full rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-sm text-slate-100"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+
+                  {errorMsg && (
+                    <p className="text-sm text-red-400">{errorMsg}</p>
+                  )}
+
+                  <div className="flex items-center justify-between gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={closeModal}
+                      className="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-800 text-slate-200 hover:bg-slate-700 transition"
+                    >
+                      Vazgeç
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="px-5 py-2 rounded-xl text-sm font-semibold bg-gradient-to-r from-teal-500 to-cyan-600 text-white hover:from-teal-600 hover:to-cyan-700 shadow-lg hover:shadow-teal-500/40 transition disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      {loading ? "Oluşturuluyor..." : "Üyeliği Oluştur"}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    };
 
     createRoot(document.getElementById("root")).render(<MembershipPage />);
   </script>
