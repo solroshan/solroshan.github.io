@@ -12,20 +12,20 @@
   <!-- React + ReactDOM + Babel -->
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>[web:57]
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <!-- Supabase UMD -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script>
     const supabaseUrl = 'https://puurwgrzknxttjsjxdit.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1dXJ3Z3J6a254dHRqc2p4ZGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0NTIyODUsImV4cCI6MjA4MTAyODI4NX0.tYoFbwWeuPCAXLXVp8yX0ThbvWPgboYOCUqPuKtAoaI';
-    window.supabase = supabase.createClient(supabaseUrl, supabaseKey);[web:58]
+    window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
   </script>
 
   <!-- Ortak bileşenler -->
   <script type="text/babel" src="./components/header-public.js"></script>
-<script type="text/babel" src="./components/icons.js"></script>
-<script type="text/babel" src="./components/footer.js"></script>
+  <script type="text/babel" src="./components/icons.js"></script>
+  <script type="text/babel" src="./components/footer.js"></script>
 </head>
 <body class="bg-gradient-to-br from-emerald-900 via-teal-900 to-slate-900 font-sans text-slate-100 min-h-screen">
   <div id="root"></div>
