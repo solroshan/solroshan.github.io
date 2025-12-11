@@ -6,15 +6,24 @@
   <link href="/assets/css/images/leaf.png" rel="shortcut icon" type="image/png" />
   <title>GrassCare Hesabım</title>
 
-  <script type="text/babel" src="header-auth.js"></script>
-
   <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 
   <!-- React + ReactDOM + Babel -->
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>[web:57]
+
+  <!-- Supabase UMD -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+    const supabaseUrl = 'https://puurwgrzknxttjsjxdit.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1dXJ3Z3J6a254dHRqc2p4ZGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0NTIyODUsImV4cCI6MjA4MTAyODI4NX0.tYoFbwWeuPCAXLXVp8yX0ThbvWPgboYOCUqPuKtAoaI';
+    window.supabase = supabase.createClient(supabaseUrl, supabaseKey);[web:58]
+  </script>
+
+  <!-- Auth header (giriş kontrolü + redirect) -->
+  <script type="text/babel" src="header-auth.js"></script>
 
   <style>
     .btn-soft { transition: box-shadow .18s, background .18s, color .18s; }
@@ -27,7 +36,6 @@
 
   <!-- Ortak komponentler -->
   <script type="text/babel" src="./components/icons.js"></script>
-  <script type="text/babel" src="./components/Header.js"></script>
   <script type="text/babel" src="./components/Footer.js"></script>
 
   <!-- Hesabım sayfası -->
@@ -39,180 +47,190 @@
       const [tab, setTab] = useState("billing");
 
       return (
-        <div className="max-w-6xl mx-auto px-4 py-8 md:px-8 lg:px-12">
+        <div className="min-h-screen flex flex-col">
           <window.Header />
 
-          <main className="bg-gradient-to-br from-slate-900/80 via-slate-900/50 to-slate-950/80 backdrop-blur-xl rounded-3xl p-8 md:p-12 lg:p-16 border border-slate-700/40 shadow-2xl mt-8 mb-12">
-            {/* Başlık */}
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
-              <div>
-                <h1 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-slate-100 via-teal-100 to-slate-200 bg-clip-text text-transparent">
-                  Hesabım
-                </h1>
-                <p className="text-slate-400 mt-2">
-                  Profil bilgilerinizi, giriş ayarlarını ve bildirim tercihlerinizi yönetin.
-                </p>
-              </div>
-              <button className="px-4 py-2 rounded-2xl text-sm font-semibold bg-slate-800/70 border border-slate-700/60 text-slate-300 hover:border-teal-500/60 hover:text-teal-300 transition-all">
-                Oturumu kapat
-              </button>
-            </div>
-
-            <div className="grid lg:grid-cols-[260px,1fr] gap-8 lg:gap-10">
-              {/* Sol: Profil Kartı + Sekmeler */}
-              <aside className="space-y-6">
-                {/* Profil kartı */}
-                <div className="bg-slate-900/70 border border-slate-700/60 rounded-3xl p-6 flex flex-col items-center text-center gap-3">
-                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-3xl font-bold text-white">
-                    KC
-                  </div>
+          <main className="flex-1">
+            <div className="max-w-6xl mx-auto px-4 py-8 md:px-8 lg:px-12">
+              <div className="bg-gradient-to-br from-slate-900/80 via-slate-900/50 to-slate-950/80 backdrop-blur-xl rounded-3xl p-8 md:p-12 lg:p-16 border border-slate-700/40 shadow-2xl mt-8 mb-12">
+                {/* Başlık */}
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
                   <div>
-                    <div className="font-semibold text-slate-100">Kübra ÇAKIR</div>
-                    <div className="text-sm text-slate-400">ecz.kubracakir@grasscare.com</div>
+                    <h1 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-slate-100 via-teal-100 to-slate-200 bg-clip-text text-transparent">
+                      Hesabım
+                    </h1>
+                    <p className="text-slate-400 mt-2">
+                      Profil bilgilerinizi, giriş ayarlarını ve bildirim tercihlerinizi yönetin.
+                    </p>
                   </div>
-                  <span className="inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/40">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    Pro üye
-                  </span>
+                  <button
+                    className="px-4 py-2 rounded-2xl text-sm font-semibold bg-slate-800/70 border border-slate-700/60 text-slate-300 hover:border-teal-500/60 hover:text-teal-300 transition-all"
+                    onClick={async () => {
+                      await supabase.auth.signOut();
+                      window.location.href = 'anasayfa.html';
+                    }}
+                  >
+                    Oturumu kapat
+                  </button>
                 </div>
 
-                {/* Sekme menüsü */}
-                <nav className="bg-slate-900/70 border border-slate-700/60 rounded-3xl p-2 flex flex-col gap-1">
-                  {[
-                    { id: "profile", label: "Profil Bilgileri" },
-                    { id: "security", label: "Güvenlik ve Giriş" },
-                    { id: "notifications", label: "Bildirimler" },
-                    { id: "billing", label: "Üyelik ve Faturalama" },
-                  ].map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => setTab(item.id)}
-                      className={
-                        "w-full text-left px-3 py-2 rounded-2xl text-sm font-medium transition-all " +
-                        (tab === item.id
-                          ? "bg-teal-500/10 text-teal-300 border border-teal-500/40"
-                          : "text-slate-300 hover:bg-slate-800/80 hover:text-teal-200")
-                      }
-                    >
-                      {item.label}
-                    </button>
-                  ))}
-                </nav>
-              </aside>
+                <div className="grid lg:grid-cols-[260px,1fr] gap-8 lg:gap-10">
+                  {/* Sol: Profil Kartı + Sekmeler */}
+                  <aside className="space-y-6">
+                    {/* Profil kartı */}
+                    <div className="bg-slate-900/70 border border-slate-700/60 rounded-3xl p-6 flex flex-col items-center text-center gap-3">
+                      <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-3xl font-bold text-white">
+                        KC
+                      </div>
+                      <div>
+                        <div className="font-semibold text-slate-100">Kübra ÇAKIR</div>
+                        <div className="text-sm text-slate-400">ecz.kubracakir@grasscare.com</div>
+                      </div>
+                      <span className="inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/40">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Pro üye
+                      </span>
+                    </div>
 
-              {/* Sağ: İçerik */}
-              <section className="bg-slate-900/70 border border-slate-700/60 rounded-3xl p-6 md:p-8 space-y-8">
-                {tab === "profile" && (
-                  <div className="space-y-6">
-                    <h2 className="text-xl font-semibold text-slate-100">Profil Bilgileri</h2>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm text-slate-400 mb-1">Ad Soyad</label>
-                        <input
-                          className="w-full rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
-                          defaultValue="Kübra Çakır"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm text-slate-400 mb-1">E-posta</label>
-                        <input
-                          className="w-full rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
-                          defaultValue="ecz.kubracakir@grasscare.com"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm text-slate-400 mb-1">Telefon</label>
-                        <input
-                          className="w-full rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-100"
-                          defaultValue="+90 553 514 54 69"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm text-slate-400 mb-1">Zaman dilimi</label>
-                        <select className="w-full rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-100">
-                          <option>Europe/Istanbul (GMT+3)</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div className="flex justify-end gap-3">
-                      <button className="px-4 py-2 rounded-2xl text-sm font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">
-                        Vazgeç
-                      </button>
-                      <button className="px-5 py-2 rounded-2xl text-sm font-semibold bg-gradient-to-r from-teal-500 to-cyan-600 text-white hover:from-teal-600 hover:to-cyan-700 shadow-lg hover:shadow-teal-500/40 transition-all">
-                        Değişiklikleri Kaydet
-                      </button>
-                    </div>
-                  </div>
-                )}
+                    {/* Sekme menüsü */}
+                    <nav className="bg-slate-900/70 border border-slate-700/60 rounded-3xl p-2 flex flex-col gap-1">
+                      {[
+                        { id: "profile", label: "Profil Bilgileri" },
+                        { id: "security", label: "Güvenlik ve Giriş" },
+                        { id: "notifications", label: "Bildirimler" },
+                        { id: "billing", label: "Üyelik ve Faturalama" },
+                      ].map((item) => (
+                        <button
+                          key={item.id}
+                          onClick={() => setTab(item.id)}
+                          className={
+                            "w-full text-left px-3 py-2 rounded-2xl text-sm font-medium transition-all " +
+                            (tab === item.id
+                              ? "bg-teal-500/10 text-teal-300 border border-teal-500/40"
+                              : "text-slate-300 hover:bg-slate-800/80 hover:text-teal-200")
+                          }
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </nav>
+                  </aside>
 
-                {tab === "security" && (
-                  <div className="space-y-6">
-                    <h2 className="text-xl font-semibold text-slate-100">Güvenlik ve Giriş</h2>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm text-slate-400 mb-1">Mevcut şifre</label>
-                        <input
-                          type="password"
-                          className="w-full rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-100"
-                        />
+                  {/* Sağ: İçerik */}
+                  <section className="bg-slate-900/70 border border-slate-700/60 rounded-3xl p-6 md:p-8 space-y-8">
+                    {tab === "profile" && (
+                      <div className="space-y-6">
+                        <h2 className="text-xl font-semibold text-slate-100">Profil Bilgileri</h2>
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm text-slate-400 mb-1">Ad Soyad</label>
+                            <input
+                              className="w-full rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+                              defaultValue="Kübra Çakır"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm text-slate-400 mb-1">E-posta</label>
+                            <input
+                              className="w-full rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+                              defaultValue="ecz.kubracakir@grasscare.com"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm text-slate-400 mb-1">Telefon</label>
+                            <input
+                              className="w-full rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-100"
+                              defaultValue="+90 553 514 54 69"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm text-slate-400 mb-1">Zaman dilimi</label>
+                            <select className="w-full rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-100">
+                              <option>Europe/Istanbul (GMT+3)</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="flex justify-end gap-3">
+                          <button className="px-4 py-2 rounded-2xl text-sm font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">
+                            Vazgeç
+                          </button>
+                          <button className="px-5 py-2 rounded-2xl text-sm font-semibold bg-gradient-to-r from-teal-500 to-cyan-600 text-white hover:from-teal-600 hover:to-cyan-700 shadow-lg hover:shadow-teal-500/40 transition-all">
+                            Değişiklikleri Kaydet
+                          </button>
+                        </div>
                       </div>
-                      <div>
-                        <label className="block text-sm text-slate-400 mb-1">Yeni şifre</label>
-                        <input
-                          type="password"
-                          className="w-full rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-100"
-                        />
+                    )}
+
+                    {tab === "security" && (
+                      <div className="space-y-6">
+                        <h2 className="text-xl font-semibold text-slate-100">Güvenlik ve Giriş</h2>
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm text-slate-400 mb-1">Mevcut şifre</label>
+                            <input
+                              type="password"
+                              className="w-full rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-100"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm text-slate-400 mb-1">Yeni şifre</label>
+                            <input
+                              type="password"
+                              className="w-full rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-100"
+                            />
+                          </div>
+                        </div>
+                        <button className="px-5 py-2 rounded-2xl text-sm font-semibold bg-gradient-to-r from-teal-500 to-cyan-600 text-white hover:from-teal-600 hover:to-cyan-700 shadow-lg hover:shadow-teal-500/40 transition-all">
+                          Şifreyi Güncelle
+                        </button>
                       </div>
-                    </div>
-                    <button className="px-5 py-2 rounded-2xl text-sm font-semibold bg-gradient-to-r from-teal-500 to-cyan-600 text-white hover:from-teal-600 hover:to-cyan-700 shadow-lg hover:shadow-teal-500/40 transition-all">
-                      Şifreyi Güncelle
-                    </button>
-                  </div>
-                )}
+                    )}
 
-                {tab === "notifications" && (
-                  <div className="space-y-6">
-                    <h2 className="text-xl font-semibold text-slate-100">Bildirimler</h2>
-                    <div className="space-y-3 text-sm text-slate-300">
-                      <label className="flex items-center justify-between gap-4">
-                        <span>Sulama programı başladığında e-posta al</span>
-                        <input
-                          type="checkbox"
-                          defaultChecked
-                          className="rounded border-slate-600 text-teal-500"
-                        />
-                      </label>
-                      <label className="flex items-center justify-between gap-4">
-                        <span>Hata veya alarm durumunda anlık bildirimler</span>
-                        <input
-                          type="checkbox"
-                          defaultChecked
-                          className="rounded border-slate-600 text-teal-500"
-                        />
-                      </label>
-                    </div>
-                  </div>
-                )}
+                    {tab === "notifications" && (
+                      <div className="space-y-6">
+                        <h2 className="text-xl font-semibold text-slate-100">Bildirimler</h2>
+                        <div className="space-y-3 text-sm text-slate-300">
+                          <label className="flex items-center justify-between gap-4">
+                            <span>Sulama programı başladığında e-posta al</span>
+                            <input
+                              type="checkbox"
+                              defaultChecked
+                              className="rounded border-slate-600 text-teal-500"
+                            />
+                          </label>
+                          <label className="flex items-center justify-between gap-4">
+                            <span>Hata veya alarm durumunda anlık bildirimler</span>
+                            <input
+                              type="checkbox"
+                              defaultChecked
+                              className="rounded border-slate-600 text-teal-500"
+                            />
+                          </label>
+                        </div>
+                      </div>
+                    )}
 
-                {tab === "billing" && (
-                  <div className="space-y-6">
-                    <h2 className="text-xl font-semibold text-slate-100">Üyelik ve Faturalama</h2>
-                    <p className="text-sm text-slate-400">
-                      Aktif planınız:{" "}
-                      <span className="text-teal-300 font-semibold">Pro Aylık</span> – Sonraki yenileme:
-                      10 Ocak 2026
-                    </p>
-                    <div className="flex flex-wrap gap-3">
-                      <button className="px-4 py-2 rounded-2xl text-sm font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">
-                        Fatura geçmişini görüntüle
-                      </button>
-                      <button className="px-4 py-2 rounded-2xl text-sm font-semibold bg-slate-900 border border-red-500/60 text-red-300 hover:bg-red-500/10 transition-all">
-                        Üyeliği iptal et
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </section>
+                    {tab === "billing" && (
+                      <div className="space-y-6">
+                        <h2 className="text-xl font-semibold text-slate-100">Üyelik ve Faturalama</h2>
+                        <p className="text-sm text-slate-400">
+                          Aktif planınız:{" "}
+                          <span className="text-teal-300 font-semibold">Pro Aylık</span> – Sonraki yenileme:
+                          10 Ocak 2026
+                        </p>
+                        <div className="flex flex-wrap gap-3">
+                          <button className="px-4 py-2 rounded-2xl text-sm font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">
+                            Fatura geçmişini görüntüle
+                          </button>
+                          <button className="px-4 py-2 rounded-2xl text-sm font-semibold bg-slate-900 border border-red-500/60 text-red-300 hover:bg-red-500/10 transition-all">
+                            Üyeliği iptal et
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </section>
+                </div>
+              </div>
             </div>
           </main>
 
