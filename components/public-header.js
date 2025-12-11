@@ -1,5 +1,3 @@
-const { useState } = React;
-
 const PublicHeader = () => {
   return (
     <header className="bg-gradient-to-r from-slate-900/95 to-emerald-900/95 backdrop-blur-md border-b border-slate-800/50 sticky top-0 z-50">
@@ -14,14 +12,14 @@ const PublicHeader = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          <a href="#ozellikler" className="text-slate-300 hover:text-teal-300 font-medium">
+          <a href="anasayfa.html#ozellikler" className="text-slate-300 hover:text-teal-300 font-medium">
             Özellikler
           </a>
           <a href="uyelik.html" className="text-slate-300 hover:text-teal-300 font-medium">
             Üyelik
           </a>
           <a
-            href="#giris"
+            href="anasayfa.html#giris"
             className="px-4 py-2 bg-teal-500/20 hover:bg-teal-500/30 text-teal-200 font-medium rounded-xl border border-teal-500/30 transition-all duration-200"
           >
             Giriş / Üye Ol
@@ -32,5 +30,4 @@ const PublicHeader = () => {
   );
 };
 
-// Global export
 window.Header = PublicHeader;
