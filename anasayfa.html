@@ -40,19 +40,20 @@
 
       // Sayfa yüklendiğinde kullanıcı durumunu kontrol et
       useEffect(() => {
-        supabase.auth.getSession().then(({ data: { session } }) => {
-          setUser(session && session.user ? session.user : null);
-          if (session) setView('dashboard');
-        });
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    setUser(session && session.user ? session.user : null);
+    if (session) setView('dashboard');
+  });
 
-        // Auth state değişimlerini dinle
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-          setUser(session?.user ?? null);
-          setView(session ? 'dashboard' : 'welcome');
-        });
+  // Auth state değişimlerini dinle
+  const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    setUser(session && session.user ? session.user : null);
+    setView(session ? 'dashboard' : 'welcome');
+  });
 
-        return () => subscription.unsubscribe();
-      }, []);
+  return () => subscription.unsubscribe();
+}, []);
+
 
       const handleSignup = async (e) => {
         e.preventDefault();
