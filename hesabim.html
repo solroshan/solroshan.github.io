@@ -82,6 +82,16 @@
       }, []);
 
       const handleSaveProfile = async () => {
+        if (
+          !profile.firstName.trim() ||
+          !profile.lastName.trim() ||
+          !profile.email.trim() ||
+          !profile.phone.trim()
+        ) {
+          alert("Ad, soyad, e-posta ve telefon alanları zorunludur.");
+          return;
+        }
+
         setSaving(true);
         try {
           const updates = {
