@@ -12,18 +12,18 @@
   <!-- React + ReactDOM + Babel -->
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>[web:57]
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <!-- Supabase UMD -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script>
     const supabaseUrl = 'https://puurwgrzknxttjsjxdit.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1dXJ3Z3J6a254dHRqc2p4ZGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0NTIyODUsImV4cCI6MjA4MTAyODI4NX0.tYoFbwWeuPCAXLXVp8yX0ThbvWPgboYOCUqPuKtAoaI';
-    window.supabase = supabase.createClient(supabaseUrl, supabaseKey);[web:58]
+    window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
   </script>
 
   <!-- Auth header (giriş kontrolü + redirect) -->
-  <script type="text/babel" src="header-auth.js"></script>
+  <script type="text/babel" src="./components/header-auth.js"></script>
 
   <style>
     .btn-soft { transition: box-shadow .18s, background .18s, color .18s; }
@@ -40,11 +40,34 @@
 
   <!-- Hesabım sayfası -->
   <script type="text/babel">
-    const { useState } = React;
+    const { useState, useEffect } = React;
     const { createRoot } = ReactDOM;
 
     const AccountPage = () => {
       const [tab, setTab] = useState("billing");
+      const [profile, setProfile] = useState({
+        name: "",
+        email: "",
+        phone: ""
+      });
+
+      // Supabase Auth'tan kullanıcı bilgilerini çek
+      useEffect(() => {
+        const loadUser = async () => {
+          const { data, error } = await supabase.auth.getUser();
+          if (error || !data?.user) return;
+
+          const u = data.user;
+          const meta = u.user_metadata || {};
+          setProfile({
+            name: meta.full_name || meta.name || "Kullanıcı",
+            email: u.email || "",
+            phone: meta.phone || ""
+          });
+        };
+
+        loadUser();
+      }, []);
 
       return (
         <div className="min-h-screen flex flex-col">
@@ -80,11 +103,11 @@
                     {/* Profil kartı */}
                     <div className="bg-slate-900/70 border border-slate-700/60 rounded-3xl p-6 flex flex-col items-center text-center gap-3">
                       <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-3xl font-bold text-white">
-                        KC
+                        {profile.name ? profile.name[0]?.toUpperCase() : "U"}
                       </div>
                       <div>
-                        <div className="font-semibold text-slate-100">Kübra ÇAKIR</div>
-                        <div className="text-sm text-slate-400">ecz.kubracakir@grasscare.com</div>
+                        <div className="font-semibold text-slate-100">{profile.name || "Kullanıcı"}</div>
+                        <div className="text-sm text-slate-400">{profile.email || "—"}</div>
                       </div>
                       <span className="inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/40">
                         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -126,21 +149,24 @@
                             <label className="block text-sm text-slate-400 mb-1">Ad Soyad</label>
                             <input
                               className="w-full rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
-                              defaultValue="Kübra Çakır"
+                              value={profile.name}
+                              onChange={e => setProfile(p => ({ ...p, name: e.target.value }))}
                             />
                           </div>
                           <div>
                             <label className="block text-sm text-slate-400 mb-1">E-posta</label>
                             <input
                               className="w-full rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
-                              defaultValue="ecz.kubracakir@grasscare.com"
+                              value={profile.email}
+                              onChange={e => setProfile(p => ({ ...p, email: e.target.value }))}
                             />
                           </div>
                           <div>
                             <label className="block text-sm text-slate-400 mb-1">Telefon</label>
                             <input
                               className="w-full rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-100"
-                              defaultValue="+90 553 514 54 69"
+                              value={profile.phone}
+                              onChange={e => setProfile(p => ({ ...p, phone: e.target.value }))}
                             />
                           </div>
                           <div>
