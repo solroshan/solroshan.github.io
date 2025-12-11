@@ -114,6 +114,27 @@
           setSaving(false);
         }
       };
+      const handleChangePassword = async (e) => {
+  e.preventDefault();
+  setErrorMsg("");
+
+  if (!newPassword || newPassword.length < 6) {
+    setErrorMsg("Yeni parola en az 6 karakter olmalıdır.");
+    return;
+  } // [web:301]
+
+  const { data, error } = await supabase.auth.updateUser({
+    password: newPassword,
+  }); // login olmuş kullanıcı için şifre güncelleme [web:330][web:332]
+
+  if (error) {
+    setErrorMsg("Şifre güncellenemedi: " + error.message);
+    return;
+  }
+
+  alert("Şifren güncellendi.");
+  setNewPassword("");
+};
 
       const displayName =
         profile.firstName || profile.lastName
