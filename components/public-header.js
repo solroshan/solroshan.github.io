@@ -34,27 +34,42 @@ const PublicHeader = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          <a href="anasayfa.html#ozellikler" className="text-slate-300 hover:text-teal-300 font-medium">
-            Özellikler
-          </a>
-          <a href="uyelik.html" className="text-slate-300 hover:text-teal-300 font-medium">
-            Üyelik
-          </a>
-
           {loggedIn ? (
-            <a
-              href="hesabim.html"
-              className="px-4 py-2 bg-teal-500/20 hover:bg-teal-500/30 text-teal-200 font-medium rounded-xl border border-teal-500/30 transition-all duration-200"
-            >
-              Profilim
-            </a>
+            <>
+              <a
+                href="program.html"
+                className="text-slate-300 hover:text-teal-300 font-medium"
+              >
+                Program
+              </a>
+              <a
+                href="hesabim.html"
+                className="px-4 py-2 bg-teal-500/20 hover:bg-teal-500/30 text-teal-200 font-medium rounded-xl border border-teal-500/30 transition-all duration-200"
+              >
+                Profilim
+              </a>
+            </>
           ) : (
-            <a
-              href="anasayfa.html#giris"
-              className="px-4 py-2 bg-teal-500/20 hover:bg-teal-500/30 text-teal-200 font-medium rounded-xl border border-teal-500/30 transition-all duration-200"
-            >
-              Giriş / Üye Ol
-            </a>
+            <>
+              <a
+                href="anasayfa.html#ozellikler"
+                className="text-slate-300 hover:text-teal-300 font-medium"
+              >
+                Özellikler
+              </a>
+              <a
+                href="uyelik.html"
+                className="text-slate-300 hover:text-teal-300 font-medium"
+              >
+                Üyelik
+              </a>
+              <a
+                href="anasayfa.html#giris"
+                className="px-4 py-2 bg-teal-500/20 hover:bg-teal-500/30 text-teal-200 font-medium rounded-xl border border-teal-500/30 transition-all duration-200"
+              >
+                Giriş / Üye Ol
+              </a>
+            </>
           )}
         </div>
       </div>
