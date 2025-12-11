@@ -19,7 +19,7 @@
   <script>
     const supabaseUrl = 'https://puurwgrzknxttjsjxdit.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1dXJ3Z3J6a254dHRqc2p4ZGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0NTIyODUsImV4cCI6MjA4MTAyODI4NX0.tYoFbwWeuPCAXLXVp8yX0ThbvWPgboYOCUqPuKtAoaI';
-    window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    window.supabase = supabase.createClient(supabaseUrl, supabaseKey); /* client [web:123] */
   </script>
 
   <!-- Public header + footer -->
@@ -37,8 +37,8 @@
       const [displayName, setDisplayName] = React.useState(null);
 
       React.useEffect(() => {
-        const checkUser = async () => {
-          const { data, error } = await supabase.auth.getUser(); /* current user [web:123] */
+        const checkUserAndProfile = async () => {
+          const { data, error } = await supabase.auth.getUser(); // [web:123]
           if (error || !data?.user) {
             setDisplayName(null);
             return;
@@ -60,7 +60,7 @@
           setDisplayName(`${firstName} ${lastName}`.trim());
         };
 
-        checkUser();
+        checkUserAndProfile();
       }, []);
 
       return (
@@ -71,15 +71,26 @@
             <section className="max-w-6xl mx-auto px-4 py-10 md:px-8 lg:px-12">
               {displayName && (
                 <p className="mb-4 text-sm text-slate-300">
-                  Hoş geldin, <span className="font-semibold text-teal-300">{displayName}</span>
+                  Hoş geldin,{" "}
+                  <span className="font-semibold text-teal-300">
+                    {displayName}
+                  </span>
                 </p>
               )}
 
-              {/* Buraya mevcut anasayfa hero + içeriklerini koyuyorsun */}
+              {/* Buraya mevcut anasayfa hero ve diğer içeriklerin geliyor */}
               <h1 className="text-3xl md:text-4xl font-black mb-4">
                 Akıllı Sulama Asistanınız GrassCare
               </h1>
-              {/* ... diğer anasayfa içerikleri ... */}
+              <p className="text-slate-300 max-w-xl">
+                Bahçenizi, sitenizi veya tarlanızı akıllı sensörler ve otomatik programlarla
+                yönetin.
+              </p>
+
+              {/* Örnek giriş alanı anchor için */}
+              <div id="giris" className="mt-10">
+                {/* Buraya giriş / kayıt formu ya da butonların olduğu blok geliyor */}
+              </div>
             </section>
           </main>
 
