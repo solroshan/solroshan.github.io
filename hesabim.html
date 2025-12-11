@@ -19,7 +19,7 @@
   <script>
     const supabaseUrl = 'https://puurwgrzknxttjsjxdit.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1dXJ3Z3J6a254dHRqc2p4ZGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0NTIyODUsImV4cCI6MjA4MTAyODI4NX0.tYoFbwWeuPCAXLXVp8yX0ThbvWPgboYOCUqPuKtAoaI';
-    window.supabase = supabase.createClient(supabaseUrl, supabaseKey); /* Auth client [web:107] */
+    window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
   </script>
 
   <!-- Auth header (giriş kontrolü + redirect) -->
@@ -46,7 +46,8 @@
     const AccountPage = () => {
       const [tab, setTab] = useState("billing");
       const [profile, setProfile] = useState({
-        name: "",
+        firstName: "",
+        lastName: "",
         email: "",
         phone: ""
       });
@@ -55,13 +56,14 @@
       // Supabase Auth'tan kullanıcı bilgilerini çek
       useEffect(() => {
         const loadUser = async () => {
-          const { data, error } = await supabase.auth.getUser();
+          const { data, error } = await supabase.auth.getUser(); // [web:123]
           if (error || !data?.user) return;
 
           const u = data.user;
           const meta = u.user_metadata || {};
           setProfile({
-            name: meta.full_name || meta.name || "Kullanıcı",
+            firstName: meta.first_name || "",
+            lastName: meta.last_name || "",
             email: u.email || "",
             phone: meta.phone || ""
           });
@@ -76,12 +78,13 @@
           const updates = {
             email: profile.email || undefined,
             data: {
-              full_name: profile.name,
+              first_name: profile.firstName,
+              last_name: profile.lastName,
               phone: profile.phone,
             },
           };
 
-          const { error } = await supabase.auth.updateUser(updates); /* user metadata update [web:139] */
+          const { error } = await supabase.auth.updateUser(updates); // [web:139]
           if (error) {
             alert("Profil güncellenirken hata oluştu: " + error.message);
             return;
@@ -92,6 +95,11 @@
           setSaving(false);
         }
       };
+
+      const displayName =
+        profile.firstName || profile.lastName
+          ? `${profile.firstName} ${profile.lastName}`.trim()
+          : "Kullanıcı";
 
       return (
         <div className="min-h-screen flex flex-col">
@@ -127,10 +135,10 @@
                     {/* Profil kartı */}
                     <div className="bg-slate-900/70 border border-slate-700/60 rounded-3xl p-6 flex flex-col items-center text-center gap-3">
                       <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-3xl font-bold text-white">
-                        {profile.name ? profile.name[0]?.toUpperCase() : "U"}
+                        {profile.firstName ? profile.firstName[0]?.toUpperCase() : "U"}
                       </div>
                       <div>
-                        <div className="font-semibold text-slate-100">{profile.name || "Kullanıcı"}</div>
+                        <div className="font-semibold text-slate-100">{displayName}</div>
                         <div className="text-sm text-slate-400">{profile.email || "—"}</div>
                       </div>
                       <span className="inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/40">
@@ -170,11 +178,19 @@
                         <h2 className="text-xl font-semibold text-slate-100">Profil Bilgileri</h2>
                         <div className="grid md:grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-sm text-slate-400 mb-1">Ad Soyad</label>
+                            <label className="block text-sm text-slate-400 mb-1">Ad</label>
                             <input
                               className="w-full rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
-                              value={profile.name}
-                              onChange={e => setProfile(p => ({ ...p, name: e.target.value }))}
+                              value={profile.firstName}
+                              onChange={e => setProfile(p => ({ ...p, firstName: e.target.value }))}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm text-slate-400 mb-1">Soyad</label>
+                            <input
+                              className="w-full rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+                              value={profile.lastName}
+                              onChange={e => setProfile(p => ({ ...p, lastName: e.target.value }))}
                             />
                           </div>
                           <div>
@@ -244,7 +260,7 @@
                       <div className="space-y-6">
                         <h2 className="text-xl font-semibold text-slate-100">Bildirimler</h2>
                         <div className="space-y-3 text-sm text-slate-300">
-                          <label className="flex items-center justify-between gap-4">
+                          <label className="flex items-center justify_between gap-4">
                             <span>Sulama programı başladığında e-posta al</span>
                             <input
                               type="checkbox"
