@@ -19,7 +19,7 @@
   <script>
     const supabaseUrl = 'https://puurwgrzknxttjsjxdit.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1dXJ3Z3J6a254dHRqc2p4ZGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0NTIyODUsImV4cCI6MjA4MTAyODI4NX0.tYoFbwWeuPCAXLXVp8yX0ThbvWPgboYOCUqPuKtAoaI';
-    window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    window.supabase = supabase.createClient(supabaseUrl, supabaseKey); /* Auth client [web:107] */
   </script>
 
   <!-- Auth header (giriş kontrolü + redirect) -->
@@ -50,6 +50,7 @@
         email: "",
         phone: ""
       });
+      const [saving, setSaving] = useState(false);
 
       // Supabase Auth'tan kullanıcı bilgilerini çek
       useEffect(() => {
@@ -68,6 +69,29 @@
 
         loadUser();
       }, []);
+
+      const handleSaveProfile = async () => {
+        setSaving(true);
+        try {
+          const updates = {
+            email: profile.email || undefined,
+            data: {
+              full_name: profile.name,
+              phone: profile.phone,
+            },
+          };
+
+          const { error } = await supabase.auth.updateUser(updates); /* user metadata update [web:139] */
+          if (error) {
+            alert("Profil güncellenirken hata oluştu: " + error.message);
+            return;
+          }
+
+          alert("Profil başarıyla güncellendi.");
+        } finally {
+          setSaving(false);
+        }
+      };
 
       return (
         <div className="min-h-screen flex flex-col">
@@ -180,8 +204,12 @@
                           <button className="px-4 py-2 rounded-2xl text-sm font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">
                             Vazgeç
                           </button>
-                          <button className="px-5 py-2 rounded-2xl text-sm font-semibold bg-gradient-to-r from-teal-500 to-cyan-600 text-white hover:from-teal-600 hover:to-cyan-700 shadow-lg hover:shadow-teal-500/40 transition-all">
-                            Değişiklikleri Kaydet
+                          <button
+                            className="px-5 py-2 rounded-2xl text-sm font-semibold bg-gradient-to-r from-teal-500 to-cyan-600 text-white hover:from-teal-600 hover:to-cyan-700 shadow-lg hover:shadow-teal-500/40 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                            onClick={handleSaveProfile}
+                            disabled={saving}
+                          >
+                            {saving ? "Kaydediliyor..." : "Değişiklikleri Kaydet"}
                           </button>
                         </div>
                       </div>
