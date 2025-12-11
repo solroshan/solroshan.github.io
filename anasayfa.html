@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="/assets/css/images/leaf.png" rel="shortcut icon" type="image/png" />
+  <title>GrassCare - Akıllı Sulama Sistemi</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    .btn-soft { transition: box-shadow .18s, background .18s, color .18s; }
+    .btn-soft:hover { box-shadow: 0 6px 18px rgba(2,6,23,0.18), 0 1.5px 8px rgba(20,184,166,0.09); }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-emerald-900 via-teal-900 to-slate-900 font-sans text-slate-100 min-h-screen">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+    const { createRoot } = ReactDOM;
+
+    // ← SUPABASE BAĞLANTI (kendi project URL ve anon key'ini buraya koy)
+    const supabase = Supabase.createClient(
+      'https://YOUR_PROJECT_ID.supabase.co', 
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+    );
+
+    const HomePage = () => {
+      const [view, setView] = useState('welcome'); // welcome, login, signup
+      const [email, setEmail] = useState('');
+      const [password, setPassword] = useState('');
+      const [name, setName] = useState('');
+      const [phone, setPhone] = useState('');
+      const [loading, setLoading] = useState(false);
+      const [user, setUser] = useState(null);
+
+      // Sayfa yüklendiğinde kullanıcı durumunu kontrol et
+      useEffect(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          setUser(session?.user ?? null);
+          if (session) setView('dashboard');
+        });
+
+        // Auth state değişimlerini dinle
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+          setUser(session?.user ?? null);
+          setView(session ? 'dashboard' : 'welcome');
+        });
+
+        return () => subscription.unsubscribe();
+      }, []);
+
+      const handleSignup = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+
+        try {
+          // 1. Supabase Auth ile kullanıcı oluştur
+          const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: { data: { name, phone } }
+          });
+
+          if (error) throw error;
+
+          // 2. users tablosuna profil bilgilerini ekle
+          const { error: profileError } = await supabase
+            .from('users')
+            .insert({
+              id: data.user.id,
+              email,
+              name,
+              phone,
+              plan: 'free',
+              created_at: new Date().toISOString()
+            });
+
+          if (profileError) throw profileError;
+
+          alert('Kayıt başarılı! E-posta onayı bekleniyor.');
+          setView('login');
+        } catch (error) {
+          alert(error.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      const handleLogin = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+
+        try {
+          const { error } = await supabase.auth.signInWithPassword({
+            email,
+            password
+          });
+          if (error) throw error;
+        } catch (error) {
+          alert(error.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      const handleLogout = async () => {
+        await supabase.auth.signOut();
+        setUser(null);
+      };
+
+      if (view === 'dashboard' && user) {
+        return (
+          <div className="max-w-4xl mx-auto px-4 py-12">
+            <div className="text-center mb-12">
+              <h1 className="text-5xl font-black bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent mb-4">
+                Hoş geldin, {user.user_metadata?.name || user.email.split('@')[0]}!
+              </h1>
+              <p className="text-xl text-slate-300">Hesabın başarıyla senkronize edildi.</p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <a href="hesabim.html" className="group">
+                <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 hover:border-teal-400/50 transition-all hover:scale-[1.02] h-48 flex flex-col items-center justify-center text-center">
+                  <div className="w-16 h-16 bg-teal-500 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <span className="text-2xl font-bold text-slate-900">👤</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-100 mb-2">Hesabım</h3>
+                  <p className="text-slate-400 text-sm">Profil ve ayarlar</p>
+                </div>
+              </a>
+
+              <a href="uyelik.html" className="group">
+                <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 hover:border-teal-400/50 transition-all hover:scale-[1.02] h-48 flex flex-col items-center justify-center text-center">
+                  <div className="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <span className="text-2xl font-bold text-slate-900">⭐</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-100 mb-2">Üyelik</h3>
+                  <p className="text-slate-400 text-sm">Plan ve faturalama</p>
+                </div>
+              </a>
+
+              <div className="group">
+                <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 hover:border-red-400/50 transition-all hover:scale-[1.02] h-48 flex flex-col items-center justify-center text-center cursor-pointer" onClick={handleLogout}>
+                  <div className="w-16 h-16 bg-red-500 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <span className="text-2xl font-bold text-slate-900">🚪</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-100 mb-2">Çıkış Yap</h3>
+                  <p className="text-slate-400 text-sm">Oturumu kapat</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="max-w-md mx-auto px-4 py-12">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent mb-4">
+              GrassCare
+            </h1>
+            <p className="text-xl text-slate-300">Akıllı sulama sistemi</p>
+          </div>
+
+          {view === 'welcome' && (
+            <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20">
+              <div className="space-y-4 mb-8">
+                <button
+                  onClick={() => setView('login')}
+                  className="w-full bg-gradient-to-r from-teal-500 to-cyan-600 text-white py-4 rounded-2xl font-semibold text-lg btn-soft hover:from-teal-600 hover:to-cyan-700"
+                >
+                  Giriş Yap
+                </button>
+                <div className="text-center text-slate-400">
+                  <span className="px-2">veya</span>
+                </div>
+                <button
+                  onClick={() => setView('signup')}
+                  className="w-full bg-white/20 border border-white/30 text-slate-100 py-4 rounded-2xl font-semibold text-lg btn-soft hover:bg-white/30 hover:border-teal-400"
+                >
+                  Yeni Üye Ol
+                </button>
+              </div>
+            </div>
+          )}
+
+          {view === 'login' && (
+            <form onSubmit={handleLogin} className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 space-y-4">
+              <div>
+                <label className="block text-sm text-slate-300 mb-2">E-posta</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full rounded-2xl bg-white/20 border border-white/30 px-4 py-3 text-slate-100 placeholder-slate-400 focus:outline-none focus:border-teal-400 focus:ring-1 focus:ring-teal-400"
+                  placeholder="email@example.com"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-slate-300 mb-2">Şifre</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full rounded-2xl bg-white/20 border border-white/30 px-4 py-3 text-slate-100 placeholder-slate-400 focus:outline-none focus:border-teal-400 focus:ring-1 focus:ring-teal-400"
+                  placeholder="Şifreniz"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-teal-500 to-cyan-600 text-white py-4 rounded-2xl font-semibold text-lg btn-soft hover:from-teal-600 hover:to-cyan-700 disabled:opacity-50"
+              >
+                {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setView('welcome')}
+                className="w-full text-slate-400 py-3 rounded-2xl hover:text-slate-200 transition-colors"
+              >
+                Geri
+              </button>
+            </form>
+          )}
+
+          {view === 'signup' && (
+            <form onSubmit={handleSignup} className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 space-y-4">
+              <div>
+                <label className="block text-sm text-slate-300 mb-2">Ad Soyad</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full rounded-2xl bg-white/20 border border-white/30 px-4 py-3 text-slate-100 placeholder-slate-400 focus:outline-none focus:border-teal-400"
+                  placeholder="Ad Soyad"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-slate-300 mb-2">E-posta</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full rounded-2xl bg-white/20 border border-white/30 px-4 py-3 text-slate-100 placeholder-slate-400 focus:outline-none focus:border-teal-400"
+                  placeholder="email@example.com"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-slate-300 mb-2">Telefon</label>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full rounded-2xl bg-white/20 border border-white/30 px-4 py-3 text-slate-100 placeholder-slate-400 focus:outline-none focus:border-teal-400"
+                  placeholder="+90 555 123 45 67"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-slate-300 mb-2">Şifre</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full rounded-2xl bg-white/20 border border-white/30 px-4 py-3 text-slate-100 placeholder-slate-400 focus:outline-none focus:border-teal-400"
+                  placeholder="En az 6 karakter"
+                  minLength="6"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-4 rounded-2xl font-semibold text-lg btn-soft hover:from-emerald-600 hover:to-teal-700 disabled:opacity-50"
+              >
+                {loading ? 'Kayıt olunuyor...' : 'Üye Ol'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setView('welcome')}
+                className="w-full text-slate-400 py-3 rounded-2xl hover:text-slate-200 transition-colors"
+              >
+                Geri
+              </button>
+            </form>
+          )}
+        </div>
+      );
+    };
+
+    createRoot(document.getElementById("root")).render(<HomePage />);
+  </script>
+</body>
+</html>
