@@ -19,7 +19,7 @@
   <script>
     const supabaseUrl = 'https://puurwgrzknxttjsjxdit.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1dXJ3Z3J6a254dHRqc2p4ZGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0NTIyODUsImV4cCI6MjA4MTAyODI4NX0.tYoFbwWeuPCAXLXVp8yX0ThbvWPgboYOCUqPuKtAoaI';
-    window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    window.supabase = supabase.createClient(supabaseUrl, supabaseKey); /* [web:280] */
   </script>
 
   <!-- Auth header (giriş kontrolü + redirect) -->
@@ -35,6 +35,7 @@
   <div id="root"></div>
 
   <!-- Ortak komponentler -->
+  <script type="text/babel" src="./components/public-header.js"></script>
   <script type="text/babel" src="./components/icons.js"></script>
   <script type="text/babel" src="./components/Footer.js"></script>
 
@@ -62,10 +63,15 @@
       });
       const [saving, setSaving] = useState(false);
 
+      const [currentPassword, setCurrentPassword] = useState("");
+      const [newPassword, setNewPassword] = useState("");
+      const [passwordLoading, setPasswordLoading] = useState(false);
+      const [passwordError, setPasswordError] = useState("");
+
       // Supabase Auth'tan kullanıcı bilgilerini çek
       useEffect(() => {
         const loadUser = async () => {
-          const { data, error } = await supabase.auth.getUser();
+          const { data, error } = await supabase.auth.getUser(); /* [web:123] */
           if (error || !data?.user) return;
 
           const u = data.user;
@@ -103,7 +109,7 @@
             },
           };
 
-          const { error } = await supabase.auth.updateUser(updates); /* update metadata [web:139] */
+          const { error } = await supabase.auth.updateUser(updates); /* profil + metadata güncelle [web:333] */
           if (error) {
             alert("Profil güncellenirken hata oluştu: " + error.message);
             return;
@@ -114,27 +120,47 @@
           setSaving(false);
         }
       };
+
       const handleChangePassword = async (e) => {
-  e.preventDefault();
-  setErrorMsg("");
+        e.preventDefault();
+        setPasswordError("");
 
-  if (!newPassword || newPassword.length < 6) {
-    setErrorMsg("Yeni parola en az 6 karakter olmalıdır.");
-    return;
-  } // [web:301]
+        if (!newPassword || newPassword.length < 6) {
+          setPasswordError("Yeni parola en az 6 karakter olmalıdır.");
+          return;
+        } /* min 6 karakter [web:301] */
 
-  const { data, error } = await supabase.auth.updateUser({
-    password: newPassword,
-  }); // login olmuş kullanıcı için şifre güncelleme [web:330][web:332]
+        setPasswordLoading(true);
 
-  if (error) {
-    setErrorMsg("Şifre güncellenemedi: " + error.message);
-    return;
-  }
+        // İsteğe bağlı: mevcut şifreyi kontrol etmek için tekrar login ol
+        if (currentPassword) {
+          const { error: signInError } = await supabase.auth.signInWithPassword({
+            email: profile.email,
+            password: currentPassword,
+          }); /* mevcut şifre doğrulama [web:325] */
 
-  alert("Şifren güncellendi.");
-  setNewPassword("");
-};
+          if (signInError) {
+            setPasswordLoading(false);
+            setPasswordError("Mevcut şifre hatalı.");
+            return;
+          }
+        }
+
+        const { error } = await supabase.auth.updateUser({
+          password: newPassword,
+        }); /* giriş yapmış kullanıcıda şifre güncelle [web:330][web:332] */
+
+        setPasswordLoading(false);
+
+        if (error) {
+          setPasswordError("Şifre güncellenemedi: " + error.message);
+          return;
+        }
+
+        alert("Şifren güncellendi.");
+        setCurrentPassword("");
+        setNewPassword("");
+      };
 
       const displayName =
         profile.firstName || profile.lastName
@@ -274,25 +300,41 @@
                     {tab === "security" && (
                       <div className="space-y-6">
                         <h2 className="text-xl font-semibold text-slate-100">Güvenlik ve Giriş</h2>
-                        <div className="grid md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm text-slate-400 mb-1">Mevcut şifre</label>
-                            <input
-                              type="password"
-                              className="w-full rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-100"
-                            />
+                        <form onSubmit={handleChangePassword} className="space-y-4">
+                          <div className="grid md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-sm text-slate-400 mb-1">Mevcut şifre</label>
+                              <input
+                                type="password"
+                                className="w-full rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-100"
+                                value={currentPassword}
+                                onChange={(e) => setCurrentPassword(e.target.value)}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm text-slate-400 mb-1">Yeni şifre</label>
+                              <input
+                                type="password"
+                                className="w-full rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-100"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                required
+                              />
+                            </div>
                           </div>
-                          <div>
-                            <label className="block text-sm text-slate-400 mb-1">Yeni şifre</label>
-                            <input
-                              type="password"
-                              className="w-full rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-100"
-                            />
-                          </div>
-                        </div>
-                        <button className="px-5 py-2 rounded-2xl text-sm font-semibold bg-gradient-to-r from-teal-500 to-cyan-600 text-white hover:from-teal-600 hover:to-cyan-700 shadow-lg hover:shadow-teal-500/40 transition-all">
-                          Şifreyi Güncelle
-                        </button>
+
+                          {passwordError && (
+                            <p className="text-sm text-red-400">{passwordError}</p>
+                          )}
+
+                          <button
+                            type="submit"
+                            disabled={passwordLoading}
+                            className="px-5 py-2 rounded-2xl text-sm font-semibold bg-gradient-to-r from-teal-500 to-cyan-600 text-white hover:from-teal-600 hover:to-cyan-700 shadow-lg hover:shadow-teal-500/40 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                          >
+                            {passwordLoading ? "Güncelleniyor..." : "Şifreyi Güncelle"}
+                          </button>
+                        </form>
                       </div>
                     )}
 
