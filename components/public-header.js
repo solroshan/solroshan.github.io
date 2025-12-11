@@ -61,7 +61,7 @@ const PublicHeader = () => {
                 href="anasayfa.html#giris"
                 className="px-4 py-2 bg-teal-500/20 hover:bg-teal-500/30 text-teal-200 font-medium rounded-xl border border-teal-500/30 transition-all duration-200"
               >
-                Giriş / Üye Ol
+                Giriş
               </a>
             </React.Fragment>
           )}
