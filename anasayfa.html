@@ -18,7 +18,7 @@
   <script>
     const supabaseUrl = 'https://puurwgrzknxttjsjxdit.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1dXJ3Z3J6a254dHRqc2p4ZGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0NTIyODUsImV4cCI6MjA4MTAyODI4NX0.tYoFbwWeuPCAXLXVp8yX0ThbvWPgboYOCUqPuKtAoaI';
-    window.supabase = supabase.createClient(supabaseUrl, supabaseKey); /* [web:123][web:250] */
+    window.supabase = supabase.createClient(supabaseUrl, supabaseKey); /* Supabase client [web:280] */
   </script>
 
   <!-- Header -->
@@ -45,7 +45,7 @@
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
-        }); /* email/şifre login [web:242][web:235] */
+        }); /* email/şifre login [web:242] */
 
         setLoading(false);
 
@@ -88,75 +88,85 @@
     };
 
     const HomePage = () => {
-  const [user, setUser] = React.useState(null);
-  const [loadingUser, setLoadingUser] = React.useState(true);
+      const [user, setUser] = React.useState(null);
+      const [displayName, setDisplayName] = React.useState(null);
+      const [loadingUser, setLoadingUser] = React.useState(true);
 
-  React.useEffect(() => {
-    const loadUser = async () => {
-      const { data, error } = await supabase.auth.getUser(); // [web:123]
-      if (!error && data && data.user) {
-        setUser(data.user);
-      } else {
-        setUser(null);
-      }
-      setLoadingUser(false);
-    };
+      React.useEffect(() => {
+        const loadUser = async () => {
+          const result = await supabase.auth.getUser(); // oturum bilgisi [web:123]
+          const data = result.data;
+          const error = result.error;
 
-    loadUser();
-  }, []);
+          if (!error && data && data.user) {
+            const u = data.user;
+            const meta = u.user_metadata || {};
+            const first = (meta.first_name || "").trim();
+            const last = (meta.last_name || "").trim();
 
-  return (
-    <div className="min-h-screen flex flex-col">
-      <window.Header />
+            setDisplayName(`${first} ${last}`.trim());
+            setUser(u);
+          } else {
+            setUser(null);
+            setDisplayName(null);
+          }
 
-      <main className="flex-1">
-        <section className="max-w-6xl mx-auto px-4 py-10 md:px-8 lg:px-12">
-          <h1 className="text-3xl md:text-4xl font-black mb-4">
-            Efficient by AI
-          </h1>
-          <p className="text-slate-300 max-w-xl mb-10">
-            Bahçe, site veya tarlanızı akıllı valfler ve otomatik sulama programlarıyla kolayca yönetin.
-          </p>
+          setLoadingUser(false);
+        };
 
-          {/* Kullanıcı yüklenirken boş / skeleton gösterebilirsin */}
-          {!loadingUser && (
-            <>
-              {user ? (
-                <div className="mt-6 max-w-md space-y-4">
-                  <p className="text-slate-200">
-                    Hoş geldin{" "}
-                    <span className="font-semibold text-teal-300">
-                      {user.name}
-                    </span>
-                    .
-                  </p>
-                  <a
-                    href="hesabim.html"
-                    className="inline-flex items-center px-4 py-2 rounded-xl bg-teal-500 hover:bg-teal-600 text-white font-medium transition"
-                  >
-                    Hesabım sayfasına git
-                  </a>
-                </div>
-              ) : (
-                <div id="giris" className="mt-10 max-w-md">
-                  <h2 className="text-xl font-semibold mb-4">Giriş Yap</h2>
-                  <LoginForm />
-                  <p className="mt-4 text-sm text-slate-400">
-                    Henüz hesabın yok mu?{" "}
-                    <a href="uyelik.html" className="text-teal-400 underline">
-                      Üyelik oluştur
-                    </a>
-                  </p>
-                </div>
+        loadUser();
+      }, []);
+
+      return (
+        <div className="min-h-screen flex flex-col">
+          <window.Header />
+
+          <main className="flex-1">
+            <section className="max-w-6xl mx-auto px-4 py-10 md:px-8 lg:px-12">
+              <h1 className="text-3xl md:text-4xl font-black mb-4">
+                Efficient by AI
+              </h1>
+              <p className="text-slate-300 max-w-xl mb-10">
+                Bahçe, site veya tarlanızı akıllı valfler ve otomatik sulama programlarıyla kolayca yönetin.
+              </p>
+
+              {!loadingUser && (
+                <>
+                  {user ? (
+                    <div className="mt-6 max-w-md space-y-4">
+                      <p className="text-slate-200">
+                        Hoş geldin{" "}
+                        <span className="font-semibold text-teal-300">
+                          {displayName}
+                        </span>
+                        .
+                      </p>
+                      <a
+                        href="hesabim.html"
+                        className="inline-flex items-center px-4 py-2 rounded-xl bg-teal-500 hover:bg-teal-600 text-white font-medium transition"
+                      >
+                        Hesabım sayfasına git
+                      </a>
+                    </div>
+                  ) : (
+                    <div id="giris" className="mt-10 max-w-md">
+                      <h2 className="text-xl font-semibold mb-4">Giriş Yap</h2>
+                      <LoginForm />
+                      <p className="mt-4 text-sm text-slate-400">
+                        Henüz hesabın yok mu?{" "}
+                        <a href="uyelik.html" className="text-teal-400 underline">
+                          Üyelik oluştur
+                        </a>
+                      </p>
+                    </div>
+                  )}
+                </>
               )}
-            </>
-          )}
-        </section>
-      </main>
-    </div>
-  );
-};
-
+            </section>
+          </main>
+        </div>
+      );
+    };
 
     const root = createRoot(document.getElementById("root"));
     root.render(<HomePage />);
