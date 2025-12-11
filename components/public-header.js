@@ -4,7 +4,7 @@ const PublicHeader = () => {
   React.useEffect(() => {
     const checkUser = async () => {
       try {
-        const result = await supabase.auth.getUser(); // [web:123]
+        const result = await supabase.auth.getUser(); // oturum kontrolü [web:123]
         const data = result.data;
         const error = result.error;
 
@@ -24,6 +24,7 @@ const PublicHeader = () => {
   return (
     <header className="bg-gradient-to-r from-slate-900/95 to-emerald-900/95 backdrop-blur-md border-b border-slate-800/50 sticky top-0 z-50">
       <div className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
+        {/* Sol: logo */}
         <div className="flex items-center gap-4">
           <a href="anasayfa.html" className="flex items-center gap-2">
             <img src="/assets/css/images/leaf.png" alt="GrassCare" className="h-10 w-10" />
@@ -33,30 +34,25 @@ const PublicHeader = () => {
           </a>
         </div>
 
+        {/* Sağ: menü */}
         <div className="flex items-center gap-4">
           {loggedIn ? (
             <>
               <a
-                href="program.html"
+                href="prog.html"
                 className="text-slate-300 hover:text-teal-300 font-medium"
               >
-                Program
+                Programlar
               </a>
               <a
                 href="hesabim.html"
                 className="px-4 py-2 bg-teal-500/20 hover:bg-teal-500/30 text-teal-200 font-medium rounded-xl border border-teal-500/30 transition-all duration-200"
               >
-                Profilim
+                Hesabım
               </a>
             </>
           ) : (
             <>
-              <a
-                href="anasayfa.html#ozellikler"
-                className="text-slate-300 hover:text-teal-300 font-medium"
-              >
-                Özellikler
-              </a>
               <a
                 href="uyelik.html"
                 className="text-slate-300 hover:text-teal-300 font-medium"
