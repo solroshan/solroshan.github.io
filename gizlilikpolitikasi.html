@@ -18,101 +18,103 @@
   <script type="text/babel">
     const { createRoot } = ReactDOM;
 
-    const PrivacyPage = () => (
-      <div className="min-h-screen flex flex-col">
-        <window.Header />
-
-        <main className="flex-1">
-          <div className="max-w-5xl mx-auto px-4 py-8 md:px-8 lg:px-12">
-            <section className="bg-gradient-to-br from-slate-900/80 via-slate-900/50 to-slate-950/80 backdrop-blur-xl rounded-3xl p-8 md:p-12 lg:p-16 border border-slate-700/40 shadow-2xl mt-8 mb-12">
-              <header className="mb-10">
-                <p className="text-xs uppercase tracking-[0.2em] text-teal-400 mb-3">
-                  Yasal Bilgilendirme
-                </p>
-                <h1 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-slate-100 via-teal-100 to-slate-200 bg-clip-text text-transparent mb-2">
-                  Gizlilik Politikası
-                </h1>
-                <p className="text-sm text-slate-400">
-                  Son güncelleme: 11 Aralık 2025
-                </p>
-              </header>
-
-              <section className="space-y-8 text-sm leading-relaxed text-slate-200">
-                <div>
-                  <h2 className="text-lg font-semibold text-slate-100 mb-2">
-                    1. Genel Bilgiler
-                  </h2>
-                  <p>
-                    Bu sayfada GrassCare sulama otomasyonunu kullanırken işlenen
-                    kişisel verilerinize ilişkin genel çerçeve ve ilkeler özetlenir.
+    const PrivacyPage = () => {
+      return (
+        <div className="min-h-screen flex flex-col">
+          {/* Header - public-header.js'den geliyor */}
+          
+          <main className="flex-1 pt-20"> {/* Header yüksekliği için padding */}
+            <div className="max-w-5xl mx-auto px-4 py-8 md:px-8 lg:px-12">
+              <section className="bg-gradient-to-br from-slate-900/80 via-slate-900/50 to-slate-950/80 backdrop-blur-xl rounded-3xl p-8 md:p-12 lg:p-16 border border-slate-700/40 shadow-2xl mt-8 mb-12">
+                <header className="mb-10">
+                  <p className="text-xs uppercase tracking-[0.2em] text-teal-400 mb-3">
+                    Yasal Bilgilendirme
                   </p>
-                </div>
-
-                <div>
-                  <h2 className="text-lg font-semibold text-slate-100 mb-2">
-                    2. Topladığımız Veriler
-                  </h2>
-                  <ul className="list-disc list-inside space-y-1 text-slate-300">
-                    <li>Hesap bilgileri (ad soyad, e‑posta, telefon).</li>
-                    <li>Cihaza ait teknik veriler ve sulama programı ayarları.</li>
-                    <li>Uygulama kullanımına ilişkin temel günlük (log) verileri.</li>
-                  </ul>
-                </div>
-
-                <div>
-                  <h2 className="text-lg font-semibold text-slate-100 mb-2">
-                    3. Verilerin Kullanım Amaçları
-                  </h2>
-                  <p>
-                    Veriler; hesabınızın yönetilmesi, cihazınızın çalışması,
-                    güvenlik ve yasal yükümlülüklerin yerine getirilmesi amaçlarıyla
-                    sınırlı olarak işlenir.
+                  <h1 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-slate-100 via-teal-100 to-slate-200 bg-clip-text text-transparent mb-2">
+                    Gizlilik Politikası
+                  </h1>
+                  <p className="text-sm text-slate-400">
+                    Son güncelleme: 11 Aralık 2025
                   </p>
-                </div>
+                </header>
 
-                <div>
-                  <h2 className="text-lg font-semibold text-slate-100 mb-2">
-                    4. Üçüncü Taraflarla Paylaşım
-                  </h2>
-                  <p>
-                    Verileriniz, zorunlu olmadıkça ve açık rızanız bulunmadıkça
-                    üçüncü taraflarla paylaşılmaz; yasal zorunluluklar saklıdır.
-                  </p>
-                </div>
+                <section className="space-y-8 text-sm leading-relaxed text-slate-200">
+                  <div>
+                    <h2 className="text-lg font-semibold text-slate-100 mb-2">
+                      1. Genel Bilgiler
+                    </h2>
+                    <p>
+                      Bu sayfada GrassCare sulama otomasyonunu kullanırken işlenen
+                      kişisel verilerinize ilişkin genel çerçeve ve ilkeler özetlenir.
+                    </p>
+                  </div>
 
-                <div>
-                  <h2 className="text-lg font-semibold text-slate-100 mb-2">
-                    5. Haklarınız
-                  </h2>
-                  <p>
-                    Kişisel verilerinize erişme, düzeltme, silme veya işlenmesini
-                    sınırlandırma gibi haklara sahipsiniz. Bu hakları kullanmak için
-                    aşağıdaki iletişim kanallarından bize ulaşabilirsiniz.
-                  </p>
-                </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-slate-100 mb-2">
+                      2. Topladığımız Veriler
+                    </h2>
+                    <ul className="list-disc list-inside space-y-1 text-slate-300">
+                      <li>Hesap bilgileri (ad soyad, e‑posta, telefon).</li>
+                      <li>Cihaza ait teknik veriler ve sulama programı ayarları.</li>
+                      <li>Uygulama kullanımına ilişkin temel günlük (log) verileri.</li>
+                    </ul>
+                  </div>
 
-                <div className="pt-6 border-t border-slate-800/60">
-                  <h2 className="text-lg font-semibold text-slate-100 mb-2">
-                    İletişim
-                  </h2>
-                  <p className="text-slate-300">
-                    Gizlilikle ilgili tüm sorularınız için e‑posta:
-                    <a
-                      href="mailto:huseyingunes35@gmail.com"
-                      className="text-teal-400 hover:text-teal-300 font-medium ml-1"
-                    >
-                      huseyingunes35@gmail.com
-                    </a>
-                  </p>
-                </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-slate-100 mb-2">
+                      3. Verilerin Kullanım Amaçları
+                    </h2>
+                    <p>
+                      Veriler; hesabınızın yönetilmesi, cihazınızın çalışması,
+                      güvenlik ve yasal yükümlülüklerin yerine getirilmesi amaçlarıyla
+                      sınırlı olarak işlenir.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h2 className="text-lg font-semibold text-slate-100 mb-2">
+                      4. Üçüncü Taraflarla Paylaşım
+                    </h2>
+                    <p>
+                      Verileriniz, zorunlu olmadıkça ve açık rızanız bulunmadıkça
+                      üçüncü taraflarla paylaşılmaz; yasal zorunluluklar saklıdır.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h2 className="text-lg font-semibold text-slate-100 mb-2">
+                      5. Haklarınız
+                    </h2>
+                    <p>
+                      Kişisel verilerinize erişme, düzeltme, silme veya işlenmesini
+                      sınırlandırma gibi haklara sahipsiniz. Bu hakları kullanmak için
+                      aşağıdaki iletişim kanallarından bize ulaşabilirsiniz.
+                    </p>
+                  </div>
+
+                  <div className="pt-6 border-t border-slate-800/60">
+                    <h2 className="text-lg font-semibold text-slate-100 mb-2">
+                      İletişim
+                    </h2>
+                    <p className="text-slate-300">
+                      Gizlilikle ilgili tüm sorularınız için e‑posta:
+                      <a
+                        href="mailto:huseyingunes35@gmail.com"
+                        className="text-teal-400 hover:text-teal-300 font-medium ml-1"
+                      >
+                        huseyingunes35@gmail.com
+                      </a>
+                    </p>
+                  </div>
+                </section>
               </section>
-            </section>
-          </div>
-        </main>
+            </div>
+          </main>
 
-        <window.Footer />
-      </div>
-    );
+          {/* Footer - public-header.js içinde olabilir veya ayrı dosya */}
+        </div>
+      );
+    };
 
     const root = createRoot(document.getElementById("root"));
     root.render(<PrivacyPage />);
