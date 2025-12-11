@@ -42,17 +42,18 @@
         ]
       },
       {
-        id: "pro",
-        name: "Pro",
-        price: "499 ₺ / ay",
-        desc: "Profesyonel kullanım ve site/bahçe yönetimi için.",
-        highlight: true,
-        features: [
-          "1 cihaz ve 12 vanaya kadar erişim desteği",
-          "Gelişmiş programlama ve istatistikler",
-          "Öncelikli destek ve uzaktan teşhis",
-        ]
-      },
+  id: "pro",
+  name: "Pro",
+  price: "499 ₺ / ay",
+  desc: "Profesyonel kullanım ve site/bahçe yönetimi için.",
+  highlight: true,
+  features: [
+    "1 cihaz ve 12 vanaya kadar erişim desteği",
+    "Gelişmiş programlama ve istatistikler",
+    "Öncelikli destek ve uzaktan teşhis"
+  ]
+},
+      
       {
         id: "business",
         name: "Business",
@@ -90,15 +91,16 @@
       <p className="mt-1 text-sm text-slate-400">{plan.desc}</p>
     </div>
 
+    {/* Fiyat + 12 aylık peşin bilgi */}
     <div className="mb-2">
       <span className="text-2xl font-black text-teal-300">{plan.price}</span>
+      {plan.id === "pro" && (
+        <span className="block text-xs text-slate-400 mt-1">
+          veya 12 aylık peşin:{" "}
+          <span className="font-semibold text-teal-300">4.990 ₺</span>
+        </span>
+      )}
     </div>
-
-    {plan.id === "pro" && (
-      <div className="mb-4 text-xs font-semibold text-teal-300">
-        Başlangıç Planı'ndaki tüm özelliklere ek olarak
-      </div>
-    )}
 
     <ul className="space-y-2 text-sm text-slate-300 mb-6 flex-1">
       {plan.features.map((f, i) => (
