@@ -4,7 +4,7 @@ const Footer = () => (
       <a className="hover:underline" href="#">GrassCare Co.</a>
       <a className="hover:underline" href="https://solroshan.github.io/yardim.html">Yardım</a>
       <a className="hover:underline" href="https://solroshan.github.io/sartlar.html">Şartlar</a>
-      <a className="hover:underline" href="https://solroshan.github.io/gizlilik.html">Gizlilik Politikası</a>
+      <a className="hover:underline" href="https://solroshan.github.io/gizlilikpolitikasi.html">Gizlilik Politikası</a>
       <a className="hover:underline" href="https://solroshan.github.io/uyelik.html">Üyelik</a>
     </nav>
   </footer>
