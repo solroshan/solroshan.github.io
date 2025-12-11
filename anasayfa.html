@@ -41,7 +41,7 @@
       // Sayfa yüklendiğinde kullanıcı durumunu kontrol et
       useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
-          setUser(session?.user ?? null);
+          setUser(session && session.user ? session.user : null);
           if (session) setView('dashboard');
         });
 
