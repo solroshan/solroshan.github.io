@@ -43,6 +43,15 @@
     const { useState, useEffect } = React;
     const { createRoot } = ReactDOM;
 
+    const getInitials = (first, last) => {
+      const f = first?.trim();
+      const l = last?.trim();
+      if (f && l) return `${f[0].toUpperCase()}${l[0].toUpperCase()}`;
+      if (f) return f[0].toUpperCase();
+      if (l) return l[0].toUpperCase();
+      return "U";
+    };
+
     const AccountPage = () => {
       const [tab, setTab] = useState("billing");
       const [profile, setProfile] = useState({
@@ -56,7 +65,7 @@
       // Supabase Auth'tan kullanıcı bilgilerini çek
       useEffect(() => {
         const loadUser = async () => {
-          const { data, error } = await supabase.auth.getUser(); // [web:123]
+          const { data, error } = await supabase.auth.getUser();
           if (error || !data?.user) return;
 
           const u = data.user;
@@ -84,7 +93,7 @@
             },
           };
 
-          const { error } = await supabase.auth.updateUser(updates); // [web:139]
+          const { error } = await supabase.auth.updateUser(updates); /* update metadata [web:139] */
           if (error) {
             alert("Profil güncellenirken hata oluştu: " + error.message);
             return;
@@ -135,7 +144,7 @@
                     {/* Profil kartı */}
                     <div className="bg-slate-900/70 border border-slate-700/60 rounded-3xl p-6 flex flex-col items-center text-center gap-3">
                       <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-3xl font-bold text-white">
-                        {profile.firstName ? profile.firstName[0]?.toUpperCase() : "U"}
+                        {getInitials(profile.firstName, profile.lastName)}
                       </div>
                       <div>
                         <div className="font-semibold text-slate-100">{displayName}</div>
