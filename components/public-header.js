@@ -3,10 +3,14 @@ const PublicHeader = () => {
 
   React.useEffect(() => {
     const checkUser = async () => {
-      const { data, error } = await supabase.auth.getUser(); // oturum kontrol [web:123]
-      if (!error && data?.user) {
-        setLoggedIn(true);
-      } else {
+      try {
+        const { data, error } = await supabase.auth.getUser(); // oturum kontrol [web:123]
+        if (!error && data?.user) {
+          setLoggedIn(true);
+        } else {
+          setLoggedIn(false);
+        }
+      } catch (e) {
         setLoggedIn(false);
       }
     };
