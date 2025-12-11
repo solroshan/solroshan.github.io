@@ -36,7 +36,7 @@
         desc: "Küçük bahçeler ve deneme kullanımı için ideal.",
         highlight: false,
         features: [
-          "1 cihaz ve 4 vana desteği",
+          "1 cihaz ve 4 vana için erişim desteği",
           "Temel zamanlama ve manuel kontrol",
           "E-posta ile standart destek"
         ]
@@ -44,11 +44,11 @@
       {
         id: "pro",
         name: "Pro",
-        price: "149 ₺ / ay",
+        price: "499 ₺ / ay",
         desc: "Profesyonel kullanım ve site/bahçe yönetimi için.",
         highlight: true,
         features: [
-          "3 cihaza kadar destek",
+          "3 cihaz ve 12 vanaya kadar erişim desteği",
           "Gelişmiş programlama ve istatistikler",
           "Öncelikli destek ve uzaktan teşhis",
           "Raporlama ve su tüketim analizi"
@@ -102,16 +102,25 @@
           ))}
         </ul>
 
-        <button
-          className={
-            "w-full mt-auto rounded-2xl py-3 text-sm font-semibold btn-soft " +
-            (plan.highlight
-              ? "bg-gradient-to-r from-teal-500 to-cyan-600 text-white"
-              : "bg-slate-800 text-slate-100 hover:bg-slate-700")
-          }
-        >
-          {plan.id === "business" ? "Satış ile iletişime geç" : "Bu planı seç"}
-        </button>
+        {plan.id === "business" ? (
+  <a
+    href="tel:+905535145469"
+    className="w-full mt-auto rounded-2xl py-3 text-sm font-semibold btn-soft bg-slate-800 text-slate-100 hover:bg-slate-700 flex items-center justify-center gap-2"
+  >
+    <span>Satış ile iletişime geç</span>
+  </a>
+) : (
+  <button
+    className={
+      "w-full mt-auto rounded-2xl py-3 text-sm font-semibold btn-soft " +
+      (plan.highlight
+        ? "bg-gradient-to-r from-teal-500 to-cyan-600 text-white"
+        : "bg-slate-800 text-slate-100 hover:bg-slate-700")
+    }
+  >
+    Bu planı seç
+  </button>
+)}
       </div>
     );
 
