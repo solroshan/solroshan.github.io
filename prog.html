@@ -20,8 +20,8 @@
     window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
   </script>
 
-  <!-- AUTH HEADER -->
-  <script type="text/babel" src="./components/header-auth.js"></script>
+  <!-- ORTAK HEADER (anasayfa ile aynı) -->
+  <script type="text/babel" src="./components/public-header.js"></script>
 
   <style>
     .btn-soft {
@@ -37,7 +37,7 @@
 <body class="bg-slate-900 font-sans text-slate-100">
   <div id="root" class="min-h-screen"></div>
 
-  <!-- COMPONENTS (Header.js ÇIKTI!) -->
+  <!-- COMPONENTS -->
   <script type="text/babel" src="./components/icons.js"></script>
   <script type="text/babel" src="./components/Footer.js"></script>
   <script type="text/babel" src="./components/ToggleSwitch.js"></script>
@@ -127,7 +127,7 @@
 
       return (
         <div className="min-h-screen flex flex-col">
-          <window.Header /> {/* Auth header */}
+          <window.Header /> {/* Anasayfadaki ile aynı ortak header */}
           <main className="flex-1">
             <div className="max-w-6xl mx-auto px-3 py-4 md:px-6 md:py-8">
               <div className="bg-slate-900 rounded-2xl p-6">
