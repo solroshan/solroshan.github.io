@@ -3,8 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="/assets/css/images/leaf.png" rel="shortcut icon" type="image/png" />
-  <title>GrassCare</title>
+  <title>GrassCare - Anasayfa</title>
 
   <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -18,83 +17,102 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script>
     const supabaseUrl = 'https://puurwgrzknxttjsjxdit.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1dXJ3Z3J6a254dHRqc2p4ZGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0NTIyODUsImV4cCI6MjA4MTAyODI4NX0.tYoFbwWeuPCAXLXVp8yX0ThbvWPgboYOCUqPuKtAoaI';
-    window.supabase = supabase.createClient(supabaseUrl, supabaseKey); /* client [web:123] */
+    const supabaseKey = 'BURAYA_PUBLIC_ANON_KEY_GELECEK';
+    window.supabase = supabase.createClient(supabaseUrl, supabaseKey); /* [web:123][web:250] */
   </script>
 
-  <!-- Public header + footer -->
-  <script type="text/babel" src="./components/public-header.js"></script>
-  <script type="text/babel" src="./components/Footer.js"></script>
+  <!-- Header -->
+  <script type="text/babel" src="./components/public-header.js?v=3"></script>
 </head>
 
-<body class="bg-slate-900 font-sans text-slate-100">
+<body class="bg-slate-900 text-slate-100">
   <div id="root"></div>
 
   <script type="text/babel">
     const { createRoot } = ReactDOM;
 
+    const LoginForm = () => {
+      const [email, setEmail] = React.useState("");
+      const [password, setPassword] = React.useState("");
+      const [loading, setLoading] = React.useState(false);
+      const [errorMsg, setErrorMsg] = React.useState("");
+
+      const handleLogin = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setErrorMsg("");
+
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        }); /* email/şifre login [web:242][web:235] */
+
+        setLoading(false);
+
+        if (error) {
+          setErrorMsg("Giriş başarısız, lütfen email ve şifreni kontrol et.");
+          return;
+        }
+
+        window.location.href = "hesabim.html";
+      };
+
+      return (
+        <form onSubmit={handleLogin} className="space-y-4">
+          <input
+            type="email"
+            placeholder="E-posta"
+            className="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Şifre"
+            className="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          {errorMsg && <p className="text-sm text-red-400">{errorMsg}</p>}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-xl transition-all"
+          >
+            {loading ? "Giriş yapılıyor..." : "Giriş Yap"}
+          </button>
+        </form>
+      );
+    };
+
     const HomePage = () => {
-      const [displayName, setDisplayName] = React.useState(null);
-
-      React.useEffect(() => {
-        const checkUserAndProfile = async () => {
-          const { data, error } = await supabase.auth.getUser(); // [web:123]
-          if (error || !data?.user) {
-            setDisplayName(null);
-            return;
-          }
-
-          const u = data.user;
-          const meta = u.user_metadata || {};
-          const firstName = meta.first_name?.trim();
-          const lastName = meta.last_name?.trim();
-          const phone = meta.phone?.trim();
-          const email = u.email?.trim();
-
-          // Profil eksikse hesabım sayfasına yönlendir
-          if (!firstName || !lastName || !phone || !email) {
-            window.location.href = "hesabim.html";
-            return;
-          }
-
-          setDisplayName(`${firstName} ${lastName}`.trim());
-        };
-
-        checkUserAndProfile();
-      }, []);
-
       return (
         <div className="min-h-screen flex flex-col">
           <window.Header />
 
           <main className="flex-1">
             <section className="max-w-6xl mx-auto px-4 py-10 md:px-8 lg:px-12">
-              {displayName && (
-                <p className="mb-4 text-sm text-slate-300">
-                  Hoş geldin,{" "}
-                  <span className="font-semibold text-teal-300">
-                    {displayName}
-                  </span>
-                </p>
-              )}
-
-              {/* Buraya mevcut anasayfa hero ve diğer içeriklerin geliyor */}
               <h1 className="text-3xl md:text-4xl font-black mb-4">
                 Akıllı Sulama Asistanınız GrassCare
               </h1>
-              <p className="text-slate-300 max-w-xl">
-                Bahçenizi, sitenizi veya tarlanızı akıllı sensörler ve otomatik programlarla
-                yönetin.
+              <p className="text-slate-300 max-w-xl mb-10">
+                Bahçenizi, sitenizi veya tarlanızı akıllı sensörler ve otomatik programlarla yönetin.
               </p>
 
-              {/* Örnek giriş alanı anchor için */}
-              <div id="giris" className="mt-10">
-                {/* Buraya giriş / kayıt formu ya da butonların olduğu blok geliyor */}
+              <div id="giris" className="mt-10 max-w-md">
+                <h2 className="text-xl font-semibold mb-4">Giriş Yap</h2>
+                <LoginForm />
+                <p className="mt-4 text-sm text-slate-400">
+                  Henüz hesabın yok mu?{" "}
+                  <a href="uyelik.html" className="text-teal-400 underline">
+                    Üyelik oluştur
+                  </a>
+                </p>
               </div>
             </section>
           </main>
-
-          <window.Footer />
         </div>
       );
     };
