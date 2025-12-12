@@ -122,37 +122,38 @@
       }, []);
 
       const PhoneInput = ({ value, onChange, className }) => {
-      const handleChange = (e) => {
-        // Sadece rakam al
-        let v = e.target.value.replace(/\D/g, "");
+  const handleChange = (e) => {
+    if (!e.target.value) {
+      onChange("05");
+      return;
+    }
 
-        // Başta 05 sabit, kalan kısmı al
-        if (v.startsWith("05")) {
-          v = v.slice(2);
-        }
+    let v = e.target.value.replace(/\D/g, "");
 
-        // En fazla 9 rakam (5xx xxx xx xx)
-        v = v.slice(0, 9);
+    if (v.startsWith("05")) {
+      v = v.slice(2);
+    }
 
-        // Formatla: 5xx xxx xx xx
-        let formatted = "05";
-        if (v.length > 0) formatted += v.slice(0, 3);
-        if (v.length > 3) formatted += " " + v.slice(3, 6);
-        if (v.length > 6) formatted += " " + v.slice(6, 8);
-        if (v.length > 8) formatted += " " + v.slice(8, 10);
+    v = v.slice(0, 9);
 
-        onChange(formatted);
-      };
+    let formatted = "05";
+    if (v.length > 0) formatted += v.slice(0, 3);
+    if (v.length > 3) formatted += " " + v.slice(3, 6);
+    if (v.length > 6) formatted += " " + v.slice(6, 8);
+    if (v.length > 8) formatted += " " + v.slice(8, 10);
 
-      return (
-        <input
-          type="tel"
-          className={className}
-          value={value || "05"}
-          onChange={handleChange}
-        />
-      );
-    };
+    onChange(formatted);
+  };
+
+  return (
+    <input
+      type="tel"
+      className={className}
+      value={value && value.startsWith("05") ? value : "05"}
+      onChange={handleChange}
+    />
+  );
+};
 
       const handleSaveProfile = async () => {
         if (
