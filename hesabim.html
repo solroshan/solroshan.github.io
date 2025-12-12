@@ -101,7 +101,6 @@
         setSaving(true);
         try {
           const updates = {
-            email: profile.email || undefined,
             data: {
               first_name: profile.firstName,
               last_name: profile.lastName,
@@ -264,8 +263,8 @@
                             <input
                               className="w-full rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                               value={profile.email}
-                              onChange={e => setProfile(p => ({ ...p, email: e.target.value }))}
-                            />
+                              readOnly        // kullanıcı değiştiremesin
+/                            >
                           </div>
                           <div>
                             <label className="block text-sm text-slate-400 mb-1">Telefon</label>
