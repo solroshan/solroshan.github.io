@@ -38,6 +38,40 @@
   <script type="text/babel">
     const { createRoot } = ReactDOM;
 
+    const PhoneInput = ({ value, onChange, className }) => {
+      const handleChange = (e) => {
+        if (!e.target.value) {
+          onChange("05");
+          return;
+        }
+
+        let v = e.target.value.replace(/\D/g, "");
+
+        if (v.startsWith("05")) {
+          v = v.slice(2);
+        }
+
+        v = v.slice(0, 9); // 5xx xxx xx xx
+
+        let formatted = "05";
+        if (v.length > 0) formatted += v.slice(0, 3);
+        if (v.length > 3) formatted += " " + v.slice(3, 6);
+        if (v.length > 6) formatted += " " + v.slice(6, 8);
+        if (v.length > 8) formatted += " " + v.slice(8, 10);
+
+        onChange(formatted);
+      };
+
+      return (
+        <input
+          type="tel"
+          className={className}
+          value={value && value.startsWith("05") ? value : "05"}
+          onChange={handleChange}
+        />
+      );
+    };
+
     const plans = [
       {
         id: "free",
@@ -154,7 +188,7 @@
       const [firstName, setFirstName] = React.useState("");
       const [lastName, setLastName] = React.useState("");
       const [email, setEmail] = React.useState("");
-      const [phone, setPhone] = React.useState("");
+      const [phone, setPhone] = React.useState("05");
       const [password, setPassword] = React.useState("");
       const [loading, setLoading] = React.useState(false);
       const [errorMsg, setErrorMsg] = React.useState("");
@@ -164,7 +198,7 @@
         setFirstName("");
         setLastName("");
         setEmail("");
-        setPhone("");
+        setPhone("05");
         setPassword("");
         setErrorMsg("");
       };
@@ -296,13 +330,10 @@
                     required
                   />
 
-                  <input
-                    type="tel"
-                    placeholder="05xx xxx xx xx"
-                    className="w-full rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-sm text-slate-100"
+                  <PhoneInput
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    required
+                    onChange={setPhone}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-sm text-slate-100"
                   />
 
                   <input
