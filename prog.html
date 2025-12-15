@@ -6,22 +6,30 @@
   <link href="/assets/css/images/leaf.png" rel="shortcut icon" type="image/png" />
   <title>GrassCare Programlar</title>
 
-  <!-- Tailwind + React + Babel önce -->
+  <!-- Tailwind + React + Babel -->
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <!-- Supabase UMD (anasayfadakiyle aynı) -->
+  <!-- Supabase UMD -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script>
     const supabaseUrl = 'https://puurwgrzknxttjsjxdit.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1dXJ3Z3J6a254dHRqc2p4ZGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0NTIyODUsImV4cCI6MjA4MTAyODI4NX0.tYoFbwWeuPCAXLXVp8yX0ThbvWPgboYOCUqPuKtAoaI';
-    window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    window.supabase = supabase.createClient(supabaseUrl, supabaseKey); /* [web:498] */
   </script>
 
-  <!-- ORTAK HEADER (anasayfa ile aynı) -->
+  <!-- Ortak Header -->
   <script type="text/babel" src="./components/public-header.js"></script>
+
+  <!-- Ortak bileşenler -->
+  <script type="text/babel" src="./components/icons.js"></script>
+  <script type="text/babel" src="./components/Footer.js"></script>
+  <script type="text/babel" src="./components/ToggleSwitch.js"></script>
+  <script type="text/babel" src="./components/ConfirmModal.js"></script>
+  <script type="text/babel" src="./components/NewProgramForm.js"></script>
+  <script type="text/babel" src="./components/ProgramList.js"></script>
 
   <style>
     .btn-soft {
@@ -37,124 +45,291 @@
 <body class="bg-slate-900 font-sans text-slate-100">
   <div id="root" class="min-h-screen"></div>
 
-  <!-- COMPONENTS -->
-  <script type="text/babel" src="./components/icons.js"></script>
-  <script type="text/babel" src="./components/Footer.js"></script>
-  <script type="text/babel" src="./components/ToggleSwitch.js"></script>
-  <script type="text/babel" src="./components/ConfirmModal.js"></script>
-  <script type="text/babel" src="./components/NewProgramForm.js"></script>
-  <script type="text/babel" src="./components/ProgramList.js"></script>
-
   <script type="text/babel">
-    const { useState, useMemo } = React;
+    const { useState, useEffect, useMemo } = React;
     const { createRoot } = ReactDOM;
 
-    const initialValves = [
-      { id: 1, name: 'V1', group: 'Ön' },
-      { id: 2, name: 'V2', group: 'Ön' },
-      { id: 3, name: 'V3', group: 'Orta' },
-      { id: 4, name: 'V4', group: 'Orta' },
-      { id: 5, name: 'V5', group: 'Orta' },
-      { id: 6, name: 'V6', group: 'Arka' },
-      { id: 7, name: 'V7', group: 'Arka' },
-    ];
-
-    const initialPrograms = [
-      { id: 1, name: "Yaz Programı", time: "06:00", duration: 30, days: ["Pzt","Sal","Çar","Per","Cum","Cts","Paz"], valves: ["Ön","Orta","Arka"], active: true, editing: false },
-      { id: 2, name: "Kış Programı", time: "13:30", duration: 20, days: ["Pzt","Per"], valves: ["Ön","Orta","Arka"], active: false, editing: false },
-    ];
+    const daysOfWeek = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cts", "Paz"];
 
     const ProgramPage = () => {
-      const [programs, setPrograms] = useState(initialPrograms);
+      const [user, setUser] = useState(null);
+      const [loadingUser, setLoadingUser] = useState(true);
+
+      const [valves, setValves] = useState([]);       // Supabase'ten gelen ham valf verisi
+      const [programs, setPrograms] = useState([]);   // UI'da kullandığımız program görünümleri
+      const [loadingValves, setLoadingValves] = useState(true);
+
       const [form, setForm] = useState({ name: '', time: '', duration: '', days: [], valves: [] });
       const [confirmDeleteId, setConfirmDeleteId] = useState(null);
-      
-      const daysOfWeek = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cts", "Paz"];
-      const groups = useMemo(() => Array.from(new Set(initialValves.map(v => v.group))).sort(), []);
+      const [saving, setSaving] = useState(false);
 
-      const createProgram = () => {
-        if (!form.name || !form.time || !form.duration) return;
-        const newProg = { 
-          id: Date.now(), 
-          ...form, 
-          days: form.days.length > 0 ? form.days : ["Pzt","Sal"], 
-          active: true, 
-          editing: false 
+      // Benzersiz grup listesi (valves.tablosundaki group alanından)
+      const groups = useMemo(
+        () => Array.from(new Set(valves.map(v => v.group).filter(Boolean))).sort(),
+        [valves]
+      );
+
+      // 1) Kullanıcıyı al
+      useEffect(() => {
+        const loadUser = async () => {
+          const { data, error } = await supabase.auth.getUser(); /* [web:123] */
+          if (error || !data?.user) {
+            window.location.href = 'anasayfa.html#giris';
+            return;
+          }
+          setUser(data.user);
+          setLoadingUser(false);
         };
-        setPrograms(prev => [newProg, ...prev]);
-        setForm({ name: '', time: '', duration: '', days: [], valves: [] });
+        loadUser();
+      }, []);
+
+      // 2) Kullanıcı geldikten sonra valfleri çek
+      useEffect(() => {
+        if (!user) return;
+
+        const loadValves = async () => {
+          setLoadingValves(true);
+          const { data, error } = await supabase
+            .from('valves')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: true }); /* [web:386] */
+
+          if (error) {
+            console.error('Valfler alınamadı:', error);
+            setValves([]);
+            setPrograms([]);
+          } else {
+            setValves(data || []);
+            // Program görünümü: aynı program adına sahip grupları gruplayabilirsin;
+            // şimdilik her valfi ayrı satır gibi kullanıyoruz.
+            const mapped = (data || []).map(v => ({
+              id: v.id,
+              name: v.program || v.name,
+              time: '',             // SQL şeman yok; istersen program metnine gömersin
+              duration: '',         // süre kolonun yoksa burada boş bırakılır
+              days: [],             // gün bilgisi yok; ileride colon ekleyebilirsin
+              valves: [v.group].filter(Boolean),
+              active: v.status === 'AÇIK',
+              editing: false,
+            }));
+            setPrograms(mapped);
+          }
+          setLoadingValves(false);
+        };
+
+        loadValves();
+      }, [user]);
+
+      // 3) Yeni program oluşturma:
+      // şu an "program" alanını ve "status" / "group" alanlarını güncelliyoruz.
+      const createProgram = async () => {
+        if (!form.name || !form.time || !form.duration || form.valves.length === 0) return;
+        if (!user) return;
+
+        setSaving(true);
+        try {
+          // Seçili her grup için birer valf kaydı oluşturmak istiyorsan:
+          const rows = form.valves.map(group => ({
+            user_id: user.id,
+            name: `Program · ${group}`,
+            status: 'AÇIK',
+            program: `${form.name} · ${form.time} · ${form.duration} dk`,
+            mode: 'Auto',
+            group,
+          }));
+
+          const { data, error } = await supabase
+            .from('valves')
+            .insert(rows)
+            .select(); /* [web:498][web:490] */
+
+          if (error) {
+            alert('Program kaydedilemedi: ' + error.message);
+            return;
+          }
+
+          // UI state'i güncelle
+          const newValves = [...valves, ...(data || [])];
+          setValves(newValves);
+
+          const mappedNew = (data || []).map(v => ({
+            id: v.id,
+            name: v.program || v.name,
+            time: '',
+            duration: '',
+            days: [],
+            valves: [v.group].filter(Boolean),
+            active: v.status === 'AÇIK',
+            editing: false,
+          }));
+
+          setPrograms(prev => [...mappedNew, ...prev]);
+
+          setForm({ name: '', time: '', duration: '', days: [], valves: [] });
+        } finally {
+          setSaving(false);
+        }
       };
 
-      const toggleActive = id => {
-        setPrograms(prev => prev.map(p => p.id === id ? { ...p, active: !p.active } : p));
+      // 4) Aktif/pasif toggle (status AÇIK/KAPALI)
+      const toggleActive = async (id) => {
+        const target = valves.find(v => v.id === id);
+        if (!target) return;
+
+        const newStatus = target.status === 'AÇIK' ? 'KAPALI' : 'AÇIK';
+
+        const { error } = await supabase
+          .from('valves')
+          .update({ status: newStatus })
+          .eq('id', id);
+
+        if (error) {
+          alert('Durum güncellenemedi: ' + error.message);
+          return;
+        }
+
+        setValves(prev => prev.map(v => v.id === id ? { ...v, status: newStatus } : v));
+        setPrograms(prev => prev.map(p => p.id === id ? { ...p, active: newStatus === 'AÇIK' } : p));
       };
 
-      const toggleEdit = id => {
+      // 5) Program ismi / metni düzenleme (sadece local edit flag)
+      const toggleEdit = (id) => {
         setPrograms(prev => prev.map(p => p.id === id ? { ...p, editing: !p.editing } : p));
       };
 
-      const askDelete = id => setConfirmDeleteId(id);
+      // 6) Silme
+      const askDelete = (id) => setConfirmDeleteId(id);
       const cancelDelete = () => setConfirmDeleteId(null);
-      const doDelete = () => {
+      const doDelete = async () => {
+        if (!confirmDeleteId) return;
+
+        const { error } = await supabase
+          .from('valves')
+          .delete()
+          .eq('id', confirmDeleteId); /* [web:490] */
+
+        if (error) {
+          alert('Program silinemedi: ' + error.message);
+          return;
+        }
+
+        setValves(prev => prev.filter(v => v.id !== confirmDeleteId));
         setPrograms(prev => prev.filter(p => p.id !== confirmDeleteId));
         setConfirmDeleteId(null);
       };
 
-      const copyProgram = id => {
-        const src = programs.find(p => p.id === id);
-        if (!src) return;
-        const copy = { ...src, id: Date.now(), name: `${src.name} (Kopya)` };
-        setPrograms(prev => [copy, ...prev]);
+      // 7) Kopyalama: yeni kayıt insert
+      const copyProgram = async (id) => {
+        const srcValve = valves.find(v => v.id === id);
+        if (!srcValve || !user) return;
+
+        const insertRow = {
+          user_id: user.id,
+          name: srcValve.name,
+          status: srcValve.status,
+          program: (srcValve.program || srcValve.name) + ' (Kopya)',
+          mode: srcValve.mode,
+          group: srcValve.group,
+        };
+
+        const { data, error } = await supabase
+          .from('valves')
+          .insert(insertRow)
+          .select()
+          .single();
+
+        if (error) {
+          alert('Kopya oluşturulamadı: ' + error.message);
+          return;
+        }
+
+        setValves(prev => [...prev, data]);
+
+        const mapped = {
+          id: data.id,
+          name: data.program || data.name,
+          time: '',
+          duration: '',
+          days: [],
+          valves: [data.group].filter(Boolean),
+          active: data.status === 'AÇIK',
+          editing: false,
+        };
+        setPrograms(prev => [mapped, ...prev]);
       };
 
+      // 8) Formda grup seçimi (valf grupları)
       const toggleGroupInForm = (group) => {
         setForm(prev => prev.valves.includes(group)
           ? { ...prev, valves: prev.valves.filter(g => g !== group) }
           : { ...prev, valves: [...prev.valves, group] });
       };
 
+      // 9) Formda gün seçimi (şimdilik sadece UI, DB'ye yazmıyoruz)
       const toggleDayInForm = (day) => {
         setForm(prev => prev.days.includes(day)
           ? { ...prev, days: prev.days.filter(d => d !== day) }
           : { ...prev, days: [...prev.days, day] });
       };
 
+      // 10) Mevcut programda grup toggle:
+      // Şu anda valves tablosunda tek bir group alanı olduğu için,
+      // bu fonksiyon backend'le bire bir uyumlu değil; o yüzden sadece UI'da kullanma.
       const toggleGroupInProgram = (id, group) => {
         setPrograms(prev => prev.map(p => p.id === id
-          ? { ...p, valves: p.valves.includes(group) ? p.valves.filter(g => g !== group) : [...p.valves, group] }
+          ? {
+              ...p,
+              valves: p.valves.includes(group)
+                ? p.valves.filter(g => g !== group)
+                : [...p.valves, group],
+            }
           : p));
       };
 
+      if (loadingUser || loadingValves) {
+        return (
+          <div className="min-h-screen flex flex-col">
+            <window.Header />
+            <main className="flex-1 flex items-center justify-center">
+              <div className="text-slate-300">Yükleniyor...</div>
+            </main>
+            <window.Footer />
+          </div>
+        );
+      }
+
       return (
         <div className="min-h-screen flex flex-col">
-          <window.Header /> {/* Anasayfadaki ile aynı ortak header */}
+          <window.Header />
           <main className="flex-1">
             <div className="max-w-6xl mx-auto px-3 py-4 md:px-6 md:py-8">
               <div className="bg-slate-900 rounded-2xl p-6">
                 <div className="grid grid-cols-1 gap-4 sm:gap-6 mb-6">
-                  <NewProgramForm 
-                    form={form} 
-                    setForm={setForm} 
-                    groups={groups} 
+                  <NewProgramForm
+                    form={form}
+                    setForm={setForm}
+                    groups={groups}
                     daysOfWeek={daysOfWeek}
-                    onCreate={createProgram} 
-                    toggleGroupInForm={toggleGroupInForm} 
-                    toggleDayInForm={toggleDayInForm} 
+                    onCreate={createProgram}
+                    toggleGroupInForm={toggleGroupInForm}
+                    toggleDayInForm={toggleDayInForm}
+                    saving={saving}
                   />
-                  <ProgramList 
-                    programs={programs} 
-                    groups={groups} 
-                    toggleActive={toggleActive} 
+                  <ProgramList
+                    programs={programs}
+                    groups={groups}
+                    toggleActive={toggleActive}
                     toggleEdit={toggleEdit}
-                    copyProgram={copyProgram} 
-                    askDelete={askDelete} 
+                    copyProgram={copyProgram}
+                    askDelete={askDelete}
                     toggleGroupInProgram={toggleGroupInProgram}
                   />
                 </div>
               </div>
             </div>
           </main>
-          <Footer />
+          <window.Footer />
           <ConfirmModal
             open={confirmDeleteId !== null}
             title="Programı Sil"
