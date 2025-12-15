@@ -20,13 +20,9 @@
     window.supabase = supabase.createClient(supabaseUrl, supabaseKey); /* [web:386] */
   </script>
 
-  <!-- Ortak header -->
+  <!-- Ortak header/footer -->
   <script type="text/babel" src="./components/public-header.js"></script>
-
-  <!-- Ortak komponentler -->
-  <script type="text/babel" src="./components/icons.js"></script>
   <script type="text/babel" src="./components/Footer.js"></script>
-  <script type="text/babel" src="./components/ToggleSwitch.js"></script>
   <script type="text/babel" src="./components/ConfirmModal.js"></script>
 
   <style>
@@ -49,7 +45,7 @@
 
     const daysOfWeek = ["Pzt","Sal","Çar","Per","Cum","Cts","Paz"];
 
-    /* Yeni Program Formu: grup + valf butonları */
+    /* Yeni Program Formu: sadece grup + gün */
     const NewProgramForm = ({
       form,
       setForm,
@@ -58,7 +54,6 @@
       toggleDayInForm,
       saving
     }) => {
-      // Benzersiz grup isimleri (Ön, Orta, Arka...)
       const groups = useMemo(
         () =>
           Array.from(
@@ -75,32 +70,23 @@
 
         setForm(prev => {
           if (allSelected) {
-            // Hepsi seçiliyse hepsini çıkar
             return {
               ...prev,
               valveIds: prev.valveIds.filter(id => !groupValveIds.includes(id))
             };
           }
-          // Eksik olanları ekle
           const next = new Set(prev.valveIds);
           groupValveIds.forEach(id => next.add(id));
           return { ...prev, valveIds: Array.from(next) };
         });
       };
 
-      const toggleValveInForm = (id) => {
-        setForm(prev =>
-          prev.valveIds.includes(id)
-            ? { ...prev, valveIds: prev.valveIds.filter(v => v !== id) }
-            : { ...prev, valveIds: [...prev.valveIds, id] }
-        );
-      };
-
       return (
         <section className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 shadow-md border border-slate-700/40">
           <h2 className="font-bold mb-4 text-slate-100">Yeni Program Oluştur</h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {/* 1) Program adı - Saat - Süre */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
             <input
               value={form.name}
               onChange={e => setForm(prev => ({ ...prev, name: e.target.value }))}
@@ -123,8 +109,8 @@
             />
           </div>
 
-          {/* Valf Grupları */}
-          <div className="mt-4">
+          {/* 2) Grup seçimi */}
+          <div className="mb-4">
             <p className="text-slate-300 text-sm mb-2">Valf Grubu Seç</p>
             <div className="flex flex-wrap gap-2">
               {groups.map(g => {
@@ -147,7 +133,7 @@
                         (active ? "bg-teal-600 text-white" : "bg-slate-700 text-slate-200")
                       }
                     >
-                      {g}
+                      {g} Grup
                     </span>
                   </label>
                 );
@@ -160,44 +146,11 @@
             </div>
           </div>
 
-          {/* Tekil valfler */}
-          <div className="mt-4">
-            <p className="text-slate-300 text-sm mb-2">Valf Seçimi</p>
-            <div className="flex flex-wrap gap-2 max-h-32 overflow-auto">
-              {valves.map(v => {
-                const selected = form.valveIds.includes(v.id);
-                return (
-                  <label key={v.id} className="inline-flex items-center cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      className="sr-only"
-                      checked={selected}
-                      onChange={() => toggleValveInForm(v.id)}
-                    />
-                    <span
-                      className={
-                        "px-3 py-1 rounded-full text-sm font-medium transition " +
-                        (selected ? "bg-teal-600 text-white" : "bg-slate-700 text-slate-200")
-                      }
-                    >
-                      {v.name}{v.group ? ` · ${v.group}` : ""}
-                    </span>
-                  </label>
-                );
-              })}
-              {valves.length === 0 && (
-                <p className="text-xs text-slate-500">
-                  Henüz valf yok, önce dashboard’dan ekle.
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Günler */}
-          <div className="mt-4">
+          {/* 3) Gün seçimi */}
+          <div className="mb-4">
             <p className="text-slate-300 text-sm mb-2">Gün Seçimi</p>
             <div className="flex flex-wrap gap-2">
-              {daysOfWeek.map((d) => {
+              {daysOfWeek.map(d => {
                 const selected = form.days.includes(d);
                 return (
                   <button
@@ -218,23 +171,21 @@
             </div>
           </div>
 
-          <div className="mt-4">
-            <button
-              type="button"
-              onClick={onCreate}
-              disabled={
-                saving ||
-                !form.name.trim() ||
-                !form.startTime ||
-                !form.duration ||
-                form.valveIds.length === 0 ||
-                form.days.length === 0
-              }
-              className="w-full bg-gradient-to-r from-teal-500 via-teal-600 to-cyan-600 hover:bg-teal-400 px-4 py-2.5 rounded-lg text-sm font-semibold text-white shadow-lg btn-soft disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {saving ? "Kaydediliyor..." : "Program Oluştur"}
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={onCreate}
+            disabled={
+              saving ||
+              !form.name.trim() ||
+              !form.startTime ||
+              !form.duration ||
+              form.valveIds.length === 0 ||
+              form.days.length === 0
+            }
+            className="w-full bg-gradient-to-r from-teal-500 via-teal-600 to-cyan-600 hover:bg-teal-400 px-4 py-2.5 rounded-lg text-sm font-semibold text-white shadow-lg btn-soft disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {saving ? "Kaydediliyor..." : "Program Oluştur"}
+          </button>
         </section>
       );
     };
@@ -329,7 +280,6 @@
       const [savingProgram, setSavingProgram] = useState(false);
       const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
-      // 1) Kullanıcıyı al
       useEffect(() => {
         const loadUser = async () => {
           const { data, error } = await supabase.auth.getUser(); /* [web:123] */
@@ -343,26 +293,19 @@
         loadUser();
       }, []);
 
-      // 2) Kullanıcı geldikten sonra valf + programları çek
       useEffect(() => {
         if (!user) return;
 
         const loadAll = async () => {
           setLoadingData(true);
 
-          // valfler
-          const { data: valvesData, error: valvesErr } = await supabase
+          const { data: valvesData } = await supabase
             .from("valves")
             .select("*")
             .eq("user_id", user.id)
             .order("created_at", { ascending: true }); /* [web:386] */
-
-          if (valvesErr) {
-            console.error("Valfler alınamadı:", valvesErr);
-          }
           setValves(valvesData || []);
 
-          // programlar
           const { data: programsData, error: progErr } = await supabase
             .from("programs")
             .select("*")
@@ -379,17 +322,14 @@
           const programIds = (programsData || []).map(p => p.id);
           let pvMap = {};
           if (programIds.length > 0) {
-            // program_valves satırları
             const { data: pvData, error: pvErr } = await supabase
               .from("program_valves")
               .select("program_id, valve_id")
               .in("program_id", programIds); /* [web:386] */
 
-            if (pvErr) {
-              console.error("program_valves alınamadı:", pvErr);
-            } else {
+            if (!pvErr && pvData) {
               pvMap = programIds.reduce((acc, pid) => ({ ...acc, [pid]: [] }), {});
-              (pvData || []).forEach(row => {
+              pvData.forEach(row => {
                 if (!pvMap[row.program_id]) pvMap[row.program_id] = [];
                 pvMap[row.program_id].push(row.valve_id);
               });
@@ -406,8 +346,15 @@
             const groups = new Set();
             valveIds.forEach(id => {
               const v = valvesById[id];
-              if (v?.group) groups.add(v.group); // direkt grup adı
+              if (v?.group) groups.add(v.group);
             });
+
+            const groupLabels =
+              groups.size === 0
+                ? "-"
+                : Array.from(groups)
+                    .map(g => `${g} Grup`)
+                    .join(", ");
 
             return {
               ...p,
@@ -415,9 +362,7 @@
               valvesSummary:
                 valveIds.length === 0
                   ? ""
-                  : `${valveIds.length} valf · Gruplar: ${
-                      groups.size > 0 ? Array.from(groups).join(", ") : "-"
-                    }`
+                  : `${valveIds.length} valf · Gruplar: ${groupLabels}`
             };
           });
 
@@ -436,7 +381,6 @@
         );
       };
 
-      // 3) Program oluştur
       const createProgram = async () => {
         if (
           !form.name.trim() ||
@@ -451,78 +395,75 @@
 
         setSavingProgram(true);
 
-        try {
-          const { data: progData, error: progErr } = await supabase
-            .from("programs")
-            .insert({
-              user_id: user.id,
-              name: form.name.trim(),
-              start_time: form.startTime,
-              duration: Number(form.duration),
-              days: form.days,
-              active: true
-            })
-            .select()
-            .single(); /* [web:498] */
+        const { data: progData, error: progErr } = await supabase
+          .from("programs")
+          .insert({
+            user_id: user.id,
+            name: form.name.trim(),
+            start_time: form.startTime,
+            duration: Number(form.duration),
+            days: form.days,
+            active: true
+          })
+          .select()
+          .single(); /* [web:498] */
 
-          if (progErr) {
-            alert("Program kaydedilemedi: " + progErr.message);
-            setSavingProgram(false);
-            return;
-          }
-
-          // Seçili valfler için ilişkiler
-          const rows = form.valveIds.map(valveId => ({
-            program_id: progData.id,
-            valve_id: valveId
-          }));
-
-          const { error: pvErr } = await supabase
-            .from("program_valves")
-            .insert(rows); /* [web:498] */
-
-          if (pvErr) {
-            alert("Program-valf ilişkileri kaydedilemedi: " + pvErr.message);
-            setSavingProgram(false);
-            return;
-          }
-
-          const valvesById = valves.reduce((acc, v) => {
-            acc[v.id] = v;
-            return acc;
-          }, {});
-
-          const groups = new Set();
-          form.valveIds.forEach(id => {
-            const v = valvesById[id];
-            if (v?.group) groups.add(v.group);
-          });
-
-          const newProgram = {
-            ...progData,
-            days: progData.days || [],
-            valvesSummary: `${form.valveIds.length} valf · Gruplar: ${
-              groups.size > 0 ? Array.from(groups).join(", ") : "-"
-            }`
-          };
-
-          setPrograms(prev => [newProgram, ...prev]);
-
-          setForm({
-            name: "",
-            startTime: "",
-            duration: "",
-            days: [],
-            valveIds: []
-          });
+        if (progErr) {
+          alert("Program kaydedilemedi: " + progErr.message);
           setSavingProgram(false);
-        } catch (e) {
-          console.error(e);
-          setSavingProgram(false);
+          return;
         }
+
+        const rows = form.valveIds.map(valveId => ({
+          program_id: progData.id,
+          valve_id: valveId
+        }));
+
+        const { error: pvErr } = await supabase
+          .from("program_valves")
+          .insert(rows); /* [web:498] */
+
+        if (pvErr) {
+          alert("Program-valf ilişkileri kaydedilemedi: " + pvErr.message);
+          setSavingProgram(false);
+          return;
+        }
+
+        const valvesById = valves.reduce((acc, v) => {
+          acc[v.id] = v;
+          return acc;
+        }, {});
+        const groups = new Set();
+        form.valveIds.forEach(id => {
+          const v = valvesById[id];
+          if (v?.group) groups.add(v.group);
+        });
+
+        const groupLabels =
+          groups.size === 0
+            ? "-"
+            : Array.from(groups)
+                .map(g => `${g} Grup`)
+                .join(", ");
+
+        const newProgram = {
+          ...progData,
+          days: progData.days || [],
+          valvesSummary: `${form.valveIds.length} valf · Gruplar: ${groupLabels}`
+        };
+
+        setPrograms(prev => [newProgram, ...prev]);
+
+        setForm({
+          name: "",
+          startTime: "",
+          duration: "",
+          days: [],
+          valveIds: []
+        });
+        setSavingProgram(false);
       };
 
-      // 4) Aktif/pasif
       const handleToggleActive = async (id, newActive) => {
         const { error } = await supabase
           .from("programs")
@@ -539,7 +480,6 @@
         );
       };
 
-      // 5) Silme
       const askDelete = (id) => setConfirmDeleteId(id);
       const cancelDelete = () => setConfirmDeleteId(null);
 
@@ -560,7 +500,6 @@
         setConfirmDeleteId(null);
       };
 
-      // 6) Kopyalama
       const copyProgram = async (id) => {
         const src = programs.find(p => p.id === id);
         if (!src || !user) return;
@@ -583,13 +522,12 @@
           return;
         }
 
-        // Eski ilişkileri kopyala
-        const { data: oldLinks, error: linkErr } = await supabase
+        const { data: oldLinks } = await supabase
           .from("program_valves")
           .select("valve_id")
           .eq("program_id", src.id); /* [web:386] */
 
-        if (!linkErr && oldLinks && oldLinks.length > 0) {
+        if (oldLinks && oldLinks.length > 0) {
           const rows = oldLinks.map(r => ({
             program_id: newProg.id,
             valve_id: r.valve_id
@@ -607,15 +545,20 @@
           if (v?.group) groups.add(v.group);
         });
 
+        const groupLabels =
+          groups.size === 0
+            ? "-"
+            : Array.from(groups)
+                .map(g => `${g} Grup`)
+                .join(", ");
+
         const mapped = {
           ...newProg,
           days: newProg.days || [],
           valvesSummary:
             (oldLinks || []).length === 0
               ? ""
-              : `${oldLinks.length} valf · Gruplar: ${
-                  groups.size > 0 ? Array.from(groups).join(", ") : "-"
-                }`
+              : `${oldLinks.length} valf · Gruplar: ${groupLabels}`
         };
 
         setPrograms(prev => [mapped, ...prev]);
