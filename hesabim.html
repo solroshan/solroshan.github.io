@@ -55,12 +55,23 @@
 
     const AccountPage = () => {
       const [tab, setTab] = useState("billing");
-      const [profile, setProfile] = useState({
+
+      // Kartta gösterilen kesin profil (backend’ten gelen)
+      const [displayProfile, setDisplayProfile] = useState({
         firstName: "",
         lastName: "",
         email: "",
         phone: ""
       });
+
+      // Formda düzenlenen taslak profil
+      const [formProfile, setFormProfile] = useState({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: ""
+      });
+
       const [saving, setSaving] = useState(false);
 
       const [currentPassword, setCurrentPassword] = useState("");
@@ -76,12 +87,15 @@
 
           const u = data.user;
           const meta = u.user_metadata || {};
-          setProfile({
+          const loaded = {
             firstName: meta.first_name || "",
             lastName: meta.last_name || "",
             email: u.email || "",
             phone: meta.phone || ""
-          });
+          };
+
+          setDisplayProfile(loaded);
+          setFormProfile(loaded);
         };
 
         loadUser();
@@ -89,10 +103,10 @@
 
       const handleSaveProfile = async () => {
         if (
-          !profile.firstName.trim() ||
-          !profile.lastName.trim() ||
-          !profile.email.trim() ||
-          !profile.phone.trim()
+          !formProfile.firstName.trim() ||
+          !formProfile.lastName.trim() ||
+          !formProfile.email.trim() ||
+          !formProfile.phone.trim()
         ) {
           alert("Ad, soyad, e-posta ve telefon alanları zorunludur.");
           return;
@@ -102,16 +116,31 @@
         try {
           const updates = {
             data: {
-              first_name: profile.firstName,
-              last_name: profile.lastName,
-              phone: profile.phone,
+              first_name: formProfile.firstName,
+              last_name: formProfile.lastName,
+              phone: formProfile.phone,
             },
           };
 
-          const { error } = await supabase.auth.updateUser(updates); /* profil + metadata güncelle [web:333] */
+          const { error } = await supabase.auth.updateUser(updates); /* profil + metadata güncelle [web:330] */
           if (error) {
             alert("Profil güncellenirken hata oluştu: " + error.message);
             return;
+          }
+
+          // Güncel veriyi tekrar backend’ten çek
+          const { data, error: reloadError } = await supabase.auth.getUser(); /* [web:123] */
+          if (!reloadError && data?.user) {
+            const u = data.user;
+            const meta = u.user_metadata || {};
+            const reloaded = {
+              firstName: meta.first_name || "",
+              lastName: meta.last_name || "",
+              email: u.email || "",
+              phone: meta.phone || ""
+            };
+            setDisplayProfile(reloaded);
+            setFormProfile(reloaded);
           }
 
           alert("Profil başarıyla güncellendi.");
@@ -133,7 +162,7 @@
 
         if (currentPassword) {
           const { error: signInError } = await supabase.auth.signInWithPassword({
-            email: profile.email,
+            email: displayProfile.email,
             password: currentPassword,
           }); /* mevcut şifre doğrulama [web:325] */
 
@@ -146,7 +175,7 @@
 
         const { error } = await supabase.auth.updateUser({
           password: newPassword,
-        }); /* giriş yapmış kullanıcıda şifre güncelle [web:330][web:332] */
+        }); /* giriş yapmış kullanıcıda şifre güncelle [web:330] */
 
         setPasswordLoading(false);
 
@@ -161,8 +190,8 @@
       };
 
       const displayName =
-        profile.firstName || profile.lastName
-          ? `${profile.firstName} ${profile.lastName}`.trim()
+        displayProfile.firstName || displayProfile.lastName
+          ? `${displayProfile.firstName} ${displayProfile.lastName}`.trim()
           : "Kullanıcı";
 
       return (
@@ -199,11 +228,11 @@
                     {/* Profil kartı */}
                     <div className="bg-slate-900/70 border border-slate-700/60 rounded-3xl p-6 flex flex-col items-center text-center gap-3">
                       <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-3xl font-bold text-white">
-                        {getInitials(profile.firstName, profile.lastName)}
+                        {getInitials(displayProfile.firstName, displayProfile.lastName)}
                       </div>
                       <div>
                         <div className="font-semibold text-slate-100">{displayName}</div>
-                        <div className="text-sm text-slate-400">{profile.email || "—"}</div>
+                        <div className="text-sm text-slate-400">{displayProfile.email || "—"}</div>
                       </div>
                       <span className="inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/40">
                         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -245,23 +274,23 @@
                             <label className="block text-sm text-slate-400 mb-1">Ad</label>
                             <input
                               className="w-full rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
-                              value={profile.firstName}
-                              onChange={e => setProfile(p => ({ ...p, firstName: e.target.value }))}
+                              value={formProfile.firstName}
+                              onChange={e => setFormProfile(p => ({ ...p, firstName: e.target.value }))}
                             />
                           </div>
                           <div>
                             <label className="block text-sm text-slate-400 mb-1">Soyad</label>
                             <input
                               className="w-full rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
-                              value={profile.lastName}
-                              onChange={e => setProfile(p => ({ ...p, lastName: e.target.value }))}
+                              value={formProfile.lastName}
+                              onChange={e => setFormProfile(p => ({ ...p, lastName: e.target.value }))}
                             />
                           </div>
                           <div>
                             <label className="block text-sm text-slate-400 mb-1">E-posta</label>
                             <input
                               className="w-full rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
-                              value={profile.email}
+                              value={formProfile.email}
                               readOnly
                             />
                           </div>
@@ -269,8 +298,8 @@
                             <label className="block text-sm text-slate-400 mb-1">Telefon</label>
                             <input
                               className="w-full rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-100"
-                              value={profile.phone}
-                              onChange={e => setProfile(p => ({ ...p, phone: e.target.value }))}
+                              value={formProfile.phone}
+                              onChange={e => setFormProfile(p => ({ ...p, phone: e.target.value }))}
                               placeholder="05xx xxx xx xx"
                             />
                           </div>
@@ -282,7 +311,10 @@
                           </div>
                         </div>
                         <div className="flex justify-end gap-3">
-                          <button className="px-4 py-2 rounded-2xl text-sm font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">
+                          <button
+                            className="px-4 py-2 rounded-2xl text-sm font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all"
+                            onClick={() => setFormProfile(displayProfile)}  
+                          >
                             Vazgeç
                           </button>
                           <button
