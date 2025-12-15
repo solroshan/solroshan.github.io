@@ -12,24 +12,22 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <!-- Supabase UMD -->
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script>
     const supabaseUrl = 'https://puurwgrzknxttjsjxdit.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1dXJ3Z3J6a254dHRqc2p4ZGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0NTIyODUsImV4cCI6MjA4MTAyODI4NX0.tYoFbwWeuPCAXLXVp8yX0ThbvWPgboYOCUqPuKtAoaI';
-    window.supabase = supabase.createClient(supabaseUrl, supabaseKey); /* [web:498] */
+    window.supabase = supabase.createClient(supabaseUrl, supabaseKey); /* [web:386] */
   </script>
 
-  <!-- Ortak Header -->
+  <!-- Ortak header -->
   <script type="text/babel" src="./components/public-header.js"></script>
 
-  <!-- Ortak bileşenler -->
+  <!-- Ortak komponentler -->
   <script type="text/babel" src="./components/icons.js"></script>
   <script type="text/babel" src="./components/Footer.js"></script>
   <script type="text/babel" src="./components/ToggleSwitch.js"></script>
   <script type="text/babel" src="./components/ConfirmModal.js"></script>
-  <script type="text/babel" src="./components/NewProgramForm.js"></script>
-  <script type="text/babel" src="./components/ProgramList.js"></script>
 
   <style>
     .btn-soft {
@@ -49,32 +47,237 @@
     const { useState, useEffect, useMemo } = React;
     const { createRoot } = ReactDOM;
 
-    const daysOfWeek = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cts", "Paz"];
+    const daysOfWeek = ["Pzt","Sal","Çar","Per","Cum","Cts","Paz"];
+
+    /* Basit Program Formu */
+    const NewProgramForm = ({
+      form,
+      setForm,
+      valves,
+      onCreate,
+      toggleDayInForm,
+      toggleValveInForm,
+      saving
+    }) => {
+      return (
+        <section className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 shadow-md border border-slate-700/40">
+          <h2 className="font-bold mb-4 text-slate-100">Yeni Program</h2>
+
+          <div className="space-y-3 text-sm">
+            <div>
+              <label className="block text-xs font-semibold mb-1 text-slate-300">
+                Program Adı
+              </label>
+              <input
+                type="text"
+                value={form.name}
+                onChange={(e) => setForm(prev => ({ ...prev, name: e.target.value }))}
+                className="w-full px-3 py-2 rounded-md bg-slate-900 border border-slate-700 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                placeholder="Yaz Programı"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs font-semibold mb-1 text-slate-300">
+                  Saat
+                </label>
+                <input
+                  type="time"
+                  value={form.startTime}
+                  onChange={(e) => setForm(prev => ({ ...prev, startTime: e.target.value }))}
+                  className="w-full px-3 py-2 rounded-md bg-slate-900 border border-slate-700 text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold mb-1 text-slate-300">
+                  Süre (dk)
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={form.duration}
+                  onChange={(e) => setForm(prev => ({ ...prev, duration: e.target.value }))}
+                  className="w-full px-3 py-2 rounded-md bg-slate-900 border border-slate-700 text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  placeholder="30"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold mb-1 text-slate-300">
+                Günler
+              </label>
+              <div className="flex flex-wrap gap-1.5">
+                {daysOfWeek.map((d) => {
+                  const selected = form.days.includes(d);
+                  return (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => toggleDayInForm(d)}
+                      className={
+                        "px-2.5 py-1 rounded-full text-xs border " +
+                        (selected
+                          ? "bg-teal-500 text-white border-teal-400"
+                          : "bg-slate-800 text-slate-200 border-slate-600")
+                      }
+                    >
+                      {d}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold mb-1 text-slate-300">
+                Valf Seçimi
+              </label>
+              <div className="max-h-40 overflow-auto space-y-1">
+                {valves.map(v => {
+                  const selected = form.valveIds.includes(v.id);
+                  return (
+                    <button
+                      key={v.id}
+                      type="button"
+                      onClick={() => toggleValveInForm(v.id)}
+                      className={
+                        "w-full flex justify-between items-center px-3 py-1.5 rounded-md text-xs border " +
+                        (selected
+                          ? "bg-teal-600/30 border-teal-500 text-teal-100"
+                          : "bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700")
+                      }
+                    >
+                      <span>{v.name}</span>
+                      <span className="text-[10px] text-slate-400">
+                        {v.group || "grup yok"}
+                      </span>
+                    </button>
+                  );
+                })}
+                {valves.length === 0 && (
+                  <p className="text-xs text-slate-500">Henüz valf yok, önce dashboard’dan ekle.</p>
+                )}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={onCreate}
+              disabled={
+                saving ||
+                !form.name.trim() ||
+                !form.startTime ||
+                !form.duration ||
+                form.valveIds.length === 0 ||
+                form.days.length === 0
+              }
+              className="w-full mt-2 inline-flex items-center justify-center px-4 py-2 rounded-xl bg-teal-500 hover:bg-teal-600 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold text-sm"
+            >
+              {saving ? "Kaydediliyor..." : "Program Oluştur"}
+            </button>
+          </div>
+        </section>
+      );
+    };
+
+    /* Program listesi */
+    const ProgramList = ({
+      programs,
+      onToggleActive,
+      onAskDelete,
+      onCopy
+    }) => {
+      return (
+        <section className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 shadow-md border border-slate-700/40">
+          <h2 className="font-bold mb-4 text-slate-100">Program Listesi</h2>
+
+          {programs.length === 0 && (
+            <p className="text-xs text-slate-500">
+              Henüz program oluşturulmamış.
+            </p>
+          )}
+
+          <div className="space-y-3">
+            {programs.map(p => (
+              <div
+                key={p.id}
+                className="border border-slate-700 rounded-xl px-3 py-2.5 text-xs sm:text-sm bg-slate-900/60"
+              >
+                <div className="flex justify-between items-center gap-2 mb-1.5">
+                  <div>
+                    <p className="font-semibold text-slate-100">
+                      {p.name}
+                    </p>
+                    <p className="text-[11px] text-slate-400">
+                      {p.start_time} · {p.duration} dk · Günler: {p.days.join(", ")}
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1">
+                    <button
+                      onClick={() => onToggleActive(p.id, !p.active)}
+                      className={
+                        "px-2.5 py-1 rounded-md text-[11px] font-semibold border " +
+                        (p.active
+                          ? "bg-teal-600/40 text-teal-100 border-teal-400"
+                          : "bg-slate-700 text-slate-100 border-slate-500")
+                      }
+                    >
+                      {p.active ? "Aktif" : "Pasif"}
+                    </button>
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => onCopy(p.id)}
+                        className="px-2 py-0.5 rounded-md border border-slate-600 text-[11px] text-slate-200 hover:bg-slate-800"
+                      >
+                        Kopyala
+                      </button>
+                      <button
+                        onClick={() => onAskDelete(p.id)}
+                        className="px-2 py-0.5 rounded-md border border-rose-500 text-[11px] text-rose-300 hover:bg-rose-900/30"
+                      >
+                        Sil
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-1.5 text-[11px] text-slate-300">
+                  Valfler: {p.valvesSummary || "Seçilmiş valf yok"}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      );
+    };
 
     const ProgramPage = () => {
       const [user, setUser] = useState(null);
       const [loadingUser, setLoadingUser] = useState(true);
 
-      const [valves, setValves] = useState([]);       // Supabase'ten gelen ham valf verisi
-      const [programs, setPrograms] = useState([]);   // UI'da kullandığımız program görünümleri
-      const [loadingValves, setLoadingValves] = useState(true);
+      const [valves, setValves] = useState([]);
+      const [programs, setPrograms] = useState([]);
+      const [loadingData, setLoadingData] = useState(true);
 
-      const [form, setForm] = useState({ name: '', time: '', duration: '', days: [], valves: [] });
+      const [form, setForm] = useState({
+        name: "",
+        startTime: "",
+        duration: "",
+        days: [],
+        valveIds: []
+      });
+
+      const [savingProgram, setSavingProgram] = useState(false);
       const [confirmDeleteId, setConfirmDeleteId] = useState(null);
-      const [saving, setSaving] = useState(false);
-
-      // Benzersiz grup listesi (valves.tablosundaki group alanından)
-      const groups = useMemo(
-        () => Array.from(new Set(valves.map(v => v.group).filter(Boolean))).sort(),
-        [valves]
-      );
 
       // 1) Kullanıcıyı al
       useEffect(() => {
         const loadUser = async () => {
           const { data, error } = await supabase.auth.getUser(); /* [web:123] */
           if (error || !data?.user) {
-            window.location.href = 'anasayfa.html#giris';
+            window.location.href = "anasayfa.html#giris";
             return;
           }
           setUser(data.user);
@@ -83,218 +286,300 @@
         loadUser();
       }, []);
 
-      // 2) Kullanıcı geldikten sonra valfleri çek
+      // 2) Kullanıcı geldikten sonra valf + programları çek
       useEffect(() => {
         if (!user) return;
 
-        const loadValves = async () => {
-          setLoadingValves(true);
-          const { data, error } = await supabase
-            .from('valves')
-            .select('*')
-            .eq('user_id', user.id)
-            .order('created_at', { ascending: true }); /* [web:386] */
+        const loadAll = async () => {
+          setLoadingData(true);
 
-          if (error) {
-            console.error('Valfler alınamadı:', error);
-            setValves([]);
-            setPrograms([]);
-          } else {
-            setValves(data || []);
-            // Program görünümü: aynı program adına sahip grupları gruplayabilirsin;
-            // şimdilik her valfi ayrı satır gibi kullanıyoruz.
-            const mapped = (data || []).map(v => ({
-              id: v.id,
-              name: v.program || v.name,
-              time: '',             // SQL şeman yok; istersen program metnine gömersin
-              duration: '',         // süre kolonun yoksa burada boş bırakılır
-              days: [],             // gün bilgisi yok; ileride colon ekleyebilirsin
-              valves: [v.group].filter(Boolean),
-              active: v.status === 'AÇIK',
-              editing: false,
-            }));
-            setPrograms(mapped);
+          // valfler
+          const { data: valvesData, error: valvesErr } = await supabase
+            .from("valves")
+            .select("*")
+            .eq("user_id", user.id)
+            .order("created_at", { ascending: true }); /* [web:386] */
+
+          if (valvesErr) {
+            console.error("Valfler alınamadı:", valvesErr);
           }
-          setLoadingValves(false);
-        };
+          setValves(valvesData || []);
 
-        loadValves();
-      }, [user]);
+          // programlar
+          const { data: programsData, error: progErr } = await supabase
+            .from("programs")
+            .select("*")
+            .eq("user_id", user.id)
+            .order("created_at", { ascending: false });
 
-      // 3) Yeni program oluşturma:
-      // şu an "program" alanını ve "status" / "group" alanlarını güncelliyoruz.
-      const createProgram = async () => {
-        if (!form.name || !form.time || !form.duration || form.valves.length === 0) return;
-        if (!user) return;
-
-        setSaving(true);
-        try {
-          // Seçili her grup için birer valf kaydı oluşturmak istiyorsan:
-          const rows = form.valves.map(group => ({
-            user_id: user.id,
-            name: `Program · ${group}`,
-            status: 'AÇIK',
-            program: `${form.name} · ${form.time} · ${form.duration} dk`,
-            mode: 'Auto',
-            group,
-          }));
-
-          const { data, error } = await supabase
-            .from('valves')
-            .insert(rows)
-            .select(); /* [web:498][web:490] */
-
-          if (error) {
-            alert('Program kaydedilemedi: ' + error.message);
+          if (progErr) {
+            console.error("Programlar alınamadı:", progErr);
+            setPrograms([]);
+            setLoadingData(false);
             return;
           }
 
-          // UI state'i güncelle
-          const newValves = [...valves, ...(data || [])];
-          setValves(newValves);
+          const programIds = (programsData || []).map(p => p.id);
+          let pvMap = {};
+          if (programIds.length > 0) {
+            // program_valves satırları
+            const { data: pvData, error: pvErr } = await supabase
+              .from("program_valves")
+              .select("program_id, valve_id")
+              .in("program_id", programIds); /* [web:425][web:550] */
 
-          const mappedNew = (data || []).map(v => ({
-            id: v.id,
-            name: v.program || v.name,
-            time: '',
-            duration: '',
-            days: [],
-            valves: [v.group].filter(Boolean),
-            active: v.status === 'AÇIK',
-            editing: false,
-          }));
+            if (pvErr) {
+              console.error("program_valves alınamadı:", pvErr);
+            } else {
+              pvMap = programIds.reduce((acc, pid) => ({ ...acc, [pid]: [] }), {});
+              (pvData || []).forEach(row => {
+                if (!pvMap[row.program_id]) pvMap[row.program_id] = [];
+                pvMap[row.program_id].push(row.valve_id);
+              });
+            }
+          }
 
-          setPrograms(prev => [...mappedNew, ...prev]);
+          const valvesById = (valvesData || []).reduce((acc, v) => {
+            acc[v.id] = v;
+            return acc;
+          }, {});
 
-          setForm({ name: '', time: '', duration: '', days: [], valves: [] });
-        } finally {
-          setSaving(false);
-        }
+          const mappedPrograms = (programsData || []).map(p => {
+            const valveIds = pvMap[p.id] || [];
+            const groups = new Set();
+            valveIds.forEach(id => {
+              const v = valvesById[id];
+              if (v?.group) groups.add(v.group);
+            });
+
+            return {
+              ...p,
+              days: p.days || [],
+              valvesSummary:
+                valveIds.length === 0
+                  ? ""
+                  : `${valveIds.length} valf · Gruplar: ${
+                      groups.size > 0 ? Array.from(groups).join(", ") : "-"
+                    }`
+            };
+          });
+
+          setPrograms(mappedPrograms);
+          setLoadingData(false);
+        };
+
+        loadAll();
+      }, [user]);
+
+      const toggleDayInForm = (day) => {
+        setForm(prev =>
+          prev.days.includes(day)
+            ? { ...prev, days: prev.days.filter(d => d !== day) }
+            : { ...prev, days: [...prev.days, day] }
+        );
       };
 
-      // 4) Aktif/pasif toggle (status AÇIK/KAPALI)
-      const toggleActive = async (id) => {
-        const target = valves.find(v => v.id === id);
-        if (!target) return;
+      const toggleValveInForm = (id) => {
+        setForm(prev =>
+          prev.valveIds.includes(id)
+            ? { ...prev, valveIds: prev.valveIds.filter(v => v !== id) }
+            : { ...prev, valveIds: [...prev.valveIds, id] }
+        );
+      };
 
-        const newStatus = target.status === 'AÇIK' ? 'KAPALI' : 'AÇIK';
-
-        const { error } = await supabase
-          .from('valves')
-          .update({ status: newStatus })
-          .eq('id', id);
-
-        if (error) {
-          alert('Durum güncellenemedi: ' + error.message);
+      // 3) Program oluştur
+      const createProgram = async () => {
+        if (
+          !form.name.trim() ||
+          !form.startTime ||
+          !form.duration ||
+          form.days.length === 0 ||
+          form.valveIds.length === 0 ||
+          !user
+        ) {
           return;
         }
 
-        setValves(prev => prev.map(v => v.id === id ? { ...v, status: newStatus } : v));
-        setPrograms(prev => prev.map(p => p.id === id ? { ...p, active: newStatus === 'AÇIK' } : p));
+        setSavingProgram(true);
+
+        try {
+          const { data: progData, error: progErr } = await supabase
+            .from("programs")
+            .insert({
+              user_id: user.id,
+              name: form.name.trim(),
+              start_time: form.startTime,
+              duration: Number(form.duration),
+              days: form.days,
+              active: true
+            })
+            .select()
+            .single(); /* [web:498][web:548] */
+
+          if (progErr) {
+            alert("Program kaydedilemedi: " + progErr.message);
+            setSavingProgram(false);
+            return;
+          }
+
+          // Seçili valfler için ilişkiler
+          const rows = form.valveIds.map(valveId => ({
+            program_id: progData.id,
+            valve_id: valveId
+          }));
+
+          const { error: pvErr } = await supabase
+            .from("program_valves")
+            .insert(rows);
+
+          if (pvErr) {
+            alert("Program-valf ilişkileri kaydedilemedi: " + pvErr.message);
+            setSavingProgram(false);
+            return;
+          }
+
+          const valvesById = valves.reduce((acc, v) => {
+            acc[v.id] = v;
+            return acc;
+          }, {});
+
+          const groups = new Set();
+          form.valveIds.forEach(id => {
+            const v = valvesById[id];
+            if (v?.group) groups.add(v.group);
+          });
+
+          const newProgram = {
+            ...progData,
+            days: progData.days || [],
+            valvesSummary: `${form.valveIds.length} valf · Gruplar: ${
+              groups.size > 0 ? Array.from(groups).join(", ") : "-"
+            }`
+          };
+
+          setPrograms(prev => [newProgram, ...prev]);
+
+          setForm({
+            name: "",
+            startTime: "",
+            duration: "",
+            days: [],
+            valveIds: []
+          });
+          setSavingProgram(false);
+        } catch (e) {
+          console.error(e);
+          setSavingProgram(false);
+        }
       };
 
-      // 5) Program ismi / metni düzenleme (sadece local edit flag)
-      const toggleEdit = (id) => {
-        setPrograms(prev => prev.map(p => p.id === id ? { ...p, editing: !p.editing } : p));
+      // 4) Aktif/pasif
+      const handleToggleActive = async (id, newActive) => {
+        const { error } = await supabase
+          .from("programs")
+          .update({ active: newActive })
+          .eq("id", id);
+
+        if (error) {
+          alert("Program güncellenemedi: " + error.message);
+          return;
+        }
+
+        setPrograms(prev =>
+          prev.map(p => (p.id === id ? { ...p, active: newActive } : p))
+        );
       };
 
-      // 6) Silme
+      // 5) Silme
       const askDelete = (id) => setConfirmDeleteId(id);
       const cancelDelete = () => setConfirmDeleteId(null);
+
       const doDelete = async () => {
         if (!confirmDeleteId) return;
 
         const { error } = await supabase
-          .from('valves')
+          .from("programs")
           .delete()
-          .eq('id', confirmDeleteId); /* [web:490] */
+          .eq("id", confirmDeleteId);
 
         if (error) {
-          alert('Program silinemedi: ' + error.message);
+          alert("Program silinemedi: " + error.message);
           return;
         }
 
-        setValves(prev => prev.filter(v => v.id !== confirmDeleteId));
         setPrograms(prev => prev.filter(p => p.id !== confirmDeleteId));
         setConfirmDeleteId(null);
       };
 
-      // 7) Kopyalama: yeni kayıt insert
+      // 6) Kopyalama
       const copyProgram = async (id) => {
-        const srcValve = valves.find(v => v.id === id);
-        if (!srcValve || !user) return;
+        const src = programs.find(p => p.id === id);
+        if (!src || !user) return;
 
-        const insertRow = {
-          user_id: user.id,
-          name: srcValve.name,
-          status: srcValve.status,
-          program: (srcValve.program || srcValve.name) + ' (Kopya)',
-          mode: srcValve.mode,
-          group: srcValve.group,
-        };
-
-        const { data, error } = await supabase
-          .from('valves')
-          .insert(insertRow)
+        const { data: newProg, error: progErr } = await supabase
+          .from("programs")
+          .insert({
+            user_id: user.id,
+            name: src.name + " (Kopya)",
+            start_time: src.start_time,
+            duration: src.duration,
+            days: src.days,
+            active: src.active
+          })
           .select()
           .single();
 
-        if (error) {
-          alert('Kopya oluşturulamadı: ' + error.message);
+        if (progErr) {
+          alert("Kopya oluşturulamadı: " + progErr.message);
           return;
         }
 
-        setValves(prev => [...prev, data]);
+        // Eski ilişkileri kopyala
+        const { data: oldLinks, error: linkErr } = await supabase
+          .from("program_valves")
+          .select("valve_id")
+          .eq("program_id", src.id);
+
+        if (!linkErr && oldLinks && oldLinks.length > 0) {
+          const rows = oldLinks.map(r => ({
+            program_id: newProg.id,
+            valve_id: r.valve_id
+          }));
+          await supabase.from("program_valves").insert(rows);
+        }
+
+        const valvesById = valves.reduce((acc, v) => {
+          acc[v.id] = v;
+          return acc;
+        }, {});
+        const groups = new Set();
+        (oldLinks || []).forEach(r => {
+          const v = valvesById[r.valve_id];
+          if (v?.group) groups.add(v.group);
+        });
 
         const mapped = {
-          id: data.id,
-          name: data.program || data.name,
-          time: '',
-          duration: '',
-          days: [],
-          valves: [data.group].filter(Boolean),
-          active: data.status === 'AÇIK',
-          editing: false,
+          ...newProg,
+          days: newProg.days || [],
+          valvesSummary:
+            (oldLinks || []).length === 0
+              ? ""
+              : `${oldLinks.length} valf · Gruplar: ${
+                  groups.size > 0 ? Array.from(groups).join(", ") : "-"
+                }`
         };
+
         setPrograms(prev => [mapped, ...prev]);
       };
 
-      // 8) Formda grup seçimi (valf grupları)
-      const toggleGroupInForm = (group) => {
-        setForm(prev => prev.valves.includes(group)
-          ? { ...prev, valves: prev.valves.filter(g => g !== group) }
-          : { ...prev, valves: [...prev.valves, group] });
-      };
-
-      // 9) Formda gün seçimi (şimdilik sadece UI, DB'ye yazmıyoruz)
-      const toggleDayInForm = (day) => {
-        setForm(prev => prev.days.includes(day)
-          ? { ...prev, days: prev.days.filter(d => d !== day) }
-          : { ...prev, days: [...prev.days, day] });
-      };
-
-      // 10) Mevcut programda grup toggle:
-      // Şu anda valves tablosunda tek bir group alanı olduğu için,
-      // bu fonksiyon backend'le bire bir uyumlu değil; o yüzden sadece UI'da kullanma.
-      const toggleGroupInProgram = (id, group) => {
-        setPrograms(prev => prev.map(p => p.id === id
-          ? {
-              ...p,
-              valves: p.valves.includes(group)
-                ? p.valves.filter(g => g !== group)
-                : [...p.valves, group],
-            }
-          : p));
-      };
-
-      if (loadingUser || loadingValves) {
+      if (loadingUser || loadingData) {
         return (
           <div className="min-h-screen flex flex-col">
             <window.Header />
             <main className="flex-1 flex items-center justify-center">
-              <div className="text-slate-300">Yükleniyor...</div>
+              <p className="text-slate-300">Yükleniyor...</p>
             </main>
-            <window.Footer />
+            <Footer />
           </div>
         );
       }
@@ -305,31 +590,27 @@
           <main className="flex-1">
             <div className="max-w-6xl mx-auto px-3 py-4 md:px-6 md:py-8">
               <div className="bg-slate-900 rounded-2xl p-6">
-                <div className="grid grid-cols-1 gap-4 sm:gap-6 mb-6">
+                <div className="grid grid-cols-1 gap-4 sm:gap-6 mb-6 md:grid-cols-2">
                   <NewProgramForm
                     form={form}
                     setForm={setForm}
-                    groups={groups}
-                    daysOfWeek={daysOfWeek}
+                    valves={valves}
                     onCreate={createProgram}
-                    toggleGroupInForm={toggleGroupInForm}
                     toggleDayInForm={toggleDayInForm}
-                    saving={saving}
+                    toggleValveInForm={toggleValveInForm}
+                    saving={savingProgram}
                   />
                   <ProgramList
                     programs={programs}
-                    groups={groups}
-                    toggleActive={toggleActive}
-                    toggleEdit={toggleEdit}
-                    copyProgram={copyProgram}
-                    askDelete={askDelete}
-                    toggleGroupInProgram={toggleGroupInProgram}
+                    onToggleActive={handleToggleActive}
+                    onAskDelete={askDelete}
+                    onCopy={copyProgram}
                   />
                 </div>
               </div>
             </div>
           </main>
-          <window.Footer />
+          <Footer />
           <ConfirmModal
             open={confirmDeleteId !== null}
             title="Programı Sil"
@@ -341,7 +622,7 @@
       );
     };
 
-    const root = createRoot(document.getElementById('root'));
+    const root = createRoot(document.getElementById("root"));
     root.render(<ProgramPage />);
   </script>
 </body>
