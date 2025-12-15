@@ -97,47 +97,47 @@
     };
 
     // --- DASHBOARD PAGE ---
-    const DashboardPage = () => {
-      const [valves, setValves] = useState([]);
-      const [activeSystemAction, setActiveSystemAction] = useState(null);
-      const [loading, setLoading] = useState(true);
+const DashboardPage = () => {
+  const [valves, setValves] = useState([]);
+  const [activeSystemAction, setActiveSystemAction] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-      // Kullanıcı ve valfleri yükle
-      useEffect(() => {
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        console.log("getUser result:", user, userError);
+  // Kullanıcı ve valfleri yükle
+  useEffect(() => {
+    const loadValves = async () => {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      console.log("getUser result:", user, userError);
 
-        if (userError) {
-           console.error("getUser error:", userError);
-           // Burada direkt redirect yapma, hatayı önce gör
-           setLoading(false);
-           return;
-        }
-
-        if (!user) {
-          // Geçici: redirect etme, boş state ile dashboard’ı göster
-          // window.location.href = "anasayfa.html#giris";
-          setLoading(false);
-          return;
+      if (userError) {
+        console.error("getUser error:", userError);
+        setLoading(false);
+        return;
       }
 
-          const { data, error } = await supabase
-            .from("valves")
-            .select("*")
-            .eq("user_id", user.id)
-            .order("created_at", { ascending: true });
+      if (!user) {
+        // Giriş yoksa anasayfa'ya at
+        window.location.href = "anasayfa.html#giris";
+        return;
+      }
 
-          if (error) {
-            console.error("Valfler alınırken hata:", error);
-            setValves([]);
-          } else {
-            setValves(data || []);
-          }
-          setLoading(false);
-        };
+      const { data, error } = await supabase
+        .from("valves")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: true });
 
-        loadValves();
-      }, []);
+      if (error) {
+        console.error("Valfler alınırken hata:", error);
+        setValves([]);
+      } else {
+        setValves(data || []);
+      }
+      setLoading(false);
+    };
+
+    loadValves();
+  }, []);
+
 
       // Tek vana toggle
       const handleToggleValve = async (id) => {
