@@ -107,12 +107,12 @@
 
       // Kullanıcı ve valfleri yükle
       useEffect(() => {
-        const loadValves = async () => {
-          const { data: { user }, error: userError } = await supabase.auth.getUser(); // [web:123]
-          if (userError || !user) {
-            window.location.href = "anasayfa.html#giris";
-            return;
-          }
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+          console.log("getUser result:", user, userError);
+          // if (userError || !user) {
+          //   window.location.href = "anasayfa.html#giris";
+          //   return;
+          // }
 
           const { data, error } = await supabase
             .from("valves")
