@@ -104,15 +104,22 @@
 
       // Kullanıcı ve valfleri yükle
       useEffect(() => {
-        const loadValves = async () => {
-          const { data: { user }, error: userError } = await supabase.auth.getUser();
-          console.log("getUser result:", user, userError);
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        console.log("getUser result:", user, userError);
 
-          if (userError || !user) {
-            // Giriş yoksa anasayfa'ya at
-            window.location.href = "anasayfa.html#giris";
-            return;
-          }
+        if (userError) {
+           console.error("getUser error:", userError);
+           // Burada direkt redirect yapma, hatayı önce gör
+           setLoading(false);
+           return;
+        }
+
+        if (!user) {
+          // Geçici: redirect etme, boş state ile dashboard’ı göster
+          // window.location.href = "anasayfa.html#giris";
+          setLoading(false);
+          return;
+      }
 
           const { data, error } = await supabase
             .from("valves")
