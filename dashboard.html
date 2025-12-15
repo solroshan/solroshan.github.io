@@ -14,16 +14,13 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 
-  <!-- Supabase JS -->
+  <!-- Supabase JS (tek kez) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  
   <script>
     const supabaseUrl = "https://PUURWGRZKNXTTJSJXDIT.supabase.co";
     const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
     window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
   </script>
-
 
   <style>
     .btn-soft { transition: box-shadow .18s, background .18s, color .18s; }
@@ -107,18 +104,21 @@
 
       // Kullanıcı ve valfleri yükle
       useEffect(() => {
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        const loadValves = async () => {
+          const { data: { user }, error: userError } = await supabase.auth.getUser();
           console.log("getUser result:", user, userError);
-          // if (userError || !user) {
-          //   window.location.href = "anasayfa.html#giris";
-          //   return;
-          // }
+
+          if (userError || !user) {
+            // Giriş yoksa anasayfa'ya at
+            window.location.href = "anasayfa.html#giris";
+            return;
+          }
 
           const { data, error } = await supabase
             .from("valves")
             .select("*")
             .eq("user_id", user.id)
-            .order("created_at", { ascending: true }); // [web:386]
+            .order("created_at", { ascending: true });
 
           if (error) {
             console.error("Valfler alınırken hata:", error);
@@ -142,7 +142,7 @@
         const { error } = await supabase
           .from("valves")
           .update({ status: newStatus })
-          .eq("id", id); // [web:423]
+          .eq("id", id);
 
         if (error) {
           alert("Valf güncellenemedi: " + error.message);
