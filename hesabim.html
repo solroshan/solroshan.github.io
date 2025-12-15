@@ -68,40 +68,6 @@
       const [passwordLoading, setPasswordLoading] = useState(false);
       const [passwordError, setPasswordError] = useState("");
 
-      const PhoneInput = ({ value, onChange, className }) => {
-        const handleChange = (e) => {
-        // Sadece rakam al
-        let v = e.target.value.replace(/\D/g, "");
-
-        // Başta 05 sabit, kalan kısmı al
-        if (v.startsWith("05")) {
-          v = v.slice(2);
-        }
-
-        // En fazla 9 rakam (5xx xxx xx xx)
-        v = v.slice(0, 9);
-
-        // Formatla: 5xx xxx xx xx
-        let formatted = "05";
-        if (v.length > 0) formatted += v.slice(0, 3);
-        if (v.length > 3) formatted += " " + v.slice(3, 6);
-        if (v.length > 6) formatted += " " + v.slice(6, 8);
-        if (v.length > 8) formatted += " " + v.slice(8, 10);
-
-        onChange(formatted);
-      };
-
-  return (
-    <input
-      type="tel"
-      className={className}
-      value={value || "05"}
-      onChange={handleChange}
-    />
-  );
-};
-
-
       // Supabase Auth'tan kullanıcı bilgilerini çek
       useEffect(() => {
         const loadUser = async () => {
@@ -120,40 +86,6 @@
 
         loadUser();
       }, []);
-
-      const PhoneInput = ({ value, onChange, className }) => {
-  const handleChange = (e) => {
-    if (!e.target.value) {
-      onChange("05");
-      return;
-    }
-
-    let v = e.target.value.replace(/\D/g, "");
-
-    if (v.startsWith("05")) {
-      v = v.slice(2);
-    }
-
-    v = v.slice(0, 9);
-
-    let formatted = "05";
-    if (v.length > 0) formatted += v.slice(0, 3);
-    if (v.length > 3) formatted += " " + v.slice(3, 6);
-    if (v.length > 6) formatted += " " + v.slice(6, 8);
-    if (v.length > 8) formatted += " " + v.slice(8, 10);
-
-    onChange(formatted);
-  };
-
-  return (
-    <input
-      type="tel"
-      className={className}
-      value={value && value.startsWith("05") ? value : "05"}
-      onChange={handleChange}
-    />
-  );
-};
 
       const handleSaveProfile = async () => {
         if (
@@ -199,7 +131,6 @@
 
         setPasswordLoading(true);
 
-        // İsteğe bağlı: mevcut şifreyi kontrol etmek için tekrar login ol
         if (currentPassword) {
           const { error: signInError } = await supabase.auth.signInWithPassword({
             email: profile.email,
@@ -331,7 +262,7 @@
                             <input
                               className="w-full rounded-2xl bg-slate-900 border border-slate-700 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                               value={profile.email}
-                              readOnly        // kullanıcı değiştiremesin
+                              readOnly
                             />
                           </div>
                           <div>
