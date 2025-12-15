@@ -5,10 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="/assets/css/images/leaf.png" rel="shortcut icon" type="image/png" />
   <title>GrassCare Kullanıcı Paneli</title>
+
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+  <!-- React -->
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+    const supabaseUrl = "SENIN_SUPABASE_URL";
+    const supabaseKey = "SENIN_ANON_KEY";
+    window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
+  </script>
+
   <style>
     .btn-soft { transition: box-shadow .18s, background .18s, color .18s; }
     .btn-soft:hover { box-shadow: 0 6px 18px rgba(2,6,23,0.18), 0 1.5px 8px rgba(20,184,166,0.09); background: linear-gradient(90deg, #0891b2 0%, #0ea5e9 100%); color: #fff; }
@@ -18,26 +31,15 @@
 <body class="bg-slate-900 font-sans text-slate-100">
   <div id="root"></div>
 
-  <!-- ✅ SHARED COMPONENTS (grassprog.html ile aynı) -->
+  <!-- ✅ SHARED COMPONENTS -->
   <script type="text/babel" src="./components/icons.js"></script>
   <script type="text/babel" src="./components/public-header.js"></script>
   <script type="text/babel" src="./components/Footer.js"></script>
   <script type="text/babel" src="./components/ToggleSwitch.js"></script>
 
   <script type="text/babel">
-    const { useState } = React;
+    const { useState, useEffect } = React;
     const { createRoot } = ReactDOM;
-
-    // --- MOCKED DATA ---
-    const initialValves = [
-      { id: 1, name: 'V1', status: 'AÇIK', program: 'Günlük, 06:00, 15 dk', mode: 'Manual', group: 'Ön' },
-      { id: 2, name: 'V2', status: 'KAPALI', program: 'Günlük, 06:00, 15 dk', mode: 'Manual', group: 'Ön' },
-      { id: 3, name: 'V3', status: 'AÇIK', program: 'Günlük, 06:00, 15 dk', mode: 'Manual', group: 'Orta' },
-      { id: 4, name: 'V4', status: 'KAPALI', program: 'Günlük, 05:15, 15 dk', mode: 'Auto', group: 'Orta' },
-      { id: 5, name: 'V5', status: 'KAPALI', program: 'Günlük, 05:15, 15 dk', mode: 'Auto', group: 'Orta' },
-      { id: 6, name: 'V6', status: 'KAPALI', program: 'Günlük, 05:15, 15 dk', mode: 'Auto', group: 'Arka' },
-      { id: 7, name: 'V7', status: 'AÇIK', program: 'Günlük, 05:15, 15 dk', mode: 'Auto', group: 'Arka' }, // id:6 → id:7 düzeltildi
-    ];
 
     // --- DASHBOARD-SPECIFIC ICONS ---
     const SearchIcon = () => (
@@ -96,28 +98,137 @@
 
     // --- DASHBOARD PAGE ---
     const DashboardPage = () => {
-      const [valves, setValves] = useState(initialValves);
+      const [valves, setValves] = useState([]);
       const [activeSystemAction, setActiveSystemAction] = useState(null);
+      const [loading, setLoading] = useState(true);
 
-      const handleToggleValve = (id) => {
-        setValves(prevValves => prevValves.map(valve =>
-          valve.id === id ? { ...valve, status: valve.status === 'AÇIK' ? 'KAPALI' : 'AÇIK' } : valve
-        ));
+      // Kullanıcı ve valfleri yükle
+      useEffect(() => {
+        const loadValves = async () => {
+          const { data: { user }, error: userError } = await supabase.auth.getUser(); // [web:123]
+          if (userError || !user) {
+            window.location.href = "anasayfa.html#giris";
+            return;
+          }
+
+          const { data, error } = await supabase
+            .from("valves")
+            .select("*")
+            .eq("user_id", user.id)
+            .order("created_at", { ascending: true }); // [web:386]
+
+          if (error) {
+            console.error("Valfler alınırken hata:", error);
+            setValves([]);
+          } else {
+            setValves(data || []);
+          }
+          setLoading(false);
+        };
+
+        loadValves();
+      }, []);
+
+      // Tek vana toggle
+      const handleToggleValve = async (id) => {
+        const target = valves.find(v => v.id === id);
+        if (!target) return;
+
+        const newStatus = target.status === "AÇIK" ? "KAPALI" : "AÇIK";
+
+        const { error } = await supabase
+          .from("valves")
+          .update({ status: newStatus })
+          .eq("id", id); // [web:423]
+
+        if (error) {
+          alert("Valf güncellenemedi: " + error.message);
+          return;
+        }
+
+        setValves(prev =>
+          prev.map(v => v.id === id ? { ...v, status: newStatus } : v)
+        );
       };
 
-      const handleAllOn = () => {
-        setValves(prevValves => prevValves.map(v => ({ ...v, status: 'AÇIK' })));
-        setActiveSystemAction('allOn');
+      // Tümünü aç / kapat
+      const handleAllOn = async () => {
+        const { error } = await supabase
+          .from("valves")
+          .update({ status: "AÇIK" })
+          .neq("id", null); // tüm satırlar
+
+        if (error) {
+          alert("Valfler açılamadı: " + error.message);
+          return;
+        }
+
+        setValves(prev => prev.map(v => ({ ...v, status: "AÇIK" })));
+        setActiveSystemAction("allOn");
       };
 
-      const handleAllOff = () => {
-        setValves(prevValves => prevValves.map(v => ({ ...v, status: 'KAPALI' })));
-        setActiveSystemAction('allOff');
+      const handleAllOff = async () => {
+        const { error } = await supabase
+          .from("valves")
+          .update({ status: "KAPALI" })
+          .neq("id", null);
+
+        if (error) {
+          alert("Valfler kapatılamadı: " + error.message);
+          return;
+        }
+
+        setValves(prev => prev.map(v => ({ ...v, status: "KAPALI" })));
+        setActiveSystemAction("allOff");
       };
 
-      const handlePausePrograms = () => setActiveSystemAction('pause');
-      const handleGroupOn = (group) => setValves(prevValves => prevValves.map(v => v.group === group ? { ...v, status: 'AÇIK' } : v));
-      const handleGroupOff = (group) => setValves(prevValves => prevValves.map(v => v.group === group ? { ...v, status: 'KAPALI' } : v));
+      // Programları duraklat (şimdilik sadece UI state)
+      const handlePausePrograms = () => setActiveSystemAction("pause");
+
+      // Grup bazlı aç / kapat
+      const handleGroupOn = async (group) => {
+        const { error } = await supabase
+          .from("valves")
+          .update({ status: "AÇIK" })
+          .eq("group", group);
+
+        if (error) {
+          alert("Grup açılamadı: " + error.message);
+          return;
+        }
+
+        setValves(prev =>
+          prev.map(v => v.group === group ? { ...v, status: "AÇIK" } : v)
+        );
+      };
+
+      const handleGroupOff = async (group) => {
+        const { error } = await supabase
+          .from("valves")
+          .update({ status: "KAPALI" })
+          .eq("group", group);
+
+        if (error) {
+          alert("Grup kapatılamadı: " + error.message);
+          return;
+        }
+
+        setValves(prev =>
+          prev.map(v => v.group === group ? { ...v, status: "KAPALI" } : v)
+        );
+      };
+
+      if (loading) {
+        return (
+          <div className="max-w-6xl mx-auto px-3 py-4 md:px-6 md:py-8">
+            <window.Header />
+            <main className="bg-slate-900 rounded-2xl p-6 text-slate-200">
+              Yükleniyor...
+            </main>
+            <window.Footer />
+          </div>
+        );
+      }
 
       return (
         <div className="max-w-6xl mx-auto px-3 py-4 md:px-6 md:py-8">
@@ -129,7 +240,11 @@
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 md:mb-6">
               <div className="relative w-full sm:max-w-xs">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3"><SearchIcon /></span>
-                <input className="w-full pl-10 pr-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-100 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Ara..." type="text" />
+                <input
+                  className="w-full pl-10 pr-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-100 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  placeholder="Ara..."
+                  type="text"
+                />
               </div>
               <button className="flex items-center justify-center bg-slate-800 text-teal-300 font-medium px-3 py-2 rounded-lg border border-teal-500/60 hover:bg-slate-700 text-sm sm:self-auto self-stretch">
                 <FilterIcon /> Filtre
@@ -141,17 +256,42 @@
               <section className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 shadow-md border border-slate-700/40">
                 <h2 className="font-bold mb-4 text-slate-100">Sistem Kontrolü</h2>
                 <div className="space-y-3">
-                  <button onClick={handleAllOn} className={`w-full flex items-center justify-start text-left font-semibold px-3 py-2.5 rounded-md text-sm transition ${activeSystemAction === 'allOn' ? 'bg-teal-500 text-white shadow-[0_0_15px_rgba(45,212,191,0.8)]' : 'text-teal-200 bg-teal-700/30 hover:bg-teal-600/40'}`}>
-                    <span className="bg-teal-500 text-white rounded-full p-1 mr-3 flex-shrink-0"><CheckIcon /></span>Tüm Valfler AÇIK
+                  <button
+                    onClick={handleAllOn}
+                    className={`w-full flex items-center justify-start text-left font-semibold px-3 py-2.5 rounded-md text-sm transition ${
+                      activeSystemAction === 'allOn'
+                        ? 'bg-teal-500 text-white shadow-[0_0_15px_rgba(45,212,191,0.8)]'
+                        : 'text-teal-200 bg-teal-700/30 hover:bg-teal-600/40'
+                    }`}
+                  >
+                    <span className="bg-teal-500 text-white rounded-full p-1 mr-3 flex-shrink-0"><CheckIcon /></span>
+                    Tüm Valfler AÇIK
                   </button>
-                  <button onClick={handleAllOff} className={`w-full flex items-center justify-start text-left font-semibold px-3 py-2.5 rounded-md text-sm transition ${activeSystemAction === 'allOff' ? 'bg-rose-500 text-white shadow-[0_0_15px_rgba(244,63,94,0.8)]' : 'text-rose-200 bg-rose-700/30 hover:bg-rose-600/40'}`}>
-                    <span className="bg-rose-500 text-white rounded-full p-1 mr-3 flex-shrink-0"><CloseIcon /></span>Tüm Valfler KAPALI
+                  <button
+                    onClick={handleAllOff}
+                    className={`w-full flex items-center justify-start text-left font-semibold px-3 py-2.5 rounded-md text-sm transition ${
+                      activeSystemAction === 'allOff'
+                        ? 'bg-rose-500 text-white shadow-[0_0_15px_rgba(244,63,94,0.8)]'
+                        : 'text-rose-200 bg-rose-700/30 hover:bg-rose-600/40'
+                    }`}
+                  >
+                    <span className="bg-rose-500 text-white rounded-full p-1 mr-3 flex-shrink-0"><CloseIcon /></span>
+                    Tüm Valfler KAPALI
                   </button>
-                  <button onClick={handlePausePrograms} className={`w-full flex items-center justify-start text-left font-semibold px-3 py-2.5 rounded-md text-sm transition ${activeSystemAction === 'pause' ? 'bg-amber-400 text-slate-900 shadow-[0_0_15px_rgba(251,191,36,0.9)]' : 'text-amber-200 bg-amber-700/30 hover:bg-amber-600/40'}`}>
-                    <span className="bg-amber-500 text-white rounded-full p-1.5 mr-3 flex-shrink-0"><PauseIcon /></span>Programları Duraklat
+                  <button
+                    onClick={handlePausePrograms}
+                    className={`w-full flex items-center justify-start text-left font-semibold px-3 py-2.5 rounded-md text-sm transition ${
+                      activeSystemAction === 'pause'
+                        ? 'bg-amber-400 text-slate-900 shadow-[0_0_15px_rgba(251,191,36,0.9)]'
+                        : 'text-amber-200 bg-amber-700/30 hover:bg-amber-600/40'
+                    }`}
+                  >
+                    <span className="bg-amber-500 text-white rounded-full p-1.5 mr-3 flex-shrink-0"><PauseIcon /></span>
+                    Programları Duraklat
                   </button>
                 </div>
               </section>
+
               <section className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 shadow-md border border-slate-700/40">
                 <h2 className="font-bold mb-4 text-slate-100">Aktif Program Özeti</h2>
                 <div className="space-y-3">
@@ -161,7 +301,9 @@
                         <p className="font-semibold text-slate-100">{valve.name}</p>
                         <p className="text-slate-400">{valve.program}</p>
                       </div>
-                      <button className="text-[11px] font-semibold bg-slate-900 text-slate-300 px-2.5 py-1 rounded-md border border-slate-600 hover:bg-slate-800">Düzenle</button>
+                      <button className="text-[11px] font-semibold bg-slate-900 text-slate-300 px-2.5 py-1 rounded-md border border-slate-600 hover:bg-slate-800">
+                        Düzenle
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -172,51 +314,59 @@
             <section>
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-bold text-slate-100">Valf Kontrolü</h2>
-                <button className="text-sm font-semibold bg-slate-800 text-slate-100 px-4 py-2 rounded-lg border border-slate-600 hover:bg-slate-700">Grupları Yönet</button>
+                <button className="text-sm font-semibold bg-slate-800 text-slate-100 px-4 py-2 rounded-lg border border-slate-600 hover:bg-slate-700">
+                  Grupları Yönet
+                </button>
               </div>
 
-              {/* Grup A */}
+              {/* Grup Ön */}
               <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 shadow-md border border-slate-700/40 mb-4 md:mb-6">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="font-bold text-slate-100">Ön Grup (V1, V2)</h3>
                 </div>
                 <div className="flex items-center space-x-2">
                   <button onClick={() => handleGroupOn("Ön")} className="flex-1 bg-teal-600 text-white font-semibold py-2 px-3 rounded-md text-sm hover:bg-teal-500">AÇIK</button>
-                  <button onClick={() => handleGroupOff('Ön')} className="flex-1 bg-slate-600 text-white font-semibold py-2 px-3 rounded-md text-sm hover:bg-slate-500">KAPALI</button>
+                  <button onClick={() => handleGroupOff("Ön")} className="flex-1 bg-slate-600 text-white font-semibold py-2 px-3 rounded-md text-sm hover:bg-slate-500">KAPALI</button>
                 </div>
                 <div className="flex justify-between items-center mt-4">
                   <h3 className="font-bold text-slate-100 invisible">Placeholder</h3>
-                  <button className="text-xs font-semibold bg-slate-900 text-slate-300 px-3 py-2 rounded-md border border-slate-600 hover:bg-slate-800">Grup Programı Ayarla</button>
+                  <button className="text-xs font-semibold bg-slate-900 text-slate-300 px-3 py-2 rounded-md border border-slate-600 hover:bg-slate-800">
+                    Grup Programı Ayarla
+                  </button>
                 </div>
               </div>
 
-              {/* Grup B */}
+              {/* Grup Orta */}
               <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 shadow-md border border-slate-700/40 mb-4 md:mb-6">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="font-bold text-slate-100">Orta Grup (V3, V4, V5)</h3>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <button onClick={() => handleGroupOn('Orta')} className="flex-1 bg-teal-600 text-white font-semibold py-2 px-3 rounded-md text-sm hover:bg-teal-500">AÇIK</button>
-                  <button onClick={() => handleGroupOff('Orta')} className="flex-1 bg-slate-600 text-white font-semibold py-2 px-3 rounded-md text-sm hover:bg-slate-500">KAPALI</button>
+                  <button onClick={() => handleGroupOn("Orta")} className="flex-1 bg-teal-600 text-white font-semibold py-2 px-3 rounded-md text-sm hover:bg-teal-500">AÇIK</button>
+                  <button onClick={() => handleGroupOff("Orta")} className="flex-1 bg-slate-600 text-white font-semibold py-2 px-3 rounded-md text-sm hover:bg-slate-500">KAPALI</button>
                 </div>
                 <div className="flex justify-between items-center mt-4">
                   <h3 className="font-bold text-slate-100 invisible">Placeholder</h3>
-                  <button className="text-xs font-semibold bg-slate-900 text-slate-300 px-3 py-2 rounded-md border border-slate-600 hover:bg-slate-800">Grup Programı Ayarla</button>
+                  <button className="text-xs font-semibold bg-slate-900 text-slate-300 px-3 py-2 rounded-md border border-slate-600 hover:bg-slate-800">
+                    Grup Programı Ayarla
+                  </button>
                 </div>
               </div>
 
-              {/* Grup C */}
+              {/* Grup Arka */}
               <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 shadow-md border border-slate-700/40 mb-4 md:mb-6">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="font-bold text-slate-100">Arka Grup (V6, V7)</h3>
                 </div>
                 <div className="flex items-center space-x-2">
                   <button onClick={() => handleGroupOn("Arka")} className="flex-1 bg-teal-600 text-white font-semibold py-2 px-3 rounded-md text-sm hover:bg-teal-500">AÇIK</button>
-                  <button onClick={() => handleGroupOff('Arka')} className="flex-1 bg-slate-600 text-white font-semibold py-2 px-3 rounded-md text-sm hover:bg-slate-500">KAPALI</button>
+                  <button onClick={() => handleGroupOff("Arka")} className="flex-1 bg-slate-600 text-white font-semibold py-2 px-3 rounded-md text-sm hover:bg-slate-500">KAPALI</button>
                 </div>
                 <div className="flex justify-between items-center mt-4">
                   <h3 className="font-bold text-slate-100 invisible">Placeholder</h3>
-                  <button className="text-xs font-semibold bg-slate-900 text-slate-300 px-3 py-2 rounded-md border border-slate-600 hover:bg-slate-800">Grup Programı Ayarla</button>
+                  <button className="text-xs font-semibold bg-slate-900 text-slate-300 px-3 py-2 rounded-md border border-slate-600 hover:bg-slate-800">
+                    Grup Programı Ayarla
+                  </button>
                 </div>
               </div>
 
