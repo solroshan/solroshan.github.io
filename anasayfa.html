@@ -21,8 +21,9 @@
     window.supabase = supabase.createClient(supabaseUrl, supabaseKey); /* Supabase client [web:280] */
   </script>
 
-  <!-- Header -->
+  <!-- Header&Footer-->
   <script type="text/babel" src="./components/public-header.js?v=3"></script>
+  <script type="text/babel" src="./components/Footer.js"></script>
 </head>
 
 <body class="bg-slate-900 text-slate-100">
@@ -164,6 +165,9 @@
               )}
             </section>
           </main>
+          
+          <window.Footer />
+          
         </div>
       );
     };
