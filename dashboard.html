@@ -129,7 +129,6 @@
       );
     };
 
-    // Valf grubu belirleme modali
     const GroupModal = ({ open, onClose, valves, onSave, saving }) => {
       const [selectedIds, setSelectedIds] = useState([]);
       const [groupName, setGroupName] = useState('');
@@ -202,6 +201,7 @@
                 type="button"
                 onClick={onClose}
                 className="px-3 py-1.5 rounded-md text-xs font-medium bg-slate-800 text-slate-200 border border-slate-600 hover:bg-slate-700"
+                disabled={saving}
               >
                 Vazgeç
               </button>
@@ -209,6 +209,116 @@
                 type="button"
                 disabled={saving || !groupName.trim() || selectedIds.length === 0}
                 onClick={() => onSave({ groupName: groupName.trim(), selectedIds })}
+                className="px-3 py-1.5 rounded-md text-xs font-semibold bg-teal-500 text-white hover:bg-teal-400 disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {saving ? 'Kaydediliyor...' : 'Kaydet'}
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const AddValveModal = ({ open, onClose, onCreated }) => {
+      const [name, setName] = React.useState('');
+      const [groupName, setGroupName] = React.useState('');
+      const [mode, setMode] = React.useState('Manual');
+      const [saving, setSaving] = React.useState(false);
+
+      React.useEffect(() => {
+        if (open) {
+          setName('');
+          setGroupName('');
+          setMode('Manual');
+          setSaving(false);
+        }
+      }, [open]);
+
+      if (!open) return null;
+
+      const handleSave = async () => {
+        if (!name.trim()) return;
+        setSaving(true);
+
+        const { data: { user }, error: userError } = await supabase.auth.getUser(); /* [web:123] */
+        if (userError || !user) {
+          alert('Kullanıcı bulunamadı, lütfen tekrar giriş yapın.');
+          setSaving(false);
+          return;
+        }
+
+        const insertRow = {
+          user_id: user.id,
+          name: name.trim(),
+          status: 'KAPALI',
+          program: null,
+          mode,
+          group: groupName.trim() || null,
+        };
+
+        const { data, error } = await supabase
+          .from('valves')
+          .insert(insertRow)
+          .select()
+          .single(); /* [web:498] */
+
+        if (error) {
+          alert('Valf eklenemedi: ' + error.message);
+          setSaving(false);
+          return;
+        }
+
+        onCreated(data);
+        setSaving(false);
+        onClose();
+      };
+
+      return (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-5 w-full max-w-md shadow-xl">
+            <h3 className="text-lg font-semibold text-slate-100 mb-3">Yeni Valf Ekle</h3>
+
+            <label className="block text-xs font-medium text-slate-300 mb-1">Valf adı</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Örn: V1"
+              className="w-full mb-3 px-3 py-2 rounded-md bg-slate-800 border border-slate-700 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500"
+            />
+
+            <label className="block text-xs font-medium text-slate-300 mb-1">Valf grubu (isteğe bağlı)</label>
+            <input
+              type="text"
+              value={groupName}
+              onChange={(e) => setGroupName(e.target.value)}
+              placeholder="Ön, Orta, Arka vb."
+              className="w-full mb-3 px-3 py-2 rounded-md bg-slate-800 border border-slate-700 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500"
+            />
+
+            <label className="block text-xs font-medium text-slate-300 mb-1">Çalışma modu</label>
+            <select
+              value={mode}
+              onChange={(e) => setMode(e.target.value)}
+              className="w-full mb-4 px-3 py-2 rounded-md bg-slate-800 border border-slate-700 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500"
+            >
+              <option value="Manual">Manual</option>
+              <option value="Auto">Auto</option>
+            </select>
+
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={saving}
+                className="px-3 py-1.5 rounded-md text-xs font-medium bg-slate-800 text-slate-200 border border-slate-600 hover:bg-slate-700 disabled:opacity-60"
+              >
+                Vazgeç
+              </button>
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={saving || !name.trim()}
                 className="px-3 py-1.5 rounded-md text-xs font-semibold bg-teal-500 text-white hover:bg-teal-400 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {saving ? 'Kaydediliyor...' : 'Kaydet'}
@@ -227,9 +337,11 @@
       const [groupModalOpen, setGroupModalOpen] = useState(false);
       const [savingGroup, setSavingGroup] = useState(false);
 
+      const [addValveOpen, setAddValveOpen] = useState(false);
+
       useEffect(() => {
         const loadValves = async () => {
-          const { data: { user }, error: userError } = await supabase.auth.getUser(); /* [web:386] */
+          const { data: { user }, error: userError } = await supabase.auth.getUser(); /* [web:123] */
 
           if (userError) {
             console.error('getUser error:', userError);
@@ -246,7 +358,7 @@
             .from('valves')
             .select('*')
             .eq('user_id', user.id)
-            .order('created_at', { ascending: true }); /* [web:386][web:499] */
+            .order('created_at', { ascending: true }); /* [web:386] */
 
           if (error) {
             console.error('Valfler alınırken hata:', error);
@@ -347,7 +459,6 @@
 
       const activeValves = valves.filter(v => v.status === 'AÇIK');
 
-      // Grup kaydet: seçili id'lerin group alanını tek seferde güncelle
       const handleSaveGroup = async ({ groupName, selectedIds }) => {
         if (!groupName || selectedIds.length === 0) return;
         setSavingGroup(true);
@@ -355,7 +466,7 @@
         const { error } = await supabase
           .from('valves')
           .update({ group: groupName })
-          .in('id', selectedIds); /* [web:502][web:501] */
+          .in('id', selectedIds); /* [web:502] */
 
         if (error) {
           alert('Grup güncellenemedi: ' + error.message);
@@ -491,15 +602,23 @@
                 <section>
                   <div className="flex justify-between items-center mb-4">
                     <h2 className="text-lg font-bold text-slate-100">Valf Kontrolü</h2>
-                    <button
-                      onClick={() => setGroupModalOpen(true)}
-                      className="text-sm font-semibold bg-slate-800 text-slate-100 px-4 py-2 rounded-lg border border-slate-600 hover:bg-slate-700"
-                    >
-                      Valf Grubu Belirle
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setAddValveOpen(true)}
+                        className="text-sm font-semibold bg-teal-600 text-white px-4 py-2 rounded-lg border border-teal-500 hover:bg-teal-500"
+                      >
+                        Valf Ekle
+                      </button>
+                      <button
+                        onClick={() => setGroupModalOpen(true)}
+                        className="text-sm font-semibold bg-slate-800 text-slate-100 px-4 py-2 rounded-lg border border-slate-600 hover:bg-slate-700"
+                      >
+                        Valf Grubu Belirle
+                      </button>
+                    </div>
                   </div>
 
-                  {/* Statik grup butonları eskisi gibi kalıyor, istersen grupları dinamik hale getirebiliriz */}
+                  {/* Sabit grup kartları (istersen sonra dinamik yaparız) */}
                   <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 shadow-md border border-slate-700/40 mb-4 md:mb-6">
                     <div className="flex justify-between items-center mb-4">
                       <h3 className="font-bold text-slate-100">Ön Grup (V1, V2)</h3>
@@ -596,6 +715,12 @@
             valves={valves}
             onSave={handleSaveGroup}
             saving={savingGroup}
+          />
+
+          <AddValveModal
+            open={addValveOpen}
+            onClose={() => setAddValveOpen(false)}
+            onCreated={(row) => setValves(prev => [...prev, row])}
           />
         </div>
       );
