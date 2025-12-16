@@ -19,7 +19,7 @@
   <script>
     const supabaseUrl = 'https://puurwgrzknxttjsjxdit.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1dXJ3Z3J6a254dHRqc2p4ZGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0NTIyODUsImV4cCI6MjA4MTAyODI4NX0.tYoFbwWeuPCAXLXVp8yX0ThbvWPgboYOCUqPuKtAoaI';
-    window.supabase = supabase.createClient(supabaseUrl, supabaseKey); /* [web:386] */
+    window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
   </script>
 
   <!-- Auth header (giriş kontrolü + redirect) -->
@@ -240,7 +240,7 @@
         if (!name.trim()) return;
         setSaving(true);
 
-        const { data: { user }, error: userError } = await supabase.auth.getUser(); /* [web:123] */
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
         if (userError || !user) {
           alert('Kullanıcı bulunamadı, lütfen tekrar giriş yapın.');
           setSaving(false);
@@ -260,7 +260,7 @@
           .from('valves')
           .insert(insertRow)
           .select()
-          .single(); /* [web:498] */
+          .single();
 
         if (error) {
           alert('Valf eklenemedi: ' + error.message);
@@ -341,7 +341,7 @@
 
       useEffect(() => {
         const loadValves = async () => {
-          const { data: { user }, error: userError } = await supabase.auth.getUser(); /* [web:123] */
+          const { data: { user }, error: userError } = await supabase.auth.getUser();
 
           if (userError) {
             console.error('getUser error:', userError);
@@ -358,7 +358,7 @@
             .from('valves')
             .select('*')
             .eq('user_id', user.id)
-            .order('created_at', { ascending: true }); /* [web:386] */
+            .order('created_at', { ascending: true });
 
           if (error) {
             console.error('Valfler alınırken hata:', error);
@@ -381,7 +381,7 @@
         const { error } = await supabase
           .from('valves')
           .update({ status: newStatus })
-          .eq('id', id); /* [web:502] */
+          .eq('id', id);
 
         if (error) {
           alert('Valf güncellenemedi: ' + error.message);
@@ -397,7 +397,7 @@
         const { error } = await supabase
           .from('valves')
           .update({ status: 'AÇIK' })
-          .neq('id', null); /* [web:502] */
+          .neq('id', null);
 
         if (error) {
           alert('Valfler açılamadı: ' + error.message);
@@ -412,7 +412,7 @@
         const { error } = await supabase
           .from('valves')
           .update({ status: 'KAPALI' })
-          .neq('id', null); /* [web:502] */
+          .neq('id', null);
 
         if (error) {
           alert('Valfler kapatılamadı: ' + error.message);
@@ -429,7 +429,7 @@
         const { error } = await supabase
           .from('valves')
           .update({ status: 'AÇIK' })
-          .eq('group', group); /* [web:499] */
+          .eq('group', group);
 
         if (error) {
           alert('Grup açılamadı: ' + error.message);
@@ -445,7 +445,7 @@
         const { error } = await supabase
           .from('valves')
           .update({ status: 'KAPALI' })
-          .eq('group', group); /* [web:499] */
+          .eq('group', group);
 
         if (error) {
           alert('Grup kapatılamadı: ' + error.message);
@@ -466,7 +466,7 @@
         const { error } = await supabase
           .from('valves')
           .update({ group: groupName })
-          .in('id', selectedIds); /* [web:502] */
+          .in('id', selectedIds);
 
         if (error) {
           alert('Grup güncellenemedi: ' + error.message);
@@ -618,7 +618,7 @@
                     </div>
                   </div>
 
-                  {/* Sabit grup kartları (istersen sonra dinamik yaparız) */}
+                  {/* Sabit grup kartları */}
                   <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 shadow-md border border-slate-700/40 mb-4 md:mb-6">
                     <div className="flex justify-between items-center mb-4">
                       <h3 className="font-bold text-slate-100">Ön Grup (V1, V2)</h3>
@@ -663,7 +663,7 @@
                         KAPALI
                       </button>
                     </div>
-                    <div className="flex justify_between items-center mt-4">
+                    <div className="flex justify-between items-center mt-4">
                       <h3 className="font-bold text-slate-100 invisible">Placeholder</h3>
                       <button className="text-xs font-semibold bg-slate-900 text-slate-300 px-3 py-2 rounded-md border border-slate-600 hover:bg-slate-800">
                         Grup Programı Ayarla
