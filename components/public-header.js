@@ -23,7 +23,7 @@ const PublicHeader = () => {
   }, []);
 
   const LoggedInLinks = () => (
-    <>
+    <React.Fragment>
       <a
         href="dashboard.html"
         className="text-sm font-medium text-slate-200 hover:text-teal-300 transition-colors"
@@ -42,7 +42,7 @@ const PublicHeader = () => {
       >
         Hesabım
       </a>
-    </>
+    </React.Fragment>
   );
 
   const LoggedOutLinks = () => (
