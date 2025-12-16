@@ -17,7 +17,7 @@
   <script>
     const supabaseUrl = 'https://puurwgrzknxttjsjxdit.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1dXJ3Z3J6a254dHRqc2p4ZGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0NTIyODUsImV4cCI6MjA4MTAyODI4NX0.tYoFbwWeuPCAXLXVp8yX0ThbvWPgboYOCUqPuKtAoaI';
-    window.supabase = supabase.createClient(supabaseUrl, supabaseKey); /* [web:386] */
+    window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
   </script>
 
   <!-- Ortak header/footer -->
@@ -52,7 +52,9 @@
       valves,
       onCreate,
       toggleDayInForm,
-      saving
+      saving,
+      isOpen,
+      onToggle
     }) => {
       const groups = useMemo(
         () =>
@@ -81,9 +83,30 @@
         });
       };
 
+      if (!isOpen) {
+        return (
+          <section className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 shadow-md border border-slate-700/40 text-center">
+            <button
+              onClick={onToggle}
+              className="w-full bg-gradient-to-r from-teal-500 via-teal-600 to-cyan-600 hover:bg-teal-400 px-4 py-3 rounded-lg text-sm font-semibold text-white shadow-lg btn-soft"
+            >
+              ➕ Yeni Program Oluştur
+            </button>
+          </section>
+        );
+      }
+
       return (
         <section className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 shadow-md border border-slate-700/40">
-          <h2 className="font-bold mb-4 text-slate-100">Yeni Program Oluştur</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="font-bold text-slate-100">Yeni Program Oluştur</h2>
+            <button
+              onClick={onToggle}
+              className="p-1.5 rounded-lg hover:bg-slate-700/50 text-slate-400 hover:text-slate-200"
+            >
+              ✕
+            </button>
+          </div>
 
           {/* 1) Program adı - Saat - Süre */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
@@ -140,7 +163,7 @@
               })}
               {groups.length === 0 && (
                 <p className="text-xs text-slate-500">
-                  Henüz grup atanmış valf yok, önce dashboard’da grup belirleyin.
+                  Henüz grup atanmış valf yok, önce dashboard'da grup belirleyin.
                 </p>
               )}
             </div>
@@ -279,10 +302,11 @@
 
       const [savingProgram, setSavingProgram] = useState(false);
       const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+      const [isFormOpen, setIsFormOpen] = useState(false);
 
       useEffect(() => {
         const loadUser = async () => {
-          const { data, error } = await supabase.auth.getUser(); /* [web:123] */
+          const { data, error } = await supabase.auth.getUser();
           if (error || !data?.user) {
             window.location.href = "anasayfa.html#giris";
             return;
@@ -299,14 +323,14 @@
         const loadAll = async () => {
           setLoadingData(true);
 
-          const { data: valvesData } = await supabase
+          const {  valvesData } = await supabase
             .from("valves")
             .select("*")
             .eq("user_id", user.id)
-            .order("created_at", { ascending: true }); /* [web:386] */
+            .order("created_at", { ascending: true });
           setValves(valvesData || []);
 
-          const { data: programsData, error: progErr } = await supabase
+          const {  programsData, error: progErr } = await supabase
             .from("programs")
             .select("*")
             .eq("user_id", user.id)
@@ -322,10 +346,10 @@
           const programIds = (programsData || []).map(p => p.id);
           let pvMap = {};
           if (programIds.length > 0) {
-            const { data: pvData, error: pvErr } = await supabase
+            const {  pvData, error: pvErr } = await supabase
               .from("program_valves")
               .select("program_id, valve_id")
-              .in("program_id", programIds); /* [web:386] */
+              .in("program_id", programIds);
 
             if (!pvErr && pvData) {
               pvMap = programIds.reduce((acc, pid) => ({ ...acc, [pid]: [] }), {});
@@ -381,6 +405,20 @@
         );
       };
 
+      const toggleForm = () => {
+        setIsFormOpen(!isFormOpen);
+        if (!isFormOpen) {
+          // Form açılırken alanları temizle
+          setForm({
+            name: "",
+            startTime: "",
+            duration: "",
+            days: [],
+            valveIds: []
+          });
+        }
+      };
+
       const createProgram = async () => {
         if (
           !form.name.trim() ||
@@ -395,7 +433,7 @@
 
         setSavingProgram(true);
 
-        const { data: progData, error: progErr } = await supabase
+        const {  progData, error: progErr } = await supabase
           .from("programs")
           .insert({
             user_id: user.id,
@@ -406,7 +444,7 @@
             active: true
           })
           .select()
-          .single(); /* [web:498] */
+          .single();
 
         if (progErr) {
           alert("Program kaydedilemedi: " + progErr.message);
@@ -421,7 +459,7 @@
 
         const { error: pvErr } = await supabase
           .from("program_valves")
-          .insert(rows); /* [web:498] */
+          .insert(rows);
 
         if (pvErr) {
           alert("Program-valf ilişkileri kaydedilemedi: " + pvErr.message);
@@ -453,7 +491,6 @@
         };
 
         setPrograms(prev => [newProgram, ...prev]);
-
         setForm({
           name: "",
           startTime: "",
@@ -462,13 +499,14 @@
           valveIds: []
         });
         setSavingProgram(false);
+        setIsFormOpen(false); // Kaydedildikten sonra kapat
       };
 
       const handleToggleActive = async (id, newActive) => {
         const { error } = await supabase
           .from("programs")
           .update({ active: newActive })
-          .eq("id", id); /* [web:502] */
+          .eq("id", id);
 
         if (error) {
           alert("Program güncellenemedi: " + error.message);
@@ -489,7 +527,7 @@
         const { error } = await supabase
           .from("programs")
           .delete()
-          .eq("id", confirmDeleteId); /* [web:502] */
+          .eq("id", confirmDeleteId);
 
         if (error) {
           alert("Program silinemedi: " + error.message);
@@ -504,7 +542,7 @@
         const src = programs.find(p => p.id === id);
         if (!src || !user) return;
 
-        const { data: newProg, error: progErr } = await supabase
+        const {  newProg, error: progErr } = await supabase
           .from("programs")
           .insert({
             user_id: user.id,
@@ -515,24 +553,24 @@
             active: src.active
           })
           .select()
-          .single(); /* [web:498] */
+          .single();
 
         if (progErr) {
           alert("Kopya oluşturulamadı: " + progErr.message);
           return;
         }
 
-        const { data: oldLinks } = await supabase
+        const {  oldLinks } = await supabase
           .from("program_valves")
           .select("valve_id")
-          .eq("program_id", src.id); /* [web:386] */
+          .eq("program_id", src.id);
 
         if (oldLinks && oldLinks.length > 0) {
           const rows = oldLinks.map(r => ({
             program_id: newProg.id,
             valve_id: r.valve_id
           }));
-          await supabase.from("program_valves").insert(rows); /* [web:498] */
+          await supabase.from("program_valves").insert(rows);
         }
 
         const valvesById = valves.reduce((acc, v) => {
@@ -590,6 +628,8 @@
                     onCreate={createProgram}
                     toggleDayInForm={toggleDayInForm}
                     saving={savingProgram}
+                    isOpen={isFormOpen}
+                    onToggle={toggleForm}
                   />
                   <ProgramList
                     programs={programs}
