@@ -346,6 +346,127 @@
       );
     };
 
+    const AddDeviceModal = ({ open, onClose, onLinked }) => {
+      const [serial, setSerial] = React.useState('');
+      const [saving, setSaving] = React.useState(false);
+      const [errorMsg, setErrorMsg] = React.useState('');
+
+      React.useEffect(() => {
+        if (open) {
+          setSerial('');
+          setSaving(false);
+          setErrorMsg('');
+        }
+      }, [open]);
+
+      if (!open) return null;
+
+      const handleSave = async () => {
+        const trimmed = serial.trim();
+        if (!trimmed) {
+          setErrorMsg('Lütfen cihaz seri numarasını girin.');
+          return;
+        }
+
+        setSaving(true);
+        setErrorMsg('');
+
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError || !user) {
+          alert('Kullanıcı bulunamadı, lütfen tekrar giriş yapın.');
+          setSaving(false);
+          return;
+        }
+
+        // devices tablosu: serial_number alanına göre kontrol
+        const { data: device, error } = await supabase
+          .from('devices')
+          .select('*')
+          .eq('serial_number', trimmed)
+          .maybeSingle(); // kayıt yoksa null dönecek [web:34]
+
+        if (error) {
+          setErrorMsg('Cihaz sorgulanırken hata oluştu: ' + error.message);
+          setSaving(false);
+          return;
+        }
+
+        if (!device) {
+          setErrorMsg('Bu seri numarasıyla kayıtlı cihaz bulunamadı.');
+          setSaving(false);
+          return;
+        }
+
+        if (device.user_id && device.user_id !== user.id) {
+          setErrorMsg('Bu cihaz başka bir hesaba tanımlı görünüyor.');
+          setSaving(false);
+          return;
+        }
+
+        const { data: updated, error: linkError } = await supabase
+          .from('devices')
+          .update({ user_id: user.id })
+          .eq('id', device.id)
+          .select()
+          .single();
+
+        if (linkError) {
+          setErrorMsg('Cihaz hesaba bağlanamadı: ' + linkError.message);
+          setSaving(false);
+          return;
+        }
+
+        onLinked && onLinked(updated);
+        setSaving(false);
+        onClose();
+      };
+
+      return (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-5 w-full max-w-md shadow-xl">
+            <h3 className="text-lg font-semibold text-slate-100 mb-2">Cihaz Ekle</h3>
+            <p className="text-xs text-slate-400 mb-4">
+              Cihazın altındaki etikette yazan seri numarasını gir. Seri numarası sistemde kayıtlı değilse ekleme işlemi başarısız olacaktır.
+            </p>
+
+            <label className="block text-xs font-medium text-slate-300 mb-1">
+              Cihaz seri numarası
+            </label>
+            <input
+              type="text"
+              value={serial}
+              onChange={(e) => setSerial(e.target.value)}
+              placeholder="Örn: GC-2025-000123"
+              className="w-full mb-3 px-3 py-2 rounded-md bg-slate-800 border border-slate-700 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500"
+            />
+
+            {errorMsg && (
+              <p className="text-xs text-rose-400 mb-3">{errorMsg}</p>
+            )}
+
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={saving}
+                className="px-3 py-1.5 rounded-md text-xs font-medium bg-slate-800 text-slate-200 border border-slate-600 hover:bg-slate-700 disabled:opacity-60"
+              >
+                Vazgeç
+              </button>
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={saving || !serial.trim()}
+                className="px-3 py-1.5 rounded-md text-xs font-semibold bg-teal-500 text-white hover:bg-teal-400 disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {saving ? 'Kontrol ediliyor...' : 'Kaydet'}
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
     const DashboardPage = () => {
       const [valves, setValves] = useState([]);
       const [activeSystemAction, setActiveSystemAction] = useState(null);
@@ -355,6 +476,7 @@
       const [savingGroup, setSavingGroup] = useState(false);
 
       const [addValveOpen, setAddValveOpen] = useState(false);
+      const [addDeviceOpen, setAddDeviceOpen] = useState(false);
 
       useEffect(() => {
         const loadValves = async () => {
@@ -500,8 +622,7 @@
       };
 
       const handleAddDevice = () => {
-        // Buraya cihaz ekleme modalı veya yönlendirme gelecek
-        alert('Cihaz ekleme henüz tanımlanmadı.');
+        setAddDeviceOpen(true);
       };
 
       if (loading) {
@@ -648,7 +769,6 @@
                     </div>
                   </div>
 
-                  {/* Sabit grup kartları */}
                   <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 shadow-md border border-slate-700/40 mb-4 md:mb-6">
                     <div className="flex justify-between items-center mb-4">
                       <h3 className="font-bold text-slate-100">Ön Grup (V1, V2)</h3>
@@ -751,6 +871,14 @@
             open={addValveOpen}
             onClose={() => setAddValveOpen(false)}
             onCreated={(row) => setValves((prev) => [...prev, row])}
+          />
+
+          <AddDeviceModal
+            open={addDeviceOpen}
+            onClose={() => setAddDeviceOpen(false)}
+            onLinked={(device) => {
+              console.log('Cihaz bağlandı:', device.serial_number);
+            }}
           />
         </div>
       );
