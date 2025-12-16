@@ -22,9 +22,6 @@
     window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
   </script>
 
-  <!-- Auth header (giriş kontrolü + redirect) -->
-  <script type="text/babel" src="./components/header-auth.js"></script>
-
   <style>
     .btn-soft { transition: box-shadow .18s, background .18s, color .18s; }
     .btn-soft:hover {
@@ -48,13 +45,32 @@
     const { useState, useEffect } = React;
     const { createRoot } = ReactDOM;
 
+    // AUTH KONTROLÜ - Sayfa yüklenirken çalışır
+    useEffect(() => {
+      const checkAuth = async () => {
+        try {
+          const { data: { user }, error } = await supabase.auth.getUser();
+          
+          if (error || !user) {
+            // Giriş yapılmamışsa anasayfaya yönlendir
+            window.location.href = 'anasayfa.html#giris';
+            return;
+          }
+          
+          console.log('Kullanıcı doğrulandı:', user.email);
+        } catch (err) {
+          console.error('Auth kontrol hatası:', err);
+          window.location.href = 'anasayfa.html#giris';
+        }
+      };
+      
+      checkAuth();
+    }, []);
+
+    // Geri kalan tüm kodlar aynı...
     const SearchIcon = () => (
       <svg className="h-5 w-5 text-slate-500" fill="currentColor" viewBox="0 0 20 20">
-        <path
-          clipRule="evenodd"
-          d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-          fillRule="evenodd"
-        ></path>
+        <path clipRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" fillRule="evenodd"></path>
       </svg>
     );
 
@@ -66,34 +82,23 @@
 
     const CheckIcon = () => (
       <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-        <path
-          clipRule="evenodd"
-          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-          fillRule="evenodd"
-        ></path>
+        <path clipRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" fillRule="evenodd"></path>
       </svg>
     );
 
     const CloseIcon = () => (
       <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-        <path
-          clipRule="evenodd"
-          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.697a1 1 0 010-1.414z"
-          fillRule="evenodd"
-        ></path>
+        <path clipRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.697a1 1 0 010-1.414z" fillRule="evenodd"></path>
       </svg>
     );
 
     const PauseIcon = () => (
       <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-        <path
-          clipRule="evenodd"
-          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 000-2H9V8a1 1 0 00-1-1z"
-          fillRule="evenodd"
-        ></path>
+        <path clipRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 000-2H9V8a1 1 0 00-1-1z" fillRule="evenodd"></path>
       </svg>
     );
 
+    // ValveCard, GroupModal, AddValveModal komponentleri aynı...
     const ValveCard = ({ valve, onToggle }) => {
       const isChecked = valve.status === 'AÇIK';
       return (
@@ -102,13 +107,7 @@
             <h4 className="font-semibold text-slate-100 text-sm">
               {valve.name} {valve.group ? <span className="text-[11px] text-slate-400">· {valve.group}</span> : null}
             </h4>
-            <span
-              className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-md ${
-                isChecked
-                  ? 'bg-teal-600/40 text-teal-200 border border-teal-400/60'
-                  : 'bg-slate-700 text-slate-200 border border-slate-600'
-              }`}
-            >
+            <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-md ${isChecked ? 'bg-teal-600/40 text-teal-200 border border-teal-400/60' : 'bg-slate-700 text-slate-200 border border-slate-600'}`}>
               {valve.status}
             </span>
           </div>
@@ -117,13 +116,9 @@
           <div className="w-full bg-slate-800 border border-slate-700 rounded-md p-2.5">
             <div className="flex justify-between items-center">
               <p className="text-xs text-slate-400">Program</p>
-              <button className="text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-600 px-2 py-0.5 rounded-md hover:bg-slate-800">
-                Düzenle
-              </button>
+              <button className="text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-600 px-2 py-0.5 rounded-md hover:bg-slate-800">Düzenle</button>
             </div>
-            <p className="text-xs sm:text-sm font-semibold mt-1 text-slate-100 leading-snug">
-              {valve.program}
-            </p>
+            <p className="text-xs sm:text-sm font-semibold mt-1 text-slate-100 leading-snug">{valve.program}</p>
           </div>
         </div>
       );
@@ -141,9 +136,7 @@
       }, [open]);
 
       const toggleValve = (id) => {
-        setSelectedIds((prev) =>
-          prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-        );
+        setSelectedIds((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
       };
 
       if (!open) return null;
@@ -152,582 +145,6 @@
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50">
           <div className="bg-slate-900 border border-slate-700 rounded-2xl p-5 w-full max-w-md shadow-xl">
             <h3 className="text-lg font-semibold text-slate-100 mb-3">Valf Grubu Belirle</h3>
-            <p className="text-xs text-slate-400 mb-4">
-              Aşağıdan valfleri seç ve bu gruba bir isim ver. Kaydettiğinde ilgili valflerin
-              <code className="mx-1 px-1 rounded bg-slate-800 text-[10px]">group</code> alanı güncellenecek.
-            </p>
-
-            <label className="block text-xs font-medium text-slate-300 mb-1">
-              Grup adı
-            </label>
-            <input
-              type="text"
-              value={groupName}
-              onChange={(e) => setGroupName(e.target.value)}
-              placeholder="Ön Grup, Orta Grup vb."
-              className="w-full mb-3 px-3 py-2 rounded-md bg-slate-800 border border-slate-700 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500"
-            />
-
-            <div className="max-h-48 overflow-auto mb-4 space-y-1">
-              {valves.map((v) => {
-                const checked = selectedIds.includes(v.id);
-                return (
-                  <button
-                    key={v.id}
-                    type="button"
-                    onClick={() => toggleValve(v.id)}
-                    className={`w-full flex items-center justify-between px-3 py-1.5 rounded-md text-xs text-left border ${
-                      checked
-                        ? 'bg-teal-600/30 border-teal-500 text-teal-100'
-                        : 'bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700'
-                    }`}
-                  >
-                    <span>{v.name}</span>
-                    {v.group ? (
-                      <span className="text-[10px] text-slate-400">grup: {v.group}</span>
-                    ) : (
-                      <span className="text-[10px] text-slate-500">grup yok</span>
-                    )}
-                  </button>
-                );
-              })}
-              {valves.length === 0 && (
-                <p className="text-xs text-slate-500">Henüz valf bulunmuyor.</p>
-              )}
-            </div>
-
-            <div className="flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-3 py-1.5 rounded-md text-xs font-medium bg-slate-800 text-slate-200 border border-slate-600 hover:bg-slate-700"
-                disabled={saving}
-              >
-                Vazgeç
-              </button>
-              <button
-                type="button"
-                disabled={saving || !groupName.trim() || selectedIds.length === 0}
-                onClick={() => onSave({ groupName: groupName.trim(), selectedIds })}
-                className="px-3 py-1.5 rounded-md text-xs font-semibold bg-teal-500 text-white hover:bg-teal-400 disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                {saving ? 'Kaydediliyor...' : 'Kaydet'}
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    };
-
-    const AddValveModal = ({ open, onClose, onCreated }) => {
-      const [name, setName] = React.useState('');
-      const [groupName, setGroupName] = React.useState('');
-      const [mode, setMode] = React.useState('Manual');
-      const [saving, setSaving] = React.useState(false);
-
-      React.useEffect(() => {
-        if (open) {
-          setName('');
-          setGroupName('');
-          setMode('Manual');
-          setSaving(false);
-        }
-      }, [open]);
-
-      if (!open) return null;
-
-      const handleSave = async () => {
-        if (!name.trim()) return;
-        setSaving(true);
-
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError || !user) {
-          alert('Kullanıcı bulunamadı, lütfen tekrar giriş yapın.');
-          setSaving(false);
-          return;
-        }
-
-        const insertRow = {
-          user_id: user.id,
-          name: name.trim(),
-          status: 'KAPALI',
-          program: null,
-          mode,
-          group: groupName.trim() || null,
-        };
-
-        const { data, error } = await supabase
-          .from('valves')
-          .insert(insertRow)
-          .select()
-          .single();
-
-        if (error) {
-          alert('Valf eklenemedi: ' + error.message);
-          setSaving(false);
-          return;
-        }
-
-        onCreated(data);
-        setSaving(false);
-        onClose();
-      };
-
-      return (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-5 w-full max-w-md shadow-xl">
-            <h3 className="text-lg font-semibold text-slate-100 mb-3">Yeni Valf Ekle</h3>
-
-            <label className="block text-xs font-medium text-slate-300 mb-1">Valf adı</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Örn: V1"
-              className="w-full mb-3 px-3 py-2 rounded-md bg-slate-800 border border-slate-700 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500"
-            />
-
-            <label className="block text-xs font-medium text-slate-300 mb-1">Valf grubu (isteğe bağlı)</label>
-            <input
-              type="text"
-              value={groupName}
-              onChange={(e) => setGroupName(e.target.value)}
-              placeholder="Ön, Orta, Arka vb."
-              className="w-full mb-3 px-3 py-2 rounded-md bg-slate-800 border border-slate-700 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500"
-            />
-
-            <label className="block text-xs font-medium text-slate-300 mb-1">Çalışma modu</label>
-            <select
-              value={mode}
-              onChange={(e) => setMode(e.target.value)}
-              className="w-full mb-4 px-3 py-2 rounded-md bg-slate-800 border border-slate-700 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500"
-            >
-              <option value="Manual">Manual</option>
-              <option value="Auto">Auto</option>
-            </select>
-
-            <div className="flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={saving}
-                className="px-3 py-1.5 rounded-md text-xs font-medium bg-slate-800 text-slate-200 border border-slate-600 hover:bg-slate-700 disabled:opacity-60"
-              >
-                Vazgeç
-              </button>
-              <button
-                type="button"
-                onClick={handleSave}
-                disabled={saving || !name.trim()}
-                className="px-3 py-1.5 rounded-md text-xs font-semibold bg-teal-500 text-white hover:bg-teal-400 disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                {saving ? 'Kaydediliyor...' : 'Kaydet'}
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    };
-
-    const DashboardPage = () => {
-      const [valves, setValves] = useState([]);
-      const [activeSystemAction, setActiveSystemAction] = useState(null);
-      const [loading, setLoading] = useState(true);
-
-      const [groupModalOpen, setGroupModalOpen] = useState(false);
-      const [savingGroup, setSavingGroup] = useState(false);
-
-      const [addValveOpen, setAddValveOpen] = useState(false);
-
-      useEffect(() => {
-        const loadValves = async () => {
-          const { data: { user }, error: userError } = await supabase.auth.getUser();
-
-          if (userError) {
-            console.error('getUser error:', userError);
-            setLoading(false);
-            return;
-          }
-
-          if (!user) {
-            window.location.href = 'anasayfa.html#giris';
-            return;
-          }
-
-          const { data, error } = await supabase
-            .from('valves')
-            .select('*')
-            .eq('user_id', user.id)
-            .order('created_at', { ascending: true });
-
-          if (error) {
-            console.error('Valfler alınırken hata:', error);
-            setValves([]);
-          } else {
-            setValves(data || []);
-          }
-          setLoading(false);
-        };
-
-        loadValves();
-      }, []);
-
-      const handleToggleValve = async (id) => {
-        const target = valves.find((v) => v.id === id);
-        if (!target) return;
-
-        const newStatus = target.status === 'AÇIK' ? 'KAPALI' : 'AÇIK';
-
-        const { error } = await supabase
-          .from('valves')
-          .update({ status: newStatus })
-          .eq('id', id);
-
-        if (error) {
-          alert('Valf güncellenemedi: ' + error.message);
-          return;
-        }
-
-        setValves((prev) =>
-          prev.map((v) => (v.id === id ? { ...v, status: newStatus } : v))
-        );
-      };
-
-      const handleAllOn = async () => {
-        const { error } = await supabase
-          .from('valves')
-          .update({ status: 'AÇIK' })
-          .neq('id', null);
-
-        if (error) {
-          alert('Valfler açılamadı: ' + error.message);
-          return;
-        }
-
-        setValves((prev) => prev.map((v) => ({ ...v, status: 'AÇIK' })));
-        setActiveSystemAction('allOn');
-      };
-
-      const handleAllOff = async () => {
-        const { error } = await supabase
-          .from('valves')
-          .update({ status: 'KAPALI' })
-          .neq('id', null);
-
-        if (error) {
-          alert('Valfler kapatılamadı: ' + error.message);
-          return;
-        }
-
-        setValves((prev) => prev.map((v) => ({ ...v, status: 'KAPALI' })));
-        setActiveSystemAction('allOff');
-      };
-
-      const handlePausePrograms = () => setActiveSystemAction('pause');
-
-      const handleGroupOn = async (group) => {
-        const { error } = await supabase
-          .from('valves')
-          .update({ status: 'AÇIK' })
-          .eq('group', group);
-
-        if (error) {
-          alert('Grup açılamadı: ' + error.message);
-          return;
-        }
-
-        setValves((prev) =>
-          prev.map((v) => (v.group === group ? { ...v, status: 'AÇIK' } : v))
-        );
-      };
-
-      const handleGroupOff = async (group) => {
-        const { error } = await supabase
-          .from('valves')
-          .update({ status: 'KAPALI' })
-          .eq('group', group);
-
-        if (error) {
-          alert('Grup kapatılamadı: ' + error.message);
-          return;
-        }
-
-        setValves((prev) =>
-          prev.map((v) => (v.group === group ? { ...v, status: 'KAPALI' } : v))
-        );
-      };
-
-      const activeValves = valves.filter(v => v.status === 'AÇIK');
-
-      const handleSaveGroup = async ({ groupName, selectedIds }) => {
-        if (!groupName || selectedIds.length === 0) return;
-        setSavingGroup(true);
-
-        const { error } = await supabase
-          .from('valves')
-          .update({ group: groupName })
-          .in('id', selectedIds);
-
-        if (error) {
-          alert('Grup güncellenemedi: ' + error.message);
-          setSavingGroup(false);
-          return;
-        }
-
-        setValves(prev =>
-          prev.map(v =>
-            selectedIds.includes(v.id) ? { ...v, group: groupName } : v
-          )
-        );
-        setSavingGroup(false);
-        setGroupModalOpen(false);
-      };
-
-      if (loading) {
-        return (
-          <div className="min-h-screen flex flex-col">
-            <window.Header />
-            <main className="flex-1">
-              <div className="max-w-6xl mx-auto px-4 py-8 md:px-8 lg:px-12">
-                <div className="bg-slate-900 rounded-2xl p-6 text-slate-200">
-                  Yükleniyor...
-                </div>
-              </div>
-            </main>
-            <window.Footer />
-          </div>
-        );
-      }
-
-      return (
-        <div className="min-h-screen flex flex-col">
-          <window.Header />
-
-          <main className="flex-1">
-            <div className="max-w-6xl mx-auto px-4 py-8 md:px-8 lg:px-12">
-              <div className="bg-slate-900 rounded-2xl p-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 md:mb-6">
-                  <div className="relative w-full sm:max-w-xs">
-                    <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                      <SearchIcon />
-                    </span>
-                    <input
-                      className="w-full pl-10 pr-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-100 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                      placeholder="Ara..."
-                      type="text"
-                    />
-                  </div>
-                  <button className="flex items-center justify-center bg-slate-800 text-teal-300 font-medium px-3 py-2 rounded-lg border border-teal-500/60 hover:bg-slate-700 text-sm sm:self-auto self-stretch">
-                    <FilterIcon /> Filtre
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <section className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 shadow-md border border-slate-700/40">
-                    <h2 className="font-bold mb-4 text-slate-100">Sistem Kontrolü</h2>
-                    <div className="space-y-3">
-                      <button
-                        onClick={handleAllOn}
-                        className={`w-full flex items-center justify-start text-left font-semibold px-3 py-2.5 rounded-md text-sm transition ${
-                          activeSystemAction === 'allOn'
-                            ? 'bg-teal-500 text-white shadow-[0_0_15px_rgba(45,212,191,0.8)]'
-                            : 'text-teal-200 bg-teal-700/30 hover:bg-teal-600/40'
-                        }`}
-                      >
-                        <span className="bg-teal-500 text-white rounded-full p-1 mr-3 flex-shrink-0">
-                          <CheckIcon />
-                        </span>
-                        Tüm Valfler AÇIK
-                      </button>
-
-                      <button
-                        onClick={handleAllOff}
-                        className={`w-full flex items-center justify-start text-left font-semibold px-3 py-2.5 rounded-md text-sm transition ${
-                          activeSystemAction === 'allOff'
-                            ? 'bg-rose-500 text-white shadow-[0_0_15px_rgba(244,63,94,0.8)]'
-                            : 'text-rose-200 bg-rose-700/30 hover:bg-rose-600/40'
-                        }`}
-                      >
-                        <span className="bg-rose-500 text-white rounded-full p-1 mr-3 flex-shrink-0">
-                          <CloseIcon />
-                        </span>
-                        Tüm Valfler KAPALI
-                      </button>
-
-                      <button
-                        onClick={handlePausePrograms}
-                        className={`w-full flex items-center justify-start text-left font-semibold px-3 py-2.5 rounded-md text-sm transition ${
-                          activeSystemAction === 'pause'
-                            ? 'bg-amber-400 text-slate-900 shadow-[0_0_15px_rgba(251,191,36,0.9)]'
-                            : 'text-amber-200 bg-amber-700/30 hover:bg-amber-600/40'
-                        }`}
-                      >
-                        <span className="bg-amber-500 text-white rounded-full p-1.5 mr-3 flex-shrink-0">
-                          <PauseIcon />
-                        </span>
-                        Programları Duraklat
-                      </button>
-                    </div>
-                  </section>
-
-                  <section className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 shadow-md border border-slate-700/40">
-                    <h2 className="font-bold mb-4 text-slate-100">Aktif Program Özeti</h2>
-                    <div className="space-y-3">
-                      {activeValves.slice(0, 3).map((valve) => (
-                        <div
-                          key={valve.id}
-                          className="flex justify-between items-center text-xs sm:text-sm gap-2"
-                        >
-                          <div>
-                            <p className="font-semibold text-slate-100">
-                              {valve.name} {valve.group ? <span className="text-[11px] text-slate-400">· {valve.group}</span> : null}
-                            </p>
-                            <p className="text-slate-400">{valve.program}</p>
-                          </div>
-                          <span className="text-[11px] font-semibold px-2.5 py-1 rounded-md border border-teal-500/60 text-teal-200">
-                            AÇIK
-                          </span>
-                        </div>
-                      ))}
-
-                      {activeValves.length === 0 && (
-                        <p className="text-xs text-slate-500">
-                          Şu anda aktif program bulunmuyor.
-                        </p>
-                      )}
-                    </div>
-                  </section>
-                </div>
-
-                <section>
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-bold text-slate-100">Valf Kontrolü</h2>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => setAddValveOpen(true)}
-                        className="text-sm font-semibold bg-teal-600 text-white px-4 py-2 rounded-lg border border-teal-500 hover:bg-teal-500"
-                      >
-                        Valf Ekle
-                      </button>
-                      <button
-                        onClick={() => setGroupModalOpen(true)}
-                        className="text-sm font-semibold bg-slate-800 text-slate-100 px-4 py-2 rounded-lg border border-slate-600 hover:bg-slate-700"
-                      >
-                        Valf Grubu Belirle
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Sabit grup kartları */}
-                  <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 shadow-md border border-slate-700/40 mb-4 md:mb-6">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="font-bold text-slate-100">Ön Grup (V1, V2)</h3>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => handleGroupOn('Ön')}
-                        className="flex-1 bg-teal-600 text-white font-semibold py-2 px-3 rounded-md text-sm hover:bg-teal-500"
-                      >
-                        AÇIK
-                      </button>
-                      <button
-                        onClick={() => handleGroupOff('Ön')}
-                        className="flex-1 bg-slate-600 text-white font-semibold py-2 px-3 rounded-md text-sm hover:bg-slate-500"
-                      >
-                        KAPALI
-                      </button>
-                    </div>
-                    <div className="flex justify-between items-center mt-4">
-                      <h3 className="font-bold text-slate-100 invisible">Placeholder</h3>
-                      <button className="text-xs font-semibold bg-slate-900 text-slate-300 px-3 py-2 rounded-md border border-slate-600 hover:bg-slate-800">
-                        Grup Programı Ayarla
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 shadow-md border border-slate-700/40 mb-4 md:mb-6">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="font-bold text-slate-100">Orta Grup (V3, V4, V5)</h3>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => handleGroupOn('Orta')}
-                        className="flex-1 bg-teal-600 text-white font-semibold py-2 px-3 rounded-md text-sm hover:bg-teal-500"
-                      >
-                        AÇIK
-                      </button>
-                      <button
-                        onClick={() => handleGroupOff('Orta')}
-                        className="flex-1 bg-slate-600 text-white font-semibold py-2 px-3 rounded-md text-sm hover:bg-slate-500"
-                      >
-                        KAPALI
-                      </button>
-                    </div>
-                    <div className="flex justify-between items-center mt-4">
-                      <h3 className="font-bold text-slate-100 invisible">Placeholder</h3>
-                      <button className="text-xs font-semibold bg-slate-900 text-slate-300 px-3 py-2 rounded-md border border-slate-600 hover:bg-slate-800">
-                        Grup Programı Ayarla
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 shadow-md border border-slate-700/40 mb-4 md:mb-6">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="font-bold text-slate-100">Arka Grup (V6, V7)</h3>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => handleGroupOn('Arka')}
-                        className="flex-1 bg-teal-600 text-white font-semibold py-2 px-3 rounded-md text-sm hover:bg-teal-500"
-                      >
-                        AÇIK
-                      </button>
-                      <button
-                        onClick={() => handleGroupOff('Arka')}
-                        className="flex-1 bg-slate-600 text-white font-semibold py-2 px-3 rounded-md text-sm hover:bg-slate-500"
-                      >
-                        KAPALI
-                      </button>
-                    </div>
-                    <div className="flex justify-between items-center mt-4">
-                      <h3 className="font-bold text-slate-100 invisible">Placeholder</h3>
-                      <button className="text-xs font-semibold bg-slate-900 text-slate-300 px-3 py-2 rounded-md border border-slate-600 hover:bg-slate-800">
-                        Grup Programı Ayarla
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-                    {valves.map((valve) => (
-                      <ValveCard key={valve.id} valve={valve} onToggle={handleToggleValve} />
-                    ))}
-                  </div>
-                </section>
-              </div>
-            </div>
-          </main>
-
-          <window.Footer />
-
-          <GroupModal
-            open={groupModalOpen}
-            onClose={() => !savingGroup && setGroupModalOpen(false)}
-            valves={valves}
-            onSave={handleSaveGroup}
-            saving={savingGroup}
-          />
-
-          <AddValveModal
-            open={addValveOpen}
-            onClose={() => setAddValveOpen(false)}
-            onCreated={(row) => setValves(prev => [...prev, row])}
-          />
-        </div>
-      );
-    };
-
-    const root = createRoot(document.getElementById('root'));
-    root.render(<DashboardPage />);
-  </script>
-</body>
-</html>
+            <p className="text-xs text-slate-400 mb-4">Aşağıdan valfleri seç ve bu gruba bir isim ver. Kaydettiğinde ilgili valflerin <code className="mx-1 px-1 rounded bg-slate-800 text-[10px]">group</code> alanı güncellenecek.</p>
+            <label className="block text-xs font-medium text-slate-300 mb-1">Grup adı</label>
+            <input type="text" value={groupName} onChange={(e) => setGroupName(e.target.value)} placeholder="Ön Grup, Orta Grup vb." className="w-full mb-3 px-3 py-2 rounded-md bg-slate-800
