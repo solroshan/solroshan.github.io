@@ -54,10 +54,10 @@
         v = v.slice(0, 9); // 5xx xxx xx xx
 
         let formatted = "05";
-        if (v.length > 0) formatted += v.slice(0, 3);
-        if (v.length > 3) formatted += " " + v.slice(3, 6);
-        if (v.length > 6) formatted += " " + v.slice(6, 8);
-        if (v.length > 8) formatted += " " + v.slice(8, 10);
+        if (v.length > 0) formatted += v.slice(0, 2);
+        if (v.length > 2) formatted += " " + v.slice(2, 5);
+        if (v.length > 5) formatted += " " + v.slice(5, 7);
+        if (v.length > 7) formatted += " " + v.slice(7, 9);
 
         onChange(formatted);
       };
