@@ -38,40 +38,6 @@
   <script type="text/babel">
     const { createRoot } = ReactDOM;
 
-    const PhoneInput = ({ value, onChange, className }) => {
-      const handleChange = (e) => {
-        if (!e.target.value) {
-          onChange("05");
-          return;
-        }
-
-        let v = e.target.value.replace(/\D/g, "");
-
-        if (v.startsWith("05")) {
-          v = v.slice(2);
-        }
-
-        v = v.slice(0, 9);
-
-        let formatted = "05";
-        if (v.length > 0) formatted += v.slice(0, 2);
-        if (v.length > 2) formatted += " " + v.slice(2, 5);
-        if (v.length > 5) formatted += " " + v.slice(5, 7);
-        if (v.length > 7) formatted += " " + v.slice(7, 9);
-
-        onChange(formatted);
-      };
-
-      return (
-        <input
-          type="tel"
-          className={className}
-          value={value && value.startsWith("05") ? value : "05"}
-          onChange={handleChange}
-        />
-      );
-    };
-
     const products = [
       {
         id: "basic-controller",
@@ -84,9 +50,7 @@
           "WiFi bağlantısı",
           "Mobil uygulama ile kontrol",
           "Haftalık programlama"
-        ],
-        image: "https://via.placeholder.com/400x250/14b8a6/ffffff?text=Basic+Controller",
-        details: "Küçük ev bahçeleri ve teraslar için ideal. 4 farklı bölümü ayrı ayrı sulayabilir, yağmur sensörü ile otomatik duraklatma özelliği bulunur."
+        ]
       },
       {
         id: "pro-controller",
@@ -99,9 +63,7 @@
           "Akıllı hava durumu entegrasyonu",
           "Su tüketim istatistikleri",
           "Uzaktan teşhis ve güncelleme"
-        ],
-        image: "https://via.placeholder.com/400x250/0ea5e9/ffffff?text=Pro+Controller",
-        details: "Akıllı hava durumu tahmini ile otomatik sulama optimizasyonu. Detaylı su tüketim raporları ve %30'a varan su tasarrufu."
+        ]
       },
       {
         id: "enterprise",
@@ -115,9 +77,7 @@
           "Merkezi yönetim paneli",
           "API entegrasyonu",
           "Kurumsal raporlama"
-        ],
-        image: "https://via.placeholder.com/400x250/475569/ffffff?text=Enterprise+Solution",
-        details: "WiFi olmayan alanlar için GSM modülü opsiyonu. Merkezi yönetim paneli ile birden fazla lokasyonu tek ekrandan kontrol edin."
+        ]
       }
     ];
 
@@ -132,17 +92,9 @@
       >
         {product.highlight && (
           <span className="absolute -top-3 left-6 inline-flex items-center rounded-full bg-teal-500 text-xs font-semibold px-3 py-1 text-slate-900 shadow-lg">
-            En Çok Tercih Edilen
+            En çok tercih edilen
           </span>
         )}
-
-        <div className="mb-6">
-          <img 
-            src={product.image} 
-            alt={product.name}
-            className="w-full h-48 object-cover rounded-2xl mb-4 shadow-lg"
-          />
-        </div>
 
         <div className="mb-4">
           <h3 className="text-xl font-bold text-slate-100">{product.name}</h3>
@@ -173,124 +125,20 @@
               : "bg-slate-800 text-slate-100 hover:bg-slate-700")
           }
         >
-          Ürün Detayları
+          Ürünü İncele
         </button>
       </div>
     );
 
-    const ProductDetailsModal = ({ product, onClose }) => {
-      const [quantity, setQuantity] = React.useState(1);
-      const [firstName, setFirstName] = React.useState("");
-      const [lastName, setLastName] = React.useState("");
-      const [phone, setPhone] = React.useState("05");
-      const [loading, setLoading] = React.useState(false);
-
-      const handleOrder = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-
-        // Basit sipariş formu - gerçek projede Supabase'e kaydedilir
-        console.log('Sipariş:', { product: product.id, quantity, firstName, lastName, phone });
-
-        alert(`Teşekkürler! ${quantity} adet ${product.name} için siparişiniz alındı. En kısa sürede sizinle iletişime geçeceğiz.`);
-        
-        setLoading(false);
-        onClose();
-      };
-
-      if (!product) return null;
-
-      return (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-900 border border-slate-700 rounded-3xl p-6 md:p-8 w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-slate-100">{product.name}</h2>
-              <button
-                onClick={onClose}
-                className="text-slate-400 hover:text-slate-200 text-2xl font-bold"
-              >
-                ×
-              </button>
-            </div>
-
-            <img 
-              src={product.image} 
-              alt={product.name}
-              className="w-full h-48 object-cover rounded-2xl mb-6 shadow-lg"
-            />
-
-            <div className="mb-6 p-4 bg-slate-800/50 rounded-2xl">
-              <p className="text-sm text-slate-300 leading-relaxed">{product.details}</p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
-              <div>
-                <span className="text-slate-400">Fiyat:</span>
-                <div className="font-bold text-teal-300 text-lg">{product.price}</div>
-              </div>
-              <div>
-                <label className="block text-slate-400 mb-1">Adet</label>
-                <select 
-                  value={quantity} 
-                  onChange={(e) => setQuantity(Number(e.target.value))}
-                  className="w-full rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-sm"
-                >
-                  {[1,2,3,4,5,10].map(n => (
-                    <option key={n} value={n}>{n}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <form onSubmit={handleOrder} className="space-y-3 mb-6">
-              <div className="grid grid-cols-2 gap-3">
-                <input
-                  type="text"
-                  placeholder="Ad*"
-                  className="rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-sm text-slate-100"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  required
-                />
-                <input
-                  type="text"
-                  placeholder="Soyad*"
-                  className="rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-sm text-slate-100"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  required
-                />
-              </div>
-
-              <PhoneInput
-                value={phone}
-                onChange={setPhone}
-                className="w-full rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-sm text-slate-100"
-              />
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full rounded-2xl py-3 text-sm font-semibold bg-gradient-to-r from-teal-500 to-cyan-600 text-white hover:from-teal-600 hover:to-cyan-700 shadow-lg hover:shadow-teal-500/40 transition disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                {loading ? "İşleniyor..." : "Sipariş Ver"}
-              </button>
-            </form>
-
-            <div className="text-xs text-slate-500 text-center">
-              <p>Güvenli ödeme | 14 gün iade hakkı | Hızlı kargo</p>
-            </div>
-          </div>
-        </div>
-      );
-    };
-
     const ProductsPage = () => {
-      const [selectedProductId, setSelectedProductId] = React.useState(null);
-      const selectedProduct = products.find(p => p.id === selectedProductId);
+      const [selectedProduct, setSelectedProduct] = React.useState(null);
 
       const closeModal = () => {
-        setSelectedProductId(null);
+        setSelectedProduct(null);
+      };
+
+      const handleViewDetails = (productId) => {
+        setSelectedProduct(productId);
       };
 
       return (
@@ -317,23 +165,19 @@
                     <ProductCard
                       key={product.id}
                       product={product}
-                      onSelect={setSelectedProductId}
+                      onSelect={handleViewDetails}
                     />
                   ))}
                 </section>
 
                 <section className="mt-12 pt-8 border-t border-slate-800/60 text-center text-sm text-slate-400">
                   <p>
-                    Kurumsal projeler veya toplu alım için:
+                    Kurumsal projeler veya toplu alım için doğrudan e‑posta ile iletişime geçebilirsiniz:
                     <a
                       href="mailto:huseyingunes35@gmail.com"
-                      className="text-teal-400 hover:text-teal-300 font-medium ml-1 block mt-2"
+                      className="text-teal-400 hover:text-teal-300 font-medium ml-1"
                     >
                       huseyingunes35@gmail.com
-                    </a>
-                    <br />
-                    <a href="tel:+905535145469" className="text-teal-400 hover:text-teal-300 font-medium">
-                      +90 553 514 54 69
                     </a>
                   </p>
                 </section>
@@ -344,10 +188,22 @@
           <window.Footer />
 
           {selectedProduct && (
-            <ProductDetailsModal 
-              product={selectedProduct} 
-              onClose={closeModal} 
-            />
+            <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+              <div className="bg-slate-900 border border-slate-700 rounded-3xl p-6 md:p-8 w-full max-w-md shadow-2xl">
+                <h2 className="text-xl font-semibold text-slate-100 mb-1">
+                  {selectedProduct === "pro-controller" ? "Pro Kontrolör" : selectedProduct === "basic-controller" ? "Basic Kontrolör" : "Kurumsal Çözüm"}
+                </h2>
+                <p className="text-sm text-slate-400 mb-4">
+                  Ürün detaylarını ve teknik özelliklerini burada görebilirsiniz.
+                </p>
+                <button
+                  onClick={closeModal}
+                  className="w-full mt-auto rounded-2xl py-3 text-sm font-semibold bg-slate-800 text-slate-100 hover:bg-slate-700"
+                >
+                  Kapat
+                </button>
+              </div>
+            </div>
           )}
         </div>
       );
