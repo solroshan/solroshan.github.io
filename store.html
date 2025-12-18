@@ -39,51 +39,92 @@
     const { createRoot } = ReactDOM;
 
     const products = [
-      {
-        id: "basic-controller",
-        name: "Akava",
-        price: "1.499 ₺",
-        desc: "Küçük bahçeler için temel sulama kontrol ünitesi.",
-        highlight: false,
-        features: [
-          "4 vana kontrolü",
-          "WiFi bağlantısı",
-          "Mobil uygulama ile kontrol",
-          "Haftalık/Aylık programlama"
-        ]
-      },
-      {
-        id: "pro-controller",
-        name: "Akava Pro",
-        price: "3.299 ₺",
-        desc: "Orta-büyük bahçeler ve ticari kullanım için gelişmiş kontrol ünitesi.",
-        highlight: true,
-        features: [
-          "12 vana kontrolü",
-          "WiFi bağlantısı",
-          "Mobil uygulama ile kontrol",
-          "Haftalık/Aylık programlama",
-          "Uzaktan teşhis ve güncelleme",
-          "Akıllı hava durumu entegrasyonu(Opsiyonel)",
-          "Su tüketim istatistikleri(Opsiyonel)"
-        ]
-      },
-      {
-        id: "enterprise",
-        name: "Kurumsal Çözüm",
-        price: "Özel Teklif",
-        desc: "Büyük projeler, siteler ve belediyeler için tam entegre sistem.",
-        highlight: false,
-        features: [
-          "Sınırsız vana kontrolü",
-          "GSM/Uydu yedekli bağlantı",
-          "Merkezi yönetim paneli",
-          "Çoklu kullanıcı profilleri",
-          "API entegrasyonu",
-          "Kurumsal raporlama"
-        ]
-      }
-    ];
+  {
+    id: "basic-controller",
+    name: "Akava",
+    price: "1.499 ₺",
+    desc: "Küçük bahçeler için temel sulama kontrol ünitesi.",
+    highlight: false,
+    features: [
+      "4 vana kontrolü",
+      "WiFi bağlantısı",
+      "Mobil uygulama ile kontrol",
+      "Haftalık/Aylık programlama"
+    ]
+  },
+  {
+    id: "pro-controller",
+    name: "Akava Pro",
+    price: "3.299 ₺",
+    desc: "Orta-büyük bahçeler ve ticari kullanım için gelişmiş kontrol ünitesi.",
+    highlight: true,
+    features: [
+      "12 vana kontrolü",
+      "WiFi bağlantısı",
+      "Mobil uygulama ile kontrol",
+      "Haftalık/Aylık programlama",
+      "Uzaktan teşhis ve güncelleme",
+      "Akıllı hava durumu entegrasyonu(Opsiyonel)",
+      "Su tüketim istatistikleri(Opsiyonel)"
+    ]
+  },
+  {
+    id: "enterprise",
+    name: "Kurumsal Çözüm",
+    price: "Özel Teklif",
+    desc: "Büyük projeler, siteler ve belediyeler için tam entegre sistem.",
+    highlight: false,
+    features: [
+      "Sınırsız vana kontrolü",
+      "GSM/Uydu yedekli bağlantı",
+      "Merkezi yönetim paneli",
+      "Çoklu kullanıcı profilleri",
+      "API entegrasyonu",
+      "Kurumsal raporlama"
+    ]
+  },
+  {
+    id: "solenoid-valve",
+    name: "Tekil Solenoid Valf",
+    price: "149 ₺",
+    desc: "Tek başına kullanıma uygun solenoid vana.",
+    highlight: false,
+    features: [
+      "12V DC çalışır",
+      "Kolay montaj",
+      "IP68 koruma sınıfı",
+      "Uzun ömürlü"
+    ]
+  },
+  {
+    id: "akava-4valve",
+    name: "Akava + 4 Adet Valf",
+    price: "2.199 ₺",
+    desc: "Akava kontrol ünitesi ile birlikte 4 adet solenoid vana.",
+    highlight: false,
+    features: [
+      "Akava kontrol ünitesi",
+      "4 adet solenoid vana",
+      "Kolay kurulum",
+      "Uzun ömürlü bağlantılar"
+    ]
+  },
+  {
+    id: "akava-pro-10valve",
+    name: "Akava Pro + 10 Adet Valf",
+    price: "4.999 ₺",
+    desc: "Akava Pro kontrol ünitesi ile birlikte 10 adet solenoid vana.",
+    highlight: true,
+    features: [
+      "Akava Pro kontrol ünitesi",
+      "10 adet solenoid vana",
+      "Kolay kurulum",
+      "Uzun ömürlü bağlantılar",
+      "Uzaktan teşhis ve güncelleme"
+    ]
+  }
+];
+
 
     const ProductCard = ({ product, onSelect }) => (
       <div
