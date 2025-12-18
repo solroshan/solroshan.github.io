@@ -48,6 +48,12 @@ const PublicHeader = () => {
   const LoggedOutLinks = () => (
     <React.Fragment>
       <a
+        href="store.html"
+        className="text-sm font-medium text-slate-200 hover:text-teal-300 transition-colors"
+      >
+        Mağaza
+      </a>
+      <a
         href="uyelik.html"
         className="text-sm font-medium text-slate-200 hover:text-teal-300 transition-colors"
       >
