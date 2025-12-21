@@ -19,7 +19,7 @@
   <script>
     const supabaseUrl = 'https://puurwgrzknxttjsjxdit.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1dXJ3Z3J6a254dHRqc2p4ZGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0NTIyODUsImV4cCI6MjA4MTAyODI4NX0.tYoFbwWeuPCAXLXVp8yX0ThbvWPgboYOCUqPuKtAoaI';
-    window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    window.supabase = supabase.createClient(supabaseUrl, supabaseKey); /* Supabase JS yükleme dokümanı [web:16] */
   </script>
 
   <!-- Ortak komponentler (public header + footer) -->
@@ -39,79 +39,96 @@
     const { createRoot } = ReactDOM;
 
     const products = [
-  {
-    id: "basic-controller",
-    name: "Akava",
-    price: "3.499 ₺",
-    desc: "Küçük bahçeler için temel sulama kontrol ünitesi.",
-    highlight: false,
-    features: [
-      "220V AC kolay montaj",
-      "4 vana kontrolü",
-      "WiFi bağlantısı",
-      "Mobil uygulama ile kontrol",
-      "Haftalık/Aylık programlama"
-    ]
-  },
-  {
-    id: "pro-controller",
-    name: "Akava Pro",
-    price: "6.299 ₺",
-    desc: "Orta-büyük bahçeler ve ticari kullanım için gelişmiş kontrol ünitesi.",
-    highlight: false,
-    features: [
-      "220V AC kolay montaj",
-      "10 vana kontrolü",
-      "WiFi bağlantısı",
-      "Mobil uygulama ile kontrol",
-      "Haftalık/Aylık programlama",
-      "Uzaktan teşhis ve güncelleme",
-      "Akıllı hava durumu entegrasyonu(Opsiyonel)",
-      "Su tüketim istatistikleri(Opsiyonel)"
-    ]
-  },
-  {
-    id: "solenoid-valve",
-    name: "Tekil Solenoid Valf",
-    price: "1.490 ₺",
-    desc: "Tek başına kullanıma uygun 1 inç solenoid vana.",
-    highlight: false,
-    features: [
-      "24V AC ile çalışır",
-      "Kolay montaj",
-      "IP68 koruma sınıfı",
-      "Uzun ömürlü"
-    ]
-  },
-  {
-    id: "akava-4valve",
-    name: "Akava + 4 Adet Valf",
-    price: "6.199 ₺",
-    desc: "Akava kontrol ünitesi ile birlikte 4 adet solenoid vana.",
-    highlight: false,
-    features: [
-      "Akava kontrol ünitesi",
-      "4 adet 1 inç solenoid vana",
-      "Kolay kurulum",
-      "Uzun ömürlü bağlantılar"
-    ]
-  },
-  {
-    id: "akava-pro-10valve",
-    name: "Akava Pro + 10 Adet Valf",
-    price: "20.999 ₺",
-    desc: "Akava Pro kontrol ünitesi ile birlikte 10 adet solenoid vana.",
-    highlight: true,
-    features: [
-      "Akava Pro kontrol ünitesi",
-      "10 adet 1 inç solenoid vana",
-      "Kolay kurulum",
-      "Uzun ömürlü bağlantılar",
-      "Uzaktan teşhis ve güncelleme"
-    ]
-  }
-];
+      {
+        id: "basic-controller",
+        name: "Akava",
+        price: "3.499 ₺",
+        desc: "Küçük bahçeler için temel sulama kontrol ünitesi.",
+        highlight: false,
+        features: [
+          "220V AC kolay montaj",
+          "4 vana kontrolü",
+          "WiFi bağlantısı",
+          "Mobil uygulama ile kontrol",
+          "Haftalık/Aylık programlama"
+        ]
+      },
+      {
+        id: "pro-controller",
+        name: "Akava Pro",
+        price: "6.299 ₺",
+        desc: "Orta-büyük bahçeler ve ticari kullanım için gelişmiş kontrol ünitesi.",
+        highlight: false,
+        features: [
+          "220V AC kolay montaj",
+          "10 vana kontrolü",
+          "WiFi bağlantısı",
+          "Mobil uygulama ile kontrol",
+          "Haftalık/Aylık programlama",
+          "Uzaktan teşhis ve güncelleme",
+          "Akıllı hava durumu entegrasyonu(Opsiyonel)",
+          "Su tüketim istatistikleri(Opsiyonel)"
+        ]
+      },
+      {
+        id: "solenoid-valve",
+        name: "Tekil Solenoid Valf",
+        price: "1.490 ₺",
+        desc: "Tek başına kullanıma uygun 1 inç solenoid vana.",
+        highlight: false,
+        features: [
+          "24V AC ile çalışır",
+          "Kolay montaj",
+          "IP68 koruma sınıfı",
+          "Uzun ömürlü"
+        ]
+      },
+      {
+        id: "akava-4valve",
+        name: "Akava + 4 Adet Valf",
+        price: "6.199 ₺",
+        desc: "Akava kontrol ünitesi ile birlikte 4 adet solenoid vana.",
+        highlight: false,
+        features: [
+          "Akava kontrol ünitesi",
+          "4 adet 1 inç solenoid vana",
+          "Kolay kurulum",
+          "Uzun ömürlü bağlantılar"
+        ]
+      },
+      {
+        id: "akava-pro-10valve",
+        name: "Akava Pro + 10 Adet Valf",
+        price: "20.999 ₺",
+        desc: "Akava Pro kontrol ünitesi ile birlikte 10 adet solenoid vana.",
+        highlight: true,
+        features: [
+          "Akava Pro kontrol ünitesi",
+          "10 adet 1 inç solenoid vana",
+          "Kolay kurulum",
+          "Uzun ömürlü bağlantılar",
+          "Uzaktan teşhis ve güncelleme"
+        ]
+      }
+    ];
 
+    // Uzun ternary yerine okunaklı başlık fonksiyonu
+    const getProductTitle = (id) => {
+      switch (id) {
+        case "pro-controller":
+          return "Pro Kontrolör";
+        case "basic-controller":
+          return "Basic Kontrolör";
+        case "solenoid-valve":
+          return "Selenoid Valf";
+        case "akava-4valve":
+          return "Akava + 4 Selenoid Valf";
+        case "akava-pro-10valve":
+          return "Akava Pro + 10 Selenoid Valf";
+        default:
+          return "";
+      }
+    };
 
     const ProductCard = ({ product, onSelect }) => (
       <div
@@ -165,13 +182,8 @@
     const ProductsPage = () => {
       const [selectedProduct, setSelectedProduct] = React.useState(null);
 
-      const closeModal = () => {
-        setSelectedProduct(null);
-      };
-
-      const handleViewDetails = (productId) => {
-        setSelectedProduct(productId);
-      };
+      const closeModal = () => setSelectedProduct(null);
+      const handleViewDetails = (productId) => setSelectedProduct(productId);
 
       return (
         <div className="min-h-screen flex flex-col">
@@ -206,7 +218,7 @@
                   <p>
                     Kurumsal projeler veya toplu alım için doğrudan e‑posta ile iletişime geçebilirsiniz:
                     <a
-                      href="mailto:huseyingunes35@gmail.com"
+                      href="mailto:info@grasscare.com"
                       className="text-teal-400 hover:text-teal-300 font-medium ml-1"
                     >
                       info@grasscare.com
@@ -223,7 +235,7 @@
             <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
               <div className="bg-slate-900 border border-slate-700 rounded-3xl p-6 md:p-8 w-full max-w-md shadow-2xl">
                 <h2 className="text-xl font-semibold text-slate-100 mb-1">
-                  {selectedProduct === "pro-controller" ? "Pro Kontrolör" : selectedProduct === "basic-controller" ? "Basic Kontrolör" : selectedProduct === "solenoid-valve" ? "Selenoid Valf" : selectedProduct === "akava-4valve" ? "Akava + 4 Selenoid Valf" : selectedProduct === "akava-pro-10valve" ? "Akava Pro + 10 Selenoid Valf"}
+                  {getProductTitle(selectedProduct)}
                 </h2>
                 <p className="text-sm text-slate-400 mb-4">
                   Ürün detaylarını ve teknik özelliklerini burada görebilirsiniz.
