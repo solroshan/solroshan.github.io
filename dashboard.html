@@ -110,6 +110,104 @@
       </svg>
     );
 
+    // YENİ: Grup Ayarları Modal Component'i
+    const GroupSettingsModal = ({ open, onClose, groupName, valvesInGroup, onDelete, onUpdateProgram, saving }) => {
+      const [deleteConfirm, setDeleteConfirm] = React.useState(false);
+      const [programName, setProgramName] = React.useState('');
+
+      React.useEffect(() => {
+        if (open) {
+          setDeleteConfirm(false);
+          setProgramName('');
+        }
+      }, [open]);
+
+      if (!open) return null;
+
+      const handleDelete = async () => {
+        if (!deleteConfirm) {
+          setDeleteConfirm(true);
+          return;
+        }
+        await onDelete(groupName);
+        setDeleteConfirm(false);
+        onClose();
+      };
+
+      const handleUpdateProgram = async () => {
+        if (!programName.trim()) return;
+        await onUpdateProgram(groupName, programName.trim());
+      };
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+            <h3 className="text-lg font-semibold text-slate-100 mb-4">
+              {groupName} Grubu Ayarları
+            </h3>
+
+            {/* Grup Programı Ayarlama */}
+            <div className="space-y-3 mb-6">
+              <label className="block text-xs font-medium text-slate-300 mb-2">
+                Grup Programı (isteğe bağlı)
+              </label>
+              <input
+                type="text"
+                value={programName}
+                onChange={(e) => setProgramName(e.target.value)}
+                placeholder="Örn: Sabah Sulama, Akşam Sulama"
+                className="w-full px-3 py-2 rounded-md bg-slate-800 border border-slate-700 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500"
+              />
+              <button
+                type="button"
+                disabled={saving || !programName.trim()}
+                onClick={handleUpdateProgram}
+                className="w-full py-2 px-4 rounded-md text-sm font-semibold bg-teal-500 text-white hover:bg-teal-400 disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {saving ? 'Kaydediliyor...' : 'Programı Kaydet'}
+              </button>
+            </div>
+
+            {/* Grup Silme */}
+            <div className="border-t border-slate-700 pt-4">
+              <h4 className="text-sm font-semibold text-slate-200 mb-2 flex items-center">
+                <svg className="h-4 w-4 mr-2 text-rose-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9zM4 5a2 2 0 012-2h8a2 2 0 012 2v11a3 3 0 00-3 3H7a3 3 0 00-3-3V5zm3 4a1 1 0 011-1h6a1 1 0 110 2H8a1 1 0 01-1-1zm1 4a1 1 0 100 2h6a1 1 0 100-2H8z" clipRule="evenodd"></path>
+                </svg>
+                Grubu Sil
+              </h4>
+              <p className="text-xs text-slate-400 mb-3">
+                Bu işlem {valvesInGroup.length} valfin grup bilgisini silecektir.
+              </p>
+              <button
+                type="button"
+                disabled={saving}
+                onClick={handleDelete}
+                className={`w-full py-2 px-4 rounded-md text-sm font-semibold text-white border ${
+                  deleteConfirm
+                    ? 'bg-rose-500 hover:bg-rose-400 border-rose-500 shadow-[0_0_15px_rgba(239,68,68,0.4)]'
+                    : 'bg-slate-800 hover:bg-slate-700 border-slate-600'
+                } disabled:opacity-60`}
+              >
+                {deleteConfirm ? 'Sil (Onaylandı)' : 'Grubu Sil'}
+              </button>
+            </div>
+
+            <div className="flex justify-end mt-6 pt-4 border-t border-slate-700">
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={saving}
+                className="px-4 py-2 rounded-md text-sm font-medium bg-slate-800 text-slate-200 border border-slate-600 hover:bg-slate-700 disabled:opacity-60"
+              >
+                Kapat
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
     const GroupModal = ({ open, onClose, valves, onSave, saving }) => {
       const [selectedIds, setSelectedIds] = useState([]);
       const [groupName, setGroupName] = useState('');
@@ -342,7 +440,6 @@
           return;
         }
 
-        // devices tablosunda seri numarasını kontrol ettiğinizi varsayıyoruz
         const { data: device, error } = await supabase
           .from('devices')
           .select('*')
@@ -439,6 +536,10 @@
       const [groupModalOpen, setGroupModalOpen] = useState(false);
       const [savingGroup, setSavingGroup] = useState(false);
 
+      // YENİ: Grup ayarları modal state'leri
+      const [groupSettingsModal, setGroupSettingsModal] = useState({ open: false, groupName: '' });
+      const [savingGroupSettings, setSavingGroupSettings] = useState(false);
+
       const [addValveOpen, setAddValveOpen] = useState(false);
       const [addDeviceOpen, setAddDeviceOpen] = useState(false);
 
@@ -496,10 +597,11 @@
       };
 
       const handleAllOn = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
         const { error } = await supabase
           .from('valves')
           .update({ status: 'AÇIK' })
-          .neq('id', null);
+          .eq('user_id', user.id);
 
         if (error) {
           alert('Valfler açılamadı: ' + error.message);
@@ -511,10 +613,11 @@
       };
 
       const handleAllOff = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
         const { error } = await supabase
           .from('valves')
           .update({ status: 'KAPALI' })
-          .neq('id', null);
+          .eq('user_id', user.id);
 
         if (error) {
           alert('Valfler kapatılamadı: ' + error.message);
@@ -527,11 +630,66 @@
 
       const handlePausePrograms = () => setActiveSystemAction('pause');
 
+      // YENİ: Grup program güncelleme fonksiyonu
+      const handleUpdateGroupProgram = async (groupName, programName) => {
+        setSavingGroupSettings(true);
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        const { error } = await supabase
+          .from('valves')
+          .update({ program: programName })
+          .eq('group', groupName)
+          .eq('user_id', user.id);
+
+        if (error) {
+          alert('Grup programı güncellenemedi: ' + error.message);
+          setSavingGroupSettings(false);
+          return;
+        }
+
+        setValves(prev =>
+          prev.map(v => 
+            v.group === groupName ? { ...v, program: programName } : v
+          )
+        );
+        setSavingGroupSettings(false);
+        setGroupSettingsModal({ open: false, groupName: '' });
+      };
+
+      // YENİ: Grup silme fonksiyonu
+      const handleDeleteGroup = async (groupName) => {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        const { error } = await supabase
+          .from('valves')
+          .update({ group: null })
+          .eq('group', groupName)
+          .eq('user_id', user.id);
+
+        if (error) {
+          alert('Grup silinemedi: ' + error.message);
+          return;
+        }
+
+        setValves(prev =>
+          prev.map(v => 
+            v.group === groupName ? { ...v, group: null } : v
+          )
+        );
+      };
+
+      // YENİ: Grup ayarları modalını açma fonksiyonu
+      const openGroupSettings = (groupName) => {
+        setGroupSettingsModal({ open: true, groupName });
+      };
+
       const handleGroupOn = async (group) => {
+        const { data: { user } } = await supabase.auth.getUser();
         const { error } = await supabase
           .from('valves')
           .update({ status: 'AÇIK' })
-          .eq('group', group);
+          .eq('group', group)
+          .eq('user_id', user.id);
 
         if (error) {
           alert('Grup açılamadı: ' + error.message);
@@ -544,10 +702,12 @@
       };
 
       const handleGroupOff = async (group) => {
+        const { data: { user } } = await supabase.auth.getUser();
         const { error } = await supabase
           .from('valves')
           .update({ status: 'KAPALI' })
-          .eq('group', group);
+          .eq('group', group)
+          .eq('user_id', user.id);
 
         if (error) {
           alert('Grup kapatılamadı: ' + error.message);
@@ -777,9 +937,13 @@
                         </button>
                       </div>
 
+                      {/* GÜNCELLENMİŞ: Grup Programı Ayarla butonu */}
                       <div className="flex justify-between items-center mt-4">
                         <h3 className="font-bold text-slate-100 invisible">Placeholder</h3>
-                        <button className="text-xs font-semibold bg-slate-900 text-slate-300 px-3 py-2 rounded-md border border-slate-600 hover:bg-slate-800">
+                        <button 
+                          onClick={() => openGroupSettings(groupName)}
+                          className="text-xs font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-3 py-2 rounded-md border border-purple-500/50 hover:shadow-[0_0_15px_rgba(147,51,234,0.4)] hover:from-purple-500 hover:to-indigo-500 transition-all"
+                        >
                           Grup Programı Ayarla
                         </button>
                       </div>
@@ -791,6 +955,17 @@
           </main>
 
           <window.Footer />
+
+          {/* YENİ: Grup Ayarları Modal */}
+          <GroupSettingsModal
+            open={groupSettingsModal.open}
+            groupName={groupSettingsModal.groupName}
+            valvesInGroup={groupedValves[groupSettingsModal.groupName] || []}
+            onClose={() => setGroupSettingsModal({ open: false, groupName: '' })}
+            onDelete={handleDeleteGroup}
+            onUpdateProgram={handleUpdateGroupProgram}
+            saving={savingGroupSettings}
+          />
 
           <GroupModal
             open={groupModalOpen}
