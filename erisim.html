@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GrassCare – ESP32 Kurulum</title>
+  <title>GrassCare – GC Pairing</title>
 
   <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -47,7 +47,7 @@
       }, []);
 
       const connectESP32 = async () => {
-        if (!wifiPassword) return alert('WiFi şifresi gerekli');
+        if (!wifiPassword) return alert('Cihaz erişim şifresi gerekli');
         setLoading(true);
 
         try {
@@ -58,9 +58,9 @@
           });
 
           if (res.ok) setConnected(true);
-          else alert('ESP32 bağlantı hatası');
+          else alert('Cihaz bağlantı hatası');
         } catch {
-          alert('ESP32 bulunamadı (SoftAP ağına bağlı mısın?)');
+          alert('Cihaz bulunamadı (SoftAP ağına bağlı mısın?)');
         } finally {
           setLoading(false);
         }
@@ -74,7 +74,7 @@
             <section className="max-w-xl mx-auto px-4 py-10">
               <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-xl">
                 <h1 className="text-2xl font-bold mb-2 text-teal-300">
-                  ESP32 Cihaz Kurulumu
+                  Cihaz Kurulumu
                 </h1>
                 <p className="text-sm text-slate-400 mb-6">
                   Cihazı WiFi ağına bağlayarak sisteme dahil et
@@ -94,12 +94,12 @@
                       disabled={loading}
                       className="w-full px-4 py-2 bg-teal-500 hover:bg-teal-600 rounded-xl font-medium"
                     >
-                      {loading ? 'Bağlanıyor…' : 'ESP32’ye Bağlan'}
+                      {loading ? 'Bağlanıyor…' : 'Cihaza Bağlan'}
                     </button>
                   </div>
                 ) : (
                   <p className="text-emerald-400 font-semibold">
-                    ✅ ESP32 başarıyla bağlandı
+                    ✅ Cihaz başarıyla bağlandı
                   </p>
                 )}
               </div>
