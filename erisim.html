@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GrassCare – ESP32 Kurulum</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+  <!-- React -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+    const supabaseUrl = 'https://puurwgrzknxttjsjxdit.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1dXJ3Z3J6a254dHRqc2p4ZGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0NTIyODUsImV4cCI6MjA4MTAyODI4NX0.tYoFbwWeuPCAXLXVp8yX0ThbvWPgboYOCUqPuKtAoaI';
+    window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
+  </script>
+
+  <!-- Header & Footer (ANASAYFA İLE AYNI) -->
+  <script type="text/babel" src="./components/public-header.js?v=3"></script>
+  <script type="text/babel" src="./components/Footer.js"></script>
+</head>
+
+<body class="bg-slate-900 text-slate-100">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+    const { createRoot } = ReactDOM;
+
+    const Esp32SetupPage = () => {
+      const [wifiPassword, setWifiPassword] = useState('');
+      const [connected, setConnected] = useState(false);
+      const [loading, setLoading] = useState(false);
+
+      useEffect(() => {
+        const checkAuth = async () => {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) window.location.href = 'anasayfa.html#giris';
+        };
+        checkAuth();
+      }, []);
+
+      const connectESP32 = async () => {
+        if (!wifiPassword) return alert('WiFi şifresi gerekli');
+        setLoading(true);
+
+        try {
+          const res = await fetch('http://192.168.4.1/config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ wifi_password: wifiPassword })
+          });
+
+          if (res.ok) setConnected(true);
+          else alert('ESP32 bağlantı hatası');
+        } catch {
+          alert('ESP32 bulunamadı (SoftAP ağına bağlı mısın?)');
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      return (
+        <div className="min-h-screen flex flex-col">
+          <window.Header />
+
+          <main className="flex-1">
+            <section className="max-w-xl mx-auto px-4 py-10">
+              <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-xl">
+                <h1 className="text-2xl font-bold mb-2 text-teal-300">
+                  ESP32 Cihaz Kurulumu
+                </h1>
+                <p className="text-sm text-slate-400 mb-6">
+                  Cihazı WiFi ağına bağlayarak sisteme dahil et
+                </p>
+
+                {!connected ? (
+                  <div className="space-y-4">
+                    <input
+                      type="password"
+                      value={wifiPassword}
+                      onChange={e => setWifiPassword(e.target.value)}
+                      placeholder="WiFi şifresi"
+                      className="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2"
+                    />
+                    <button
+                      onClick={connectESP32}
+                      disabled={loading}
+                      className="w-full px-4 py-2 bg-teal-500 hover:bg-teal-600 rounded-xl font-medium"
+                    >
+                      {loading ? 'Bağlanıyor…' : 'ESP32’ye Bağlan'}
+                    </button>
+                  </div>
+                ) : (
+                  <p className="text-emerald-400 font-semibold">
+                    ✅ ESP32 başarıyla bağlandı
+                  </p>
+                )}
+              </div>
+            </section>
+          </main>
+
+          <window.Footer />
+        </div>
+      );
+    };
+
+    createRoot(document.getElementById('root')).render(<Esp32SetupPage />);
+  </script>
+</body>
+</html>
